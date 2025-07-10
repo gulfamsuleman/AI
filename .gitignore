@@ -1,0 +1,24 @@
+# dependencies
+node_modules/
+.env
+
+# production
+build/
+
+# misc
+.DS_Store
+*.log
+npm-debug.log*
+
+# vscode
+.vscode/
+
+# OS files
+Thumbs.db
+
+# Python
+backend/chatbot/venv/
+
+# Django
+*.sqlite3
+__pycache__/

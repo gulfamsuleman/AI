@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
+const USER_NAME = 'demo_user'; // Replace with actual logged-in user logic
 const API_BASE_URL = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '';
 
 const styles = {
@@ -162,9 +163,27 @@ function TaskManager({ selectedUser }) {
   });
   const [editingTaskId, setEditingTaskId] = React.useState(null);
 
+  // New state for user dropdown
+  const [users, setUsers] = React.useState([]);
+  const [mainController, setMainController] = React.useState('');
+
   // New state for chatbot prompt and messages
   const [chatPrompt, setChatPrompt] = React.useState('');
   const [chatMessages, setChatMessages] = React.useState([]);
+
+  // New state for loading and result for stored procedure
+  const [storedProcedureLoading, setStoredProcedureLoading] = useState(false);
+  const [storedProcedureResult, setStoredProcedureResult] = useState(null);
+  const [storedProcedureError, setStoredProcedureError] = useState(null);
+  const [storedProcedureExecuted, setStoredProcedureExecuted] = useState(false);
+
+  // Chat session state
+  const [sessions, setSessions] = useState([]);
+  const [selectedSession, setSelectedSession] = useState(null);
+  const [sessionMessages, setSessionMessages] = useState([]);
+  const [loadingSessions, setLoadingSessions] = useState(false);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [creatingSession, setCreatingSession] = useState(false);
 
   React.useEffect(() => {
     if (!selectedUser) return;
@@ -175,6 +194,69 @@ function TaskManager({ selectedUser }) {
       .catch(() => setTasks([]))
       .finally(() => setLoading(false));
   }, [selectedUser]);
+
+  // Fetch users for dropdown
+  React.useEffect(() => {
+    fetch(`${API_BASE_URL}/api/users/`)
+      .then(res => res.json())
+      .then(data => setUsers(data))
+      .catch(() => setUsers([]));
+  }, []);
+
+  // Fetch sessions on mount
+  useEffect(() => {
+    fetchSessions();
+  }, []);
+
+  const fetchSessions = async () => {
+    setLoadingSessions(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/sessions/?user=${USER_NAME}`);
+      const data = await res.json();
+      setSessions(data);
+    } catch (e) {
+      setSessions([]);
+    } finally {
+      setLoadingSessions(false);
+    }
+  };
+
+  const fetchSessionMessages = async (sessionId) => {
+    setLoadingMessages(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/sessions/${sessionId}/messages/`);
+      const data = await res.json();
+      setSessionMessages(data);
+    } catch (e) {
+      setSessionMessages([]);
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+
+  const handleSelectSession = (session) => {
+    setSelectedSession(session);
+    fetchSessionMessages(session.id);
+  };
+
+  const handleCreateSession = async () => {
+    setCreatingSession(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/sessions/create/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user: USER_NAME, title: '' })
+      });
+      const data = await res.json();
+      await fetchSessions();
+      setSelectedSession(data);
+      setSessionMessages([]);
+    } catch (e) {
+      // handle error
+    } finally {
+      setCreatingSession(false);
+    }
+  };
 
   const handleChange = e => {
     const { name, value, type, checked } = e.target;
@@ -293,128 +375,88 @@ function TaskManager({ selectedUser }) {
     setLoading(false);
   };
 
+  // New handler for stored procedure
+  const handleRunStoredProcedure = async (param1, param2) => {
+    setStoredProcedureLoading(true);
+    setStoredProcedureResult(null);
+    setStoredProcedureError(null);
+    setStoredProcedureExecuted(false);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/run-stored-procedure/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ param1, param2 })
+      });
+      const data = await response.json();
+      setStoredProcedureResult(data.result);
+      setStoredProcedureError(data.error);
+    } catch (error) {
+      setStoredProcedureError('Network or server error');
+    } finally {
+      setStoredProcedureLoading(false);
+      setStoredProcedureExecuted(true);
+    }
+  };
+
   return (
-    <div style={styles.container}>
-      <h2 style={styles.header}>Tasks for {selectedUser}</h2>
-
-      {/* Chatbot interaction area */}
-      <div style={styles.chatbotContainer}>
-        <h3 style={styles.chatbotHeader}>Chatbot Task Input</h3>
-        <form onSubmit={handleChatSubmit} style={styles.chatForm}>
-          <input
-            type="text"
-            value={chatPrompt}
-            onChange={e => setChatPrompt(e.target.value)}
-            placeholder="Describe your task in one line or paragraph"
-            disabled={loading}
-            style={styles.chatInput}
-          />
-          <button
-            type="submit"
-            disabled={loading || !chatPrompt.trim()}
-            style={loading || !chatPrompt.trim() ? {...styles.chatButton, ...styles.chatButtonDisabled} : styles.chatButton}
-          >
-            Add Task
-          </button>
-        </form>
-        <div style={styles.chatMessages}>
-          {chatMessages.map((msg, idx) => (
-            <div
-              key={idx}
-              style={msg.from === 'user' ? styles.chatMessageUser : styles.chatMessageBot}
-            >
-              <b>{msg.from === 'user' ? 'You' : 'Bot'}:</b> {msg.text.split('\n').map((line, i) => <div key={i}>{line}</div>)}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Existing task form */}
-      <form onSubmit={handleSubmit} style={styles.taskForm}>
-        <input name="title" value={form.title} onChange={handleChange} placeholder="Task Title" required style={styles.input} />
-        <input name="description" value={form.description} onChange={handleChange} placeholder="Description" style={styles.input} />
-        <input name="due_date" type="date" value={form.due_date} onChange={handleChange} style={styles.input} />
-        <input name="due_time" type="time" value={form.due_time} onChange={handleChange} style={styles.input} />
-        <input name="recurrence" value={form.recurrence} onChange={handleChange} placeholder="Recurrence (daily, weekly, etc)" style={styles.input} />
-        <input name="priority" value={form.priority} onChange={handleChange} placeholder="Priority (High, Medium, Low)" style={styles.input} />
-        <select name="status" value={form.status} onChange={handleChange} style={styles.select}>
-          <option value="pending">Pending</option>
-          <option value="completed">Completed</option>
-        </select>
-        <label style={styles.checkboxLabel}><input type="checkbox" name="alert" checked={form.alert} onChange={handleChange} /> Alert</label>
-        <label style={styles.checkboxLabel}><input type="checkbox" name="soft_due" checked={form.soft_due} onChange={handleChange} /> Soft Due</label>
-        <label style={styles.checkboxLabel}><input type="checkbox" name="confidential" checked={form.confidential} onChange={handleChange} /> Confidential</label>
-        <button
-          type="submit"
-          disabled={loading || !form.title}
-          style={loading || !form.title ? {...styles.button, ...styles.buttonDisabled} : styles.button}
-        >
-          {editingTaskId ? 'Update Task' : 'Add Task'}
+    <div style={{ display: 'flex', height: '100vh' }}>
+      {/* Sidebar for chat sessions */}
+      <div style={{ width: 250, borderRight: '1px solid #ccc', padding: 16, background: '#f9f9f9' }}>
+        <h3>Chat History</h3>
+        <button onClick={handleCreateSession} disabled={creatingSession} style={{ marginBottom: 12 }}>
+          {creatingSession ? 'Creating...' : 'New Chat'}
         </button>
-        {editingTaskId && (
-          <button
-            type="button"
-            onClick={() => {
-              setEditingTaskId(null);
-              setForm({
-                title: '',
-                description: '',
-                due_date: '',
-                due_time: '',
-                recurrence: '',
-                priority: '',
-                status: 'pending',
-                alert: false,
-                soft_due: false,
-                confidential: false
-              });
-            }}
-            style={{ ...styles.button, backgroundColor: '#7f8c8d' }}
-          >
-            Cancel
-          </button>
-        )}
-      </form>
-
-      <ul style={styles.taskList}>
-        {loading ? (
-          <div>Loading...</div>
-        ) : tasks.length === 0 ? (
-          <div>No tasks.</div>
+        {loadingSessions ? (
+          <div>Loading sessions...</div>
         ) : (
-          tasks.map((task) => (
-            <li
-              key={task.id}
-              style={{
-                ...styles.taskItem,
-                ...(task.confidential ? styles.confidentialTask : {}),
-              }}
-              onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 10px rgba(0,0,0,0.15)'}
-              onMouseLeave={e => e.currentTarget.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)'}
-            >
-              <b>{task.title}</b> ({task.status}) {task.confidential && '[CONFIDENTIAL]'}
-              <br />
-              {task.description && (
-                <span>
-                  {task.description}
+          <ul style={{ listStyle: 'none', padding: 0 }}>
+            {sessions.map((s) => (
+              <li key={s.id} style={{ marginBottom: 8 }}>
+                <button
+                  style={{
+                    background: selectedSession && selectedSession.id === s.id ? '#e0e0e0' : 'white',
+                    border: '1px solid #bbb',
+                    width: '100%',
+                    textAlign: 'left',
+                    padding: 8,
+                    borderRadius: 4,
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => handleSelectSession(s)}
+                >
+                  {s.title || `Session ${s.id}`}
                   <br />
-                </span>
-              )}
-              Due: {task.due_date} {task.due_time} | Recurrence: {task.recurrence} | Priority: {task.priority}
-              <br />
-              {task.alert && <span>🔔 Alert &nbsp;</span>}
-              {task.soft_due && <span>Soft Due &nbsp;</span>}
-              <button onClick={() => handleEdit(task)} disabled={loading} style={styles.button}>
-                Edit
-              </button>
-              <button onClick={() => handleDelete(task.id)} disabled={loading} style={{ ...styles.button, backgroundColor: '#c0392b' }}>
-                Delete
-              </button>
-            </li>
-          ))
+                  <span style={{ fontSize: 12, color: '#888' }}>{new Date(s.created_at).toLocaleString()}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
         )}
-      </ul>
-      {error && <div style={styles.error}>{error}</div>}
+      </div>
+      {/* Main area for chat messages */}
+      <div style={{ flex: 1, padding: 24 }}>
+        <h2>Chat</h2>
+        {selectedSession ? (
+          <div>
+            <h4>Session: {selectedSession.title || `Session ${selectedSession.id}`}</h4>
+            {loadingMessages ? (
+              <div>Loading messages...</div>
+            ) : (
+              <ul style={{ listStyle: 'none', padding: 0 }}>
+                {sessionMessages.map((msg) => (
+                  <li key={msg.id} style={{ marginBottom: 16 }}>
+                    <div><b>You:</b> {msg.user_message}</div>
+                    <div><b>Bot:</b> {msg.bot_reply}</div>
+                    <div style={{ fontSize: 12, color: '#888' }}>{new Date(msg.timestamp).toLocaleString()}</div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ) : (
+          <div>Select a chat session or start a new one.</div>
+        )}
+      </div>
     </div>
   );
 }

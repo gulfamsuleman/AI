@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ChatUser, ChatHistory, Task, Review, Plan, Reminder
+from .models import ChatUser, ChatHistory, Task
 
 @admin.register(ChatUser)
 class ChatUserAdmin(admin.ModelAdmin):
@@ -16,7 +16,3 @@ class TaskAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'user', 'due_date', 'due_time', 'priority', 'status', 'confidential')
     list_filter = ('priority', 'status', 'confidential', 'user')
     search_fields = ('title', 'description')
-
-admin.site.register(Review)
-admin.site.register(Plan)
-admin.site.register(Reminder)

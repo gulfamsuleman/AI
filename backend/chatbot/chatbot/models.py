@@ -6,7 +6,16 @@ class ChatUser(models.Model):
     def __str__(self):
         return self.name
 
+# New model for chat sessions
+class ChatSession(models.Model):
+    user = models.ForeignKey(ChatUser, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    title = models.CharField(max_length=255, blank=True)  # Optional: for session naming
+    def __str__(self):
+        return f"Session {self.id} for {self.user.name} at {self.created_at:%Y-%m-%d %H:%M}"
+
 class ChatHistory(models.Model):
+    session = models.ForeignKey(ChatSession, on_delete=models.CASCADE, related_name='messages', null=True, blank=True)
     user = models.ForeignKey(ChatUser, on_delete=models.CASCADE)
     user_message = models.TextField()
     bot_reply = models.TextField()
@@ -33,41 +42,9 @@ class Task(models.Model):
     def __str__(self):
         return f"{self.title} for {self.user.name}"
 
-class Review(models.Model):
-    user = models.ForeignKey(ChatUser, on_delete=models.CASCADE)
-    title = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-    review_date = models.DateField(null=True, blank=True)
-    status = models.CharField(max_length=20, default='pending')
-    confidential = models.BooleanField(default=False)
+class PendingTaskSession(models.Model):
+    user = models.CharField(max_length=255)  # Username string
+    parameters = models.JSONField(default=dict)  # Collected parameters so far
+    last_prompt = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"Review: {self.title} for {self.user.name}"
-
-class Plan(models.Model):
-    user = models.ForeignKey(ChatUser, on_delete=models.CASCADE)
-    title = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-    plan_date = models.DateField(null=True, blank=True)
-    status = models.CharField(max_length=20, default='pending')
-    confidential = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"Plan: {self.title} for {self.user.name}"
-
-class Reminder(models.Model):
-    user = models.ForeignKey(ChatUser, on_delete=models.CASCADE)
-    title = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-    remind_at = models.DateTimeField(null=True, blank=True)
-    status = models.CharField(max_length=20, default='pending')
-    confidential = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"Reminder: {self.title} for {self.user.name}"

@@ -20,7 +20,6 @@ from .api import ChatAPIView, UserListView
 from .api_users import UserListAPIView
 from .api_tasks import TaskListCreateView
 from .api import RunStoredProcedureView
-from .api import ChatSessionListView, ChatSessionMessageListView, ChatSessionCreateView, ChatSessionAddMessageView
 from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
@@ -33,10 +32,6 @@ urlpatterns = [
 
 urlpatterns += [
     path('run-stored-procedure/', RunStoredProcedureView.as_view()),
-    path('api/sessions/', ChatSessionListView.as_view(), name='chat-session-list'),
-    path('api/sessions/create/', ChatSessionCreateView.as_view(), name='chat-session-create'),
-    path('api/sessions/<int:session_id>/messages/', ChatSessionMessageListView.as_view(), name='chat-session-messages'),
-    path('api/sessions/<int:session_id>/messages/add/', ChatSessionAddMessageView.as_view(), name='chat-session-add-message'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

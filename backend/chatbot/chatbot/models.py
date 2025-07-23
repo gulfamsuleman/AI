@@ -6,16 +6,7 @@ class ChatUser(models.Model):
     def __str__(self):
         return self.name
 
-# New model for chat sessions
-class ChatSession(models.Model):
-    user = models.ForeignKey(ChatUser, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-    title = models.CharField(max_length=255, blank=True)  # Optional: for session naming
-    def __str__(self):
-        return f"Session {self.id} for {self.user.name} at {self.created_at:%Y-%m-%d %H:%M}"
-
 class ChatHistory(models.Model):
-    session = models.ForeignKey(ChatSession, on_delete=models.CASCADE, related_name='messages', null=True, blank=True)
     user = models.ForeignKey(ChatUser, on_delete=models.CASCADE)
     user_message = models.TextField()
     bot_reply = models.TextField()

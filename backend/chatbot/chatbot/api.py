@@ -4,10 +4,10 @@ load_dotenv()
 from django.db import connection
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, generics
+from rest_framework import status
 import os
 import requests
-from .models import ChatHistory, Task, PendingTaskSession, ChatSession
+from .models import ChatHistory, Task, PendingTaskSession
 from .serializers import TaskSerializer
 import datetime
 from dateutil.relativedelta import relativedelta
@@ -157,80 +157,11 @@ class RunStoredProcedureView(APIView):
     def post(self, request):
         param1 = request.data.get('param1')
         param2 = request.data.get('param2')
-        result = None
-        error = None
-        try:
-            with connection.cursor() as cursor:
-                cursor.callproc('my_stored_procedure', [param1, param2])
-                try:
-                    result = cursor.fetchall()
-                except Exception:
-                    result = None  # No result to fetch
-        except Exception as e:
-            error = str(e)
-        return Response({'result': result, 'error': error}, status=200)
-
-class ChatSessionListView(APIView):
-    def get(self, request):
-        user_name = request.query_params.get('user')
-        if not user_name:
-            return Response({'error': 'User parameter required.'}, status=400)
-        try:
-            user = ChatUser.objects.get(name=user_name)
-        except ChatUser.DoesNotExist:
-            return Response({'error': 'User not found.'}, status=404)
-        sessions = ChatSession.objects.filter(user=user).order_by('-created_at')
-        data = [
-            {'id': s.id, 'title': s.title or f'Session {s.id}', 'created_at': s.created_at} for s in sessions
-        ]
-        return Response(data)
-
-class ChatSessionMessageListView(APIView):
-    def get(self, request, session_id):
-        try:
-            session = ChatSession.objects.get(id=session_id)
-        except ChatSession.DoesNotExist:
-            return Response({'error': 'Session not found.'}, status=404)
-        messages = ChatHistory.objects.filter(session=session).order_by('timestamp')
-        data = [
-            {
-                'id': m.id,
-                'user_message': m.user_message,
-                'bot_reply': m.bot_reply,
-                'timestamp': m.timestamp
-            } for m in messages
-        ]
-        return Response(data)
-
-class ChatSessionCreateView(APIView):
-    def post(self, request):
-        user_name = request.data.get('user')
-        title = request.data.get('title', '')
-        if not user_name:
-            return Response({'error': 'User parameter required.'}, status=400)
-        try:
-            user = ChatUser.objects.get(name=user_name)
-        except ChatUser.DoesNotExist:
-            return Response({'error': 'User not found.'}, status=404)
-        session = ChatSession.objects.create(user=user, title=title)
-        return Response({'id': session.id, 'title': session.title, 'created_at': session.created_at})
-
-class ChatSessionAddMessageView(APIView):
-    def post(self, request, session_id):
-        user_name = request.data.get('user')
-        user_message = request.data.get('user_message')
-        bot_reply = request.data.get('bot_reply', '')
-        if not user_name or not user_message:
-            return Response({'error': 'User and user_message required.'}, status=400)
-        try:
-            user = ChatUser.objects.get(name=user_name)
-            session = ChatSession.objects.get(id=session_id)
-        except (ChatUser.DoesNotExist, ChatSession.DoesNotExist):
-            return Response({'error': 'User or session not found.'}, status=404)
-        chat = ChatHistory.objects.create(
-            session=session, user=user, user_message=user_message, bot_reply=bot_reply
-        )
-        return Response({'id': chat.id, 'timestamp': chat.timestamp})
+        # Add more params as needed
+        with connection.cursor() as cursor:
+            cursor.callproc('my_stored_procedure', [param1, param2])
+            result = cursor.fetchall()  # Adjust as needed
+        return Response({'result': result}, status=status.HTTP_200_OK)
 
 def parse_natural_date(date_str):
     today = datetime.date.today()
@@ -241,6 +172,8 @@ def parse_natural_date(date_str):
         return today.isoformat()
     if s == 'tomorrow':
         return (today + datetime.timedelta(days=1)).isoformat()
+    if s == 'day after tomorrow':
+        return (today + datetime.timedelta(days=2)).isoformat()
     if s == 'yesterday':
         return (today - datetime.timedelta(days=1)).isoformat()
     if s.startswith('next week'):
@@ -250,5 +183,24 @@ def parse_natural_date(date_str):
     try:
         datetime.datetime.strptime(date_str, '%Y-%m-%d')
         return date_str
+    except Exception:
+        return None
+
+# New function to parse natural language time references
+
+def parse_natural_time(time_str):
+    if not time_str:
+        return None
+    s = time_str.strip().lower()
+    if s == 'morning':
+        return '10:00'
+    if s == 'after close':
+        return '15:00'
+    if s == 'evening':
+        return '19:00'
+    # If already in HH:MM format, return as is
+    try:
+        datetime.datetime.strptime(time_str, '%H:%M')
+        return time_str
     except Exception:
         return None

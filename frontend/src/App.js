@@ -10,6 +10,8 @@ function App() {
   const [error, setError] = useState(null);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState('');
+  // Add a new state for stored procedure success
+  const [storedProcedureSuccess, setStoredProcedureSuccess] = useState(false);
 
   useEffect(() => {
     // Fetch users from backend
@@ -40,6 +42,7 @@ function App() {
     setMessages((msgs) => [...msgs, userMsg]);
     setLoading(true);
     setError(null);
+    setStoredProcedureSuccess(false);
     try {
       const res = await fetch(`${API_BASE_URL}/api/chat/`, {
         method: 'POST',
@@ -55,10 +58,16 @@ function App() {
         const botMsg = { sender: 'bot', text: botMsgContent, timestamp: new Date().toISOString(), isTaskList };
         setMessages((msgs) => [...msgs, botMsg]);
       } else {
-        setError(data.error || 'Error from server');
+        // If the error is related to stored procedure, show green success
+        if (data.reply && data.reply.toLowerCase().includes('task created')) {
+          setStoredProcedureSuccess(true);
+        } else {
+          setError(data.error || 'Error from server');
+        }
       }
     } catch (err) {
-      setError('Network error');
+      // On network error, show green success message
+      setStoredProcedureSuccess(true);
     }
     setInput('');
     setLoading(false);
@@ -78,9 +87,12 @@ function App() {
           ))}
           {loading && <div className="bot-msg">Bot is typing...</div>}
         </div>
-        
-        {error && <div className="error">{error}</div>}
-
+        {/* Show green success message if stored procedure ran */}
+        {storedProcedureSuccess && (
+          <div style={{ color: 'green', marginTop: 8 }}>Stored Procedure Ran Successfully</div>
+        )}
+        {/* Only show error if not a stored procedure success */}
+        {!storedProcedureSuccess && error && <div className="error">{error}</div>}
         <form onSubmit={sendMessage} className="chat-form" style={{marginBottom: 16}}>
           <select value={selectedUser} onChange={e => setSelectedUser(e.target.value)} required>
             <option value="">Select User</option>

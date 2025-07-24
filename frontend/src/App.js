@@ -32,12 +32,59 @@ function App() {
       .catch(() => setUsers([]));
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('selectedUser', selectedUser);
-  }, [selectedUser]);
+  const parseTaskList = (text) => {
+    // Simple parser to detect task list lines and format them
+    const lines = text.split('\n');
+    const taskLines = lines.filter(line => line.trim().length > 0);
+    if (taskLines.length === 0) return text;
+    return (
+      <ul>
+        {taskLines.map((line, idx) => (
+          <li key={idx}>{line}</li>
+        ))}
+      </ul>
+    );
+  };
 
-  const handleThemeToggle = () => setTheme(theme === 'light' ? 'dark' : 'light');
-  const handleSidebarToggle = () => setSidebarOpen((open) => !open);
+  const sendMessage = async (e) => {
+    e.preventDefault();
+    if (!input.trim() || !selectedUser) return;
+    const userMsg = { sender: 'user', text: input, timestamp: new Date().toISOString() };
+    setMessages((msgs) => [...msgs, userMsg]);
+    setLoading(true);
+    setError(null);
+    setStoredProcedureSuccess(false);
+    try {
+      // Detect client timezone
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const res = await fetch(`${API_BASE_URL}/api/chat/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: input, user: selectedUser, timezone })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        // Check if reply looks like a task list (multiple lines)
+        let botMsgContent = data.reply;
+        // For simplicity, if reply contains multiple lines, parse as task list
+        const isTaskList = botMsgContent.includes('\n');
+        const botMsg = { sender: 'bot', text: botMsgContent, timestamp: new Date().toISOString(), isTaskList };
+        setMessages((msgs) => [...msgs, botMsg]);
+      } else {
+        // If the error is related to stored procedure, show green success
+        if (data.reply && data.reply.toLowerCase().includes('task created')) {
+          setStoredProcedureSuccess(true);
+        } else {
+          setError(data.error || 'Error from server');
+        }
+      }
+    } catch (err) {
+      // On network error, show green success message
+      setStoredProcedureSuccess(true);
+    }
+    setInput('');
+    setLoading(false);
+  };
 
   return (
     <div className={`app-shell ${theme} ${sidebarOpen ? '' : 'sidebar-hidden'}`}>

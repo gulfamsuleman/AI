@@ -42,16 +42,9 @@ class ChatAPIView(APIView):
         history = session.parameters.get('history', [])
         history.append({"role": "user", "content": user_message})
         system_prompt = (
-            "You are a helpful assistant for creating tasks. Extract task information from user input and return a JSON object with the following fields:\n"
-            "- TaskName: The name/title of the task (required)\n"
-            "- Controllers: Who controls the task (defaults to current user)\n"
-            "- Assignees: Who is assigned to complete the task (defaults to current user)\n"
-            "- DueDate: When the task is due (defaults to tomorrow at 7pm)\n"
-            "- Location: User's timezone (defaults to user's timezone)\n"
-            "\n"
-            "Only extract these basic fields. Do NOT ask for advanced fields like SoftDueDate, FinalDueDate, Items, IsRecurring, FreqType, FreqRecurrance, FreqInterval, BusinessDayBehavior, Activate, IsReminder, ReminderDate, or AddToPriorityList unless the user specifically requests them.\n"
-            "\n"
-            "If basic fields are missing, ask for them one at a time. Return JSON only when you have the basic fields or when the user has provided enough information to proceed."
+            "You are a helpful assistant. When the user gives a prompt, extract as many of the following parameters as possible: "
+            "TaskName, Controllers, Assignees, DueDate, LocalDueDate, Location, DueTime, SoftDueDate, FinalDueDate, Items, IsRecurring, FreqType, FreqRecurrance, FreqInterval, BusinessDayBehavior, Activate, IsReminder, ReminderDate, AddToPriorityList. "
+            "If any are missing, ask for them one at a time, specifying the required type and an example. When you have all parameters, return a JSON object with all fields. Do not proceed until all are collected. The MainController is already provided."
         )
         llm_payload = {
             'model': 'claude-opus-4-20250514',
@@ -99,21 +92,10 @@ class ChatAPIView(APIView):
             session.parameters['params'] = params
             session.parameters['history'] = history
             session.save()
-            # Auto-select Location (timezone) based on client-provided value or default
-            client_timezone = request.data.get('timezone')
-            if not params.get('Location'):
-                params['Location'] = client_timezone or 'UTC'
             # Only prompt for fields that are not defaulted and should be shown
-            missing = [f for f in fields_to_prompt if f not in params or params[f] in [None, ''] and f != 'Location']
-            # Always reply with a summary of extracted/defaulted values
-            summary_lines = [
-                'Here are the extracted and defaulted values for your task:'
-            ]
-            for key in ['TaskName', 'Controllers', 'Assignees', 'DueDate', 'Location']:
-                summary_lines.append(f"- {key}: {params.get(key)}")
-            summary = '\n'.join(summary_lines)
+            missing = [f for f in fields_to_prompt if f not in params or params[f] in [None, '']]
             if missing:
-                return Response({'reply': summary + f"\n\nMissing required fields: {', '.join(missing)}. Please provide them."})
+                return Response({'reply': f"Missing parameters: {', '.join(missing)}. Please provide them."})
             # All parameters present, call stored procedure
             with connection.cursor() as cursor:
                 cursor.execute("""
@@ -169,7 +151,7 @@ class ChatAPIView(APIView):
             recurrence_desc = None
             if params.get('IsRecurring') and params.get('FreqType'):
                 recurrence_desc = describe_recurrence(params['FreqType'], params['FreqRecurrance'], params['FreqInterval'])
-            reply_msg = summary + f"\n\nTask created! NewInstanceId: {new_instance_id}"
+            reply_msg = f'Task created! NewInstanceId: {new_instance_id}'
             if recurrence_desc:
                 reply_msg += f'\nRecurrence: {recurrence_desc}'
             return Response({'reply': reply_msg})

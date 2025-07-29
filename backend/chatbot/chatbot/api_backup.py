@@ -14,7 +14,9 @@ from dateutil.relativedelta import relativedelta
 from .task_utils import apply_task_defaults, describe_recurrence, parse_recurrence_from_user_input
 
 # Claude Opus API integration
-CLAUDE_API_KEY = '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'
+CLAUDE_API_KEY = os.getenv('CLAUDE_API_KEY')
+if not CLAUDE_API_KEY:
+    raise ValueError("CLAUDE_API_KEY environment variable is not set. Please add it to your .env file.")
 CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages'
 
 class ChatAPIView(APIView):

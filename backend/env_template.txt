@@ -1,0 +1,12 @@
+# Claude API Configuration
+CLAUDE_API_KEY=your_claude_api_key_here
+
+# Database Configuration (if needed)
+# DATABASE_HOST=localhost
+# DATABASE_NAME=QTasks
+# DATABASE_USER=
+# DATABASE_PASSWORD=
+
+# Django Configuration
+# DEBUG=True
+# SECRET_KEY=your_django_secret_key_here 

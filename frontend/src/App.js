@@ -1,32 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import Chat from './Chat';
-import TaskManager from './TaskManager';
-import { Plus, Settings, SunMoon, ListTodo } from 'lucide-react';
+
+const API_BASE_URL = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : '';
 
 function App() {
-  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeTab, setActiveTab] = useState('chat');
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(() => localStorage.getItem('selectedUser') || '');
+  const [selectedUser, setSelectedUser] = useState('');
+  // Add a new state for stored procedure success
+  const [storedProcedureSuccess, setStoredProcedureSuccess] = useState(false);
+  // Add timezone state
+  const [userTimezone, setUserTimezone] = useState('');
 
   useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark-mode');
-    } else {
-      document.documentElement.classList.remove('dark-mode');
-    }
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
-  useEffect(() => {
-    // Fetch users for the dropdown
-    fetch(
-      process.env.NODE_ENV === 'development'
-        ? 'http://localhost:8000/api/users/'
-        : '/api/users/'
-    )
+    // Detect user's timezone
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    setUserTimezone(timezone);
+    
+    // Fetch users from backend
+    fetch(`${API_BASE_URL}/api/users/`)
       .then(res => res.json())
       .then(data => setUsers(data))
       .catch(() => setUsers([]));
@@ -55,96 +50,106 @@ function App() {
     setError(null);
     setStoredProcedureSuccess(false);
     try {
-      // Detect client timezone
-      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const res = await fetch(`${API_BASE_URL}/api/chat/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input, user: selectedUser, timezone })
+        body: JSON.stringify({ 
+          message: input, 
+          user: selectedUser,
+          timezone: userTimezone 
+        })
       });
       const data = await res.json();
       if (res.ok) {
-        // Check if reply looks like a task list (multiple lines)
-        let botMsgContent = data.reply;
-        // For simplicity, if reply contains multiple lines, parse as task list
-        const isTaskList = botMsgContent.includes('\n');
-        const botMsg = { sender: 'bot', text: botMsgContent, timestamp: new Date().toISOString(), isTaskList };
-        setMessages((msgs) => [...msgs, botMsg]);
-      } else {
-        // If the error is related to stored procedure, show green success
+        // Check if reply indicates stored procedure success
         if (data.reply && data.reply.toLowerCase().includes('task created')) {
           setStoredProcedureSuccess(true);
+          // Also show the success message in chat
+          const botMsg = { sender: 'bot', text: data.reply, timestamp: new Date().toISOString() };
+          setMessages((msgs) => [...msgs, botMsg]);
         } else {
-          setError(data.error || 'Error from server');
+          // Regular bot response
+          let botMsgContent = data.reply;
+          const isTaskList = botMsgContent.includes('\n');
+          const botMsg = { sender: 'bot', text: botMsgContent, timestamp: new Date().toISOString(), isTaskList };
+          setMessages((msgs) => [...msgs, botMsg]);
         }
+      } else {
+        // HTTP error case
+        setError(data.error || 'Error from server');
       }
     } catch (err) {
-      // On network error, show green success message
-      setStoredProcedureSuccess(true);
+      // Actual network error
+      setError('Network error: Unable to connect to server');
     }
     setInput('');
     setLoading(false);
   };
 
   return (
-    <div className={`app-shell ${theme} ${sidebarOpen ? '' : 'sidebar-hidden'}`}>
-      <div className="animated-bg" />
-      <button
-        className={`sidebar-toggle-btn${sidebarOpen ? '' : ' closed'}`}
-        onClick={handleSidebarToggle}
-        aria-label={sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
-      >
-        {sidebarOpen ? '<' : '>'}
-      </button>
-      {sidebarOpen && (
-        <aside className="sidebar">
-          <div className="sidebar-header">
-            <img src="/logo192.png" alt="Acme Chatbot Logo" className="sidebar-logo-3d" />
+    <div className="app-container">
+      <div className="chat-container">
+        <h1>Acme Chatbot</h1>
+        {/* Display detected timezone */}
+        {userTimezone && (
+          <div style={{ 
+            fontSize: '12px', 
+            color: '#666', 
+            marginBottom: '10px',
+            padding: '5px 10px',
+            backgroundColor: '#f5f5f5',
+            borderRadius: '4px',
+            display: 'inline-block'
+          }}>
+            📍 Timezone: {userTimezone}
           </div>
-          <div style={{ width: '90%', margin: '0 auto 18px auto' }}>
-            <label htmlFor="sidebar-user-select" style={{ fontWeight: 600, fontSize: '1rem', color: 'var(--text)', marginBottom: 4, display: 'block' }}>User:</label>
-            <select
-              id="sidebar-user-select"
-              value={selectedUser}
-              onChange={e => setSelectedUser(e.target.value)}
-              style={{ width: '100%', padding: '10px', borderRadius: 'var(--border-radius)', border: '1.5px solid #e0e7ff', fontSize: '1rem', marginBottom: 0 }}
-            >
-              <option value="">-- Select User --</option>
-              {users.map(user => (
-                <option key={user} value={user}>{user}</option>
-              ))}
-            </select>
-          </div>
-          <button
-            className={`sidebar-btn new-chat${activeTab === 'chat' ? ' active' : ''}`}
-            onClick={() => setActiveTab('chat')}
-          >
-            <Plus size={22} style={{ marginRight: 10 }} />
-            Chat
-          </button>
-          <button
-            className={`sidebar-btn${activeTab === 'tasks' ? ' active' : ''}`}
-            onClick={() => setActiveTab('tasks')}
-          >
-            <ListTodo size={22} style={{ marginRight: 10 }} />
-            Tasks
-          </button>
-          <button className="sidebar-btn settings">
-            <Settings size={22} style={{ marginRight: 10 }} />
-            Settings
-          </button>
-          <button className="sidebar-btn theme" onClick={handleThemeToggle}>
-            <SunMoon size={22} style={{ marginRight: 10 }} />
-            Theme
-          </button>
-          <div className="sidebar-footer">Acme Chatbot UI</div>
-        </aside>
-      )}
-      <main className="main-chat-area">
-        <div className="claude-chat-wrapper">
-          {activeTab === 'chat' ? <Chat selectedUser={selectedUser} /> : <TaskManager selectedUser={selectedUser} />}
+        )}
+        <div className="chat-box">
+          {messages.map((msg, idx) => (
+            <div key={idx} className={msg.sender === 'user' ? 'user-msg' : 'bot-msg'}>
+              <b>{msg.sender === 'user' ? 'You' : 'Bot'}:</b> 
+              {msg.isTaskList ? parseTaskList(msg.text) : msg.text}
+              <div className="timestamp">{new Date(msg.timestamp).toLocaleTimeString()}</div>
+            </div>
+          ))}
+          {loading && <div className="bot-msg">Bot is typing...</div>}
         </div>
-      </main>
+        {/* Show success message if stored procedure ran */}
+        {storedProcedureSuccess && (
+          <div style={{ color: 'green', marginTop: 8 }}>Task Created Successfully!</div>
+        )}
+        {/* Only show error if not a stored procedure success */}
+        {!storedProcedureSuccess && error && <div className="error">{error}</div>}
+        <form onSubmit={sendMessage} className="chat-form" style={{marginBottom: 16, flexDirection: 'column', gap: '12px'}}>
+          <div style={{display: 'flex', gap: '16px', alignItems: 'flex-start'}}>
+            <select value={selectedUser} onChange={e => setSelectedUser(e.target.value)} required>
+              <option value="">Select User</option>
+              {users.map(u => <option key={u} value={u}>{u}</option>)}
+            </select>
+            <textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  sendMessage(e);
+                }
+              }}
+              placeholder="Type your message... (Press Enter to send, Shift+Enter for new line)"
+              disabled={loading}
+              rows="3"
+              style={{
+                resize: 'vertical',
+                minHeight: '60px',
+                maxHeight: '200px',
+                fontFamily: 'inherit',
+                lineHeight: '1.5'
+              }}
+            />
+            <button type="submit" disabled={loading || !input.trim() || !selectedUser}>Send</button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

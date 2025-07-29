@@ -14,9 +14,7 @@ from dateutil.relativedelta import relativedelta
 import pytz
 
 # Claude Opus API integration
-CLAUDE_API_KEY = os.getenv('CLAUDE_API_KEY')
-if not CLAUDE_API_KEY:
-    raise ValueError("CLAUDE_API_KEY environment variable is not set. Please add it to your .env file.")
+CLAUDE_API_KEY = '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'
 CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages'
 
 def convert_to_user_timezone(date_str, time_str, user_timezone):
@@ -538,7 +536,7 @@ class ChatAPIView(APIView):
             if new_instance_id == "SUCCESS":
                 return Response({'reply': f'Task created successfully! The task has been added to the system.'})
             else:
-                return Response({'reply': f'Task created! NewInstanceId: {new_instance_id}'})
+            return Response({'reply': f'Task created! NewInstanceId: {new_instance_id}'})
         else:
             session.parameters['history'] = history
             session.save()

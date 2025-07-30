@@ -14,7 +14,9 @@ from dateutil.relativedelta import relativedelta
 import pytz
 
 # Claude Opus API integration
-CLAUDE_API_KEY = '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'
+CLAUDE_API_KEY = os.getenv('CLAUDE_API_KEY')
+if not CLAUDE_API_KEY:
+    raise ValueError("CLAUDE_API_KEY environment variable is not set. Please set it in your .env file or environment.")
 CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages'
 
 def convert_to_user_timezone(date_str, time_str, user_timezone):
@@ -119,7 +121,7 @@ def parse_natural_date_with_timezone(date_str, user_timezone):
     except Exception:
         return None
 
-def set_automatic_parameters(params, user_timezone, main_controller=None):
+def set_automatic_parameters(params, user_timezone):
     """
     Set automatic parameters that don't need user input
     """
@@ -128,20 +130,6 @@ def set_automatic_parameters(params, user_timezone, main_controller=None):
     
     # Set Activate to 1 (always active)
     params['Activate'] = 1
-    
-    # Set Assignees to main controller if not specified
-    if 'Assignees' not in params or params['Assignees'] in [None, '']:
-        if main_controller:
-            params['Assignees'] = main_controller
-        else:
-            params['Assignees'] = 'Default User'  # Fallback
-    
-    # Set Controllers to main controller if not specified
-    if 'Controllers' not in params or params['Controllers'] in [None, '']:
-        if main_controller:
-            params['Controllers'] = main_controller
-        else:
-            params['Controllers'] = 'Default User'  # Fallback
     
     # Set AddToPriorityList to 0 (not in priority list) unless user specifies
     if 'AddToPriorityList' not in params or params['AddToPriorityList'] in [None, '']:
@@ -285,7 +273,6 @@ class ChatAPIView(APIView):
             f"When users mention relative times like 'tomorrow' (which would be {current_date + datetime.timedelta(days=1)}), 'next week', 'morning', 'afternoon', etc., calculate the actual dates and times in their timezone. "
             "For dates, use YYYY-MM-DD format. For times, use HH:MM format in 24-hour format. "
             "IMPORTANT: If the user doesn't specify a due date or time, you can leave those fields empty - the system will automatically default to tomorrow at 5 PM in their timezone. "
-            "If the user doesn't specify Assignees or Controllers, they will automatically be set to the main controller. "
             "Location will be automatically set to the user's timezone, Activate will be set to 1, and FinalDueDate will match the DueDate. "
             "LocalDueDate and SoftDueDate will be automatically set to match the DueDate. "
             "AddToPriorityList will default to 0 (not in priority list), IsReminder will default to 1 (reminder enabled), and ReminderDate will default to the day before the due date. "
@@ -330,7 +317,7 @@ class ChatAPIView(APIView):
             session.save()
             # Required fields (excluding fields that have automatic defaults)
             required_fields = [
-                'TaskName', 'Items', 'IsRecurring', 'FreqType', 'FreqRecurrance', 'FreqInterval', 'BusinessDayBehavior'
+                'TaskName', 'Controllers', 'Assignees', 'Items', 'IsRecurring', 'FreqType', 'FreqRecurrance', 'FreqInterval', 'BusinessDayBehavior'
             ]
             missing = [f for f in required_fields if f not in params or params[f] in [None, '']]
             if missing:
@@ -345,8 +332,8 @@ class ChatAPIView(APIView):
             # Apply default due date and time if missing, and set LocalDueDate/SoftDueDate to match DueDate
             params = set_default_due_date_time(params, user_timezone)
             
-            # Set automatic parameters (Location, Activate, FinalDueDate, AddToPriorityList, IsReminder, ReminderDate, Assignees, Controllers)
-            params = set_automatic_parameters(params, user_timezone, user_fullname)
+            # Set automatic parameters (Location, Activate, FinalDueDate, AddToPriorityList, IsReminder, ReminderDate)
+            params = set_automatic_parameters(params, user_timezone)
             
             # Convert text-based frequency types to integers
             def convert_freq_type_to_int(freq_type):
@@ -536,7 +523,7 @@ class ChatAPIView(APIView):
             if new_instance_id == "SUCCESS":
                 return Response({'reply': f'Task created successfully! The task has been added to the system.'})
             else:
-            return Response({'reply': f'Task created! NewInstanceId: {new_instance_id}'})
+                return Response({'reply': f'Task created! NewInstanceId: {new_instance_id}'})
         else:
             session.parameters['history'] = history
             session.save()

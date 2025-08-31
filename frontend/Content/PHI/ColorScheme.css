@@ -1,0 +1,333 @@
+/*
+    This file is intended to hold all CSS styles for deployment-specific color schemes across all pages. 
+    Layout styles *should* be platform-independent, but environment-specific tweaks to
+    element size/positioning (i.e. logos) is acceptable here.
+
+*/
+
+:root {
+    --scheme-pri-fill-color: #1F1F1F;
+    --scheme-pri-text-color: #fff;
+    --scheme-sec-fill-color: #FFC629;
+    --scheme-sec-text-color: #1F1F1F;
+    --scheme-body-bg-color: #fff;
+    --scheme-body-text-color: #1F1F1F;
+    --scheme-body-link-color: #1F1F1F;
+    --scheme-body-texthighlight-color: #FFC629;
+    --scheme-titlebar-color: #ebebeb;
+    --scheme-reportline-color: #FFFFED;
+    --scheme-reportheader-color: #ECE9D8;
+} 
+
+/* General */
+
+a {
+    color: #000000;
+}
+
+#site-nav .navbar-left > li > a {
+    color: #000000;
+    background-color: #FFC629;
+    border: solid 1px #000000;
+}
+
+#site-nav .navbar-right > li > a {
+    color: #000000;
+}
+
+#site-nav .navbar-nav > li > a:focus,
+#site-nav .navbar-nav > .active > a {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+#site-nav .navbar-right > li > a:hover,
+#site-nav .navbar-right > li > a:focus,
+#site-nav .navbar-right > .active > a {
+    color: #FF9933;
+}
+
+.active-checklist .title-bar {
+    background: #ebebeb;
+}
+
+/*Time Zone Picker*/
+#divTimeZonePicker {
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+    #divTimeZonePicker > .content {
+        background-color: #fefefe;
+    }
+
+    #divTimeZonePicker .close {
+        color: #1f1f1f;
+    }
+
+.btn-tz {
+    background-color: var(--scheme-pri-fill-color);
+    color: var(--scheme-pri-text-color);
+}
+
+    .btn-tz:hover {
+        background-color: var(--scheme-sec-fill-color);
+        color: var(--scheme-sec-text-color);
+    }
+
+#lbTimeZoneText.override {
+    color: #ff0000 !important;
+}
+
+#lbClientTimeZone {
+    /*            float: left;*/
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
+}
+
+    #lbClientTimeZone .quickLink > span {
+        cursor: pointer;
+    }
+
+        #lbClientTimeZone .quickLink > span:hover {
+            text-decoration: underline;
+            color: var(--scheme-sec-fill-color) !important;
+        }
+
+        #lbClientTimeZone .quickLink > span.active {
+            color: var(--scheme-pri-fill-color);
+        }
+
+.timezone-map polygon.active {
+    fill: var(--scheme-sec-fill-color) !important;
+}
+
+.timezone-map polygon[data-selected="true"] {
+    fill: var(--scheme-pri-fill-color) !important;
+}
+
+.Cbox .quickLink span:hover {
+    color: var(--scheme-sec-text-color) !important;
+    background-color: var(--scheme-sec-fill-color) !important;
+    cursor: pointer;
+}
+
+.Cbox .quickLink span.active {
+    color: var(--scheme-pri-text-color) !important;
+    background-color: var(--scheme-pri-fill-color) !important;
+}
+
+/* Calendar */
+.selected-day .day-of-week {
+    background-color: #000000;
+    border-bottom: 1px solid #BBBBBB;
+}
+
+.ui-accordion-header.ui-state-active {
+    background-color: black;
+}
+
+/* line 275, ../scss/_lw-datepicker.scss */
+li.lw-dp-active-day:nth-child(n), li.lw-dp-active-day:hover:nth-child(n) {
+    background: none;
+    background-color: #000000;
+}
+
+.blue, .blue:active, blue:hover, blue:visited, blue:focus {
+    color: #000000;
+}
+
+.ui-accordion-header.ui-state-active {
+    background-color: black;
+}
+
+li.lw-dp-active-day::before, li.lw-dp-active-day:hover::before {
+    background: #000000;
+}
+
+/* Change Request Email (also was in Change Request) */
+h4 {
+    color: #000000;
+}
+
+/* Help */
+.title {
+    color: #000000;
+}
+
+.glossary-header {
+    color: #000000;
+}
+
+.glossary p b {
+    color: #000000;
+}
+
+.glossary .glossary header {
+    color: #000000;
+}
+
+/* Manage Tasks */
+.mtform-assignments fieldset {
+    border: 2px solid #000000;
+}
+
+table.table-listing > thead > tr > th {
+    background-color: #000000;
+}
+
+/* Mobile */
+#mobileTitle {
+    color: #000;
+    background-color: #FFC629;
+    border: 1px solid #000;
+}
+
+.task-line {
+    width: 93%;
+}
+
+@media (max-width: 1580.98px) {
+    .navbar-expand-md .navbar-toggler {
+    }
+
+    .navbar-expand-md .navbar-collapse {
+    }
+
+    .navbar {
+    }
+
+    .navbar-nav {
+    }
+
+    .offcanvas-collapse {
+    }
+
+        .offcanvas-collapse.open {
+        }
+}
+
+/* My Status */
+#available-tasks-panel {
+    background-color: #000000;
+}
+
+/* New Task */
+#NewTaskContent thead > tr {
+    background-color: #000000;
+}
+
+#complex-task-panel fieldset legend {
+    color: #000000;
+}
+
+.btn-submit-complex {
+    color: #000000 !important;
+}
+
+/* Priorities */
+#priorities-toolbar {
+    background: #000000;
+}
+
+/* Report Toolbar */
+.report-navbar-default {
+    background-color: #000000;
+}
+
+/* Reports */
+a.list-group-item:hover {
+    background-color: #000000;
+}
+
+/* Other Differences */
+
+#site-main {
+    height: 750px;
+    border: 2px solid #000000;
+}
+
+/* Help */
+.back-to-top-container .back-to-top {
+    background-color: black;
+}
+
+.conversion-btn {
+    background-color: #000000;
+    color: #FFFFFF;
+}
+
+    .conversion-btn:hover {
+        background-color: #FFC629;
+        color: #000000;
+    }
+
+.modal-head {
+    background: #EBEBEB;
+}
+
+.close-search {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+    .close-search:hover {
+        background-color: #FFC629;
+        color: #000000;
+    }
+
+#dlgSearch input[type="checkbox"]:checked {
+    background-color: #000000;
+    border-color: #000000;
+}
+
+#dlgSearch input[type="radio"]:checked {
+    background-color: #000000;
+    border-color: #000000;
+}
+
+.env-specific-btn {
+    background-color: #000000;
+    color: #ffffff !important;
+}
+
+    .env-specific-btn:hover {
+        background-color: #FFC629;
+        color: #000000;
+    }
+
+.env-specific-alt {
+    background-color: #FFC629;
+    color: #000000;
+}
+.env-specific-banner {
+    color: #000000 !important;
+}
+
+/*******************************************************************
+    
+    Conflicts - Everything below must stay there to have precendent 
+
+********************************************************************/
+
+/* Groups (also In Process, Users, and Supervisors Admin) */
+#user-groups-table groups-panel th {
+    background-color: #000000;
+}
+
+#user-groups-table thead th, #users-in-group thead th {
+    background-color: #000000;
+}
+
+/* Priorities Scheduling Site */
+#PrioritiesSchedulingBody a {
+    color: #000000;
+}
+/* Copyright © 2024 Renegade Swish, LLC */
+
+/* My Status */
+#supervisors-panel th {
+    background-color: #e8d8d8;
+}
+

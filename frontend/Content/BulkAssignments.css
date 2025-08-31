@@ -1,0 +1,41 @@
+.highlight {
+	background-color: yellow;
+}
+
+.form-control {
+    width: 400px !important;
+}
+.bulk-assignments-panel h2
+{
+  width:500px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  font-weight:bold;
+  text-decoration: underline;
+  font-size: 14pt;
+}
+.bold{
+    font-weight:bold;
+}
+.leftLabel{
+    float:left;
+    width:115px;
+    margin-left:10px;
+}
+.leftHighlights{
+    margin-left:100px;
+}
+#bulk-assignments-table > thead > tr > th{
+    border:solid 1px #000000;
+    vertical-align:top;
+    background-color:#ece9d8;
+}
+td{
+    border:solid 1px #000000;
+}
+table{
+    border-collapse:collapse;
+}
+/* Copyright © 2024 Renegade Swish, LLC */
+

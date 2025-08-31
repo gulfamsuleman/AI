@@ -1,0 +1,56 @@
+#message {
+	background: white;
+	margin-top: 9px;
+	padding: 10px;
+	z-index: 1000;
+	position: relative;
+	border: 1px solid #cccccc;
+}
+
+.message-size {
+	width: 600px !important;
+	margin-bottom: 20px;
+}
+
+.filters-bar {
+	background: #f5f5f5;
+	border: 1px solid #cccccc;
+}
+
+.report-page-title {
+	margin-top: 0;
+	text-decoration: underline;
+	text-align: center;
+	font-weight: bold;
+}
+
+a.list-group-item:hover {
+	color: #FFFFFF;
+}
+
+a.list-group-item.active, 
+a.list-group-item.active:hover, 
+a.list-group-item.active:focus {
+	background-color: #FFFF99;
+	color: #000000;
+	border-color: #ddd;
+}
+
+.old-overdue, .old-overdue a {
+    background-color: red;
+    color: white;
+}
+
+#overdue-alert {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.NA {
+    font-weight: bold;
+    color: red;
+    background-color: yellow;
+    cursor: pointer;
+}
+/* Copyright © 2024 Renegade Swish, LLC */
+

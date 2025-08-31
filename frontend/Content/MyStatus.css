@@ -1,0 +1,157 @@
+
+#site-main nav.navbar {
+    position: absolute;
+    margin-top: 41px;
+    margin-left: 6px;
+    top: 0px;
+    left: 0px;
+    width: -moz-calc(100% - 29px);
+    width: -webkit-calc(100% - 29px);
+    width: calc(100% - 29px);
+    border-radius: 0px;
+}
+#site-main {
+    padding-top:10px;
+    font-size:10pt;
+}
+
+.na-row {
+    display:none;
+}
+
+#available-tasks-table{
+    margin-top:5px;
+    margin-bottom:5px;
+    border-top: solid 1px #cccccc;
+    border-bottom: solid 1px #cccccc;
+    background-color: #FFFFED;
+    width:100%;
+    color:black;
+    cursor: default;
+}
+#available-tasks-panel{
+    background-color:#003366;
+    color:white;
+    padding:5px;
+    margin:5px;
+}
+#available-tasks-panel input{
+    color:black;
+}
+
+#available-tasks-panel select{
+    color:black;
+}
+
+#available-tasks-panel select option{
+    color:black;
+}
+
+#available-tasks-panel .active-checkbox{
+    background-color: #ECE9D8;
+}
+
+.highlight { background-color: yellow }
+
+.collapsible-icon-margin {
+    margin-right: 5px;
+}
+/* Copyright © 2024 Renegade Swish, LLC */
+
+.report-meta {
+    margin: 4px 0 0 0;
+    font-size: 14px;
+    color: #333;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding-left: 5px;
+    gap: 16px;
+}
+
+
+.meta-row {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin-bottom: 1px;
+    min-width: 220px;
+    line-height: 1.2;
+}
+
+.meta-label {
+    font-weight: bold;
+    color: #000;
+    margin-right: 6px;
+    text-align: right;
+    flex-shrink: 0;
+    display: inline-block;
+}
+
+.meta-value {
+    text-align: left;
+    display: inline-block;
+    word-break: break-word;
+    flex: 1 1 auto;
+}
+
+#report-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    text-align: center;
+}
+
+    #report-meta .meta-row {
+        display: flex;
+        align-items: center;
+        padding: 0 26px;
+        font-size: 14px;
+    }
+
+    #report-meta .meta-divider {
+        color: dimgray;
+        font-weight: bold;
+        font-size: 18px;
+        user-select: none;
+        display: flex;
+        align-items: center;
+        padding: 0 0;
+    }
+
+
+@media (max-width: 600px) {
+    .report-meta {
+        padding: 2px 0 2px 5px;
+    }
+
+        .report-meta .meta-label {
+            font-weight: bold !important;
+            color: #000 !important;
+            min-width: 0;
+            margin-right: 0;
+            text-align: left;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .report-meta .meta-value {
+            text-align: left;
+            display: block;
+            word-break: break-word;
+        }
+
+    .meta-row {
+        min-width: 0;
+        margin-bottom: 6px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+
+

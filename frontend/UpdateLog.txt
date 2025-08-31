@@ -1,0 +1,3 @@
+Application configuration has failed.
+
+Exception: ID1071: This application is not configured to trust an STS.

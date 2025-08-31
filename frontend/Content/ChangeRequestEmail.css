@@ -1,0 +1,41 @@
+.change-request-header {
+    color: #333333;
+    background: #F3F0DF;
+    font-family: "Tahoma", "Verdana", sans-serif;
+    font-size: 17px;
+    padding: 2px 10px;
+    border: 1px solid #ADADAD;
+    font-weight:bold;
+}
+.change-request-body{
+    font-family: "Tahoma", "Verdana", sans-serif;
+    font-size:14px;
+    border: 1px solid #cccccc;
+    border-top: none;
+    padding: 15px;
+}
+.details-label{
+    font-weight:bold;
+}
+th{
+    font-weight:bold;
+}
+h4 {
+    color: #003366;
+    font-weight:bold;
+}
+table{
+    width:1000px;
+}
+th{vertical-align:bottom;border-bottom:2px solid #ddd;text-align:left;}
+.date-column, .name-column, .changed-column{
+    width:150px;
+}
+.approval-column{
+    width:75px;
+}
+.checklist-name{
+    display:inline;
+}
+/* Copyright © 2024 Renegade Swish, LLC */
+

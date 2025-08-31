@@ -1,0 +1,216 @@
+.report-line-header,
+.multiple-collapse-member {
+	background: #ECE9D8;
+    cursor: col-resize;
+}
+
+.report-line-border {
+	border: 1px solid #000;
+	padding: 5px;
+    min-width:35px;
+}
+
+.report-line-border[data-role="comments"]{
+    vertical-align:top;
+}
+
+.multiple-collapse-member th {
+	padding: 2px 4px;
+}
+
+.report-line-header td {
+	font-size: 20px;
+	font-weight: bold;
+	text-align: center;
+	width: 100%;
+}
+
+.report-line-subheader {
+	font-size: 16px;
+	padding-top: 15px;
+	font-weight: bold;
+	text-decoration: underline;
+}
+
+.completed-task	{
+	font-style: italic;
+	color: #996699 !important;
+}
+
+.completed-task a {
+	font-style: italic;
+	color: #996699;
+}
+
+.report-line-content td {
+	background-color: #FFFFED;
+}
+
+.report-line-spacer td {
+	padding-top: 10px;
+	border-bottom: 1px solid #a0a0a0;
+}
+
+.report-line-ender {
+	border-bottom: 1px solid #000;
+}
+
+.report-line-ender td {
+	padding: 0;
+}
+
+.report-line-headings {
+    cursor: ew-resize;
+}
+
+.report-line-headings-action {
+	width: 2%;
+}
+
+.report-line-headings-priority {
+	width: 2%;
+}
+
+.report-line-headings-task {
+	width: 10%
+}
+
+.report-line-headings-deadline {
+	width: 5%;
+}
+
+.report-line-headings-assignees {
+	width: 5%;
+}
+
+.report-line-headings-progress {
+	width: 66%;
+}
+
+td.report-line-task-general-comment {
+	vertical-align: text-top;
+	height: 30px;
+}
+
+.fa-check {
+	color: #009900;
+}
+
+tbody .center {
+	vertical-align: middle;
+	text-align: center;
+}
+
+.red-text {
+	color: #ff0000;
+}
+
+#attorney-client-message {
+	background-color: #ff0000;
+	text-align: center;
+}
+
+#expand-collapse {
+	float: right;
+}
+
+.status-table {
+	width: 100%;
+}
+
+#filters {
+	border-top: 1px solid #000000;
+	border-bottom: 1px solid #000000;
+	padding: 5px 0;
+}
+
+.yellow-background {
+	background-color: yellow;
+}
+
+.reminderspan {
+    color: green;
+    display:block;
+}
+
+.overduespan {
+    display:block;
+    background-color: yellow;
+}
+i[data-role=expand-indicator] {
+    cursor: pointer;
+}
+
+a[data-action=add-comment] {
+    display:block;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+textarea[data-role=comment] {
+    height: 150px;
+}
+
+.email-item {
+    margin-right: 20px;
+}
+
+.email-item input {
+    margin-right: 5px;
+}
+
+#timeline-table td[data-item=due-date], #timeline-table td[data-item=description] {
+    padding: 5px;
+    vertical-align: top;
+}
+
+#timeline-table td[data-item=due-date]:not(:empty), #timeline-table td[data-item=due-date]:not(:empty) + td {
+    border-top: 1px solid #000000;
+}
+
+.highlighted-comment {
+    color: red !important;
+}
+
+input[data-role=take-control] {
+    display: block;
+    font-size: 10pt;
+    height: 25px;
+    padding: 2px;
+}
+
+.comment-line span:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.btn-reassign {
+    display: block;
+}
+
+#available-tasks-table{
+    margin-top:5px;
+    margin-bottom:5px;
+    border-top: solid 1px #cccccc;
+    border-bottom: solid 1px #cccccc;
+    background-color: #FFFFED;
+    width:100%;
+    color:black;
+    cursor: default;
+}
+#available-tasks-panel{
+    background-color:#003366;
+    color:white;
+    padding:5px;
+    margin:5px;
+}
+#available-tasks-panel input{
+    color:black;
+}
+
+#available-tasks-panel .active-checkbox{
+    background-color: #ECE9D8;
+}
+/* Copyright © 2024 Renegade Swish, LLC */
+

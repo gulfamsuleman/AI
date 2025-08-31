@@ -1,0 +1,226 @@
+/*Time Zone Picker - as used in QProcess*/
+#divTimeZonePicker {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 10001; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0); /* Black w/ opacity */
+}
+
+    #divTimeZonePicker > .content {
+        background-color: #fefefe;
+        padding: 10px;
+        /*top: 50%;*/
+        /*transform: translateY(-50%);*/        
+        position: absolute;
+        margin: 0 5%;
+        top:10vh;
+        width: 90vw;
+        height: 80vh;
+        box-shadow: 4.0px 8.0px 8.0px hsl(0deg 0% 0% / 0.38);        
+    }
+
+    #divTimeZonePicker .content .hoverZone {
+        display: none;
+    }
+
+    #divTimeZonePicker .close {
+        display: flex;
+        align-items: center;
+        color: #1f1f1f;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    #divTimeZonePicker .content .timezone-map-container {
+        height: calc(100% - 8rem);
+        width: 100%;
+        margin: 3px 0px;
+        overflow-x: auto;
+        overflow-y:hidden;
+    }
+
+    #divTimeZonePicker .content .timezone-map {
+        height: 100%;
+    }
+
+    #divTimeZonePicker > .content > .Cbox > .dropdown-toggle {
+        min-width: 325px;
+    }
+
+    #divTimeZonePicker > .content > .Cbox > .quickLink {
+        float: left;
+        min-width: 325px;
+        text-align: center;
+    }
+
+.btn-tz {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    background-color: rgb(73, 106, 132);
+}
+
+    .btn-tz:hover {
+        background-color: rgb(90,90,90);
+    }
+
+btn-converter {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    background-color: rgb(73, 106, 132);
+}
+
+.btn-converter:hover {
+    background-color: rgb(90,90,90);
+}
+
+#lbTimeZoneText.override {
+    color: #ff0000 !important;
+}
+
+#lbClientTimeZone {
+    /*float: left;*/
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
+}
+
+    #lbClientTimeZone .quickLink > span {
+        cursor: pointer;
+    }
+
+        #lbClientTimeZone .quickLink > span:hover {
+            text-decoration: underline;
+            color: rgb(90,90,90);
+        }
+
+        #lbClientTimeZone .quickLink > span.active {
+            color: rgb(73, 106, 132);
+        }
+
+/*TimeZone on mobile UI*/
+#navSlideLayer #divTimeZonePicker {
+    position: initial;
+}
+
+    #navSlideLayer #divTimeZonePicker > .content {
+        position: initial;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+        width: 100%;
+        height: 100%;
+    }
+
+    #navSlideLayer #divTimeZonePicker > .content > .close {
+        display: none;
+    }
+
+        #navSlideLayer #divTimeZonePicker > .content > .Cbox > .dropdown-toggle {
+            padding: 0;
+        }
+
+#navSlideLayer .btn-tz {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;    
+}
+
+#navSlideLayer #lbClientTimeZone {
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
+}
+
+/* Original CSS from timezone-picker project */
+
+/*
+body.example {
+    background-color: #9ddaf8
+}
+
+.timezone-map polygon {
+    fill: #262626;
+    stroke-width: .5;
+    stroke: #959595
+}
+
+    .timezone-map polygon[data-selected=true] {
+        fill: orange;
+        stroke: orange
+    }
+
+    .timezone-map polygon:hover {
+        stroke: orange;
+        fill: orange;
+        cursor: pointer
+    }
+
+.filter-box > * {
+    float: left;
+    height: 24px
+}
+
+.filter-box select {
+    width: 45%;
+    padding: 0 0 0 10px
+}
+
+.filter-box .quick-link {
+    width: 52%;
+    overflow-x: auto;
+    white-space: nowrap;
+    overflow-y: hidden
+}
+
+    .filter-box .quick-link span {
+        font-weight: 300;
+        border-radius: 3px;
+        color: #000;
+        background-color: #fff;
+        border: 1px solid #000;
+        margin-left: 10px;
+        font-size: 9px;
+        padding: 4px 6px
+    }
+
+        .filter-box .quick-link span.active {
+            color: #fff;
+            background-color: orange
+        }
+
+        .filter-box .quick-link span:hover {
+            color: #fff;
+            background-color: orange;
+            cursor: pointer
+        }
+
+.filter-box .hover-text {
+    height: 20px;
+    width: 100%;
+    padding: 10px
+}
+
+    .filter-box .hover-text p {
+        opacity: 0;
+        text-align: center;
+        transform: scale(10);
+        transition: all .3s ease-in-out .2s
+    }
+
+        .filter-box .hover-text p.active {
+            opacity: 1;
+            transform: scale(1);
+            transition: all .3s ease-in-out .1s
+        }
+*/
+/* Copyright © 2024 Renegade Swish, LLC */
+

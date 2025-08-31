@@ -1,0 +1,371 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="AcmeDataModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="NQ2_AdditionalUsers">
+          <Key>
+            <PropertyRef Name="LoginID" />
+          </Key>
+          <Property Name="LoginID" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="FirstName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="LastName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="QEmailAddress" Type="varchar" MaxLength="100" Nullable="false" />
+        </EntityType>
+        <EntityType Name="NQ2_MonthlySchedules">
+          <Key>
+            <PropertyRef Name="ScheduleID" />
+          </Key>
+          <Property Name="ScheduleID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="NagID" Type="int" Nullable="false" />
+          <Property Name="Ordinal" Type="int" Nullable="false" />
+          <Property Name="DaysOfWeek" Type="tinyint" Nullable="false" />
+          <Property Name="MonthFrequency" Type="int" Nullable="false" />
+          <Property Name="XMonths" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="NQ2_Nags">
+          <Key>
+            <PropertyRef Name="NagID" />
+          </Key>
+          <Property Name="NagID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Subject" Type="varchar" MaxLength="255" />
+          <Property Name="ControllerID" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="BodyText" Type="varchar(max)" />
+          <Property Name="DaysOfWeek" Type="tinyint" Nullable="false" />
+          <Property Name="TimesOfDay" Type="varchar" MaxLength="250" />
+          <Property Name="Interval" Type="int" />
+          <Property Name="StartDate" Type="datetime" />
+          <Property Name="EndDate" Type="datetime" />
+          <Property Name="StartTime" Type="datetime" />
+          <Property Name="EndTime" Type="datetime" />
+          <Property Name="IsPaused" Type="bit" Nullable="false" />
+          <Property Name="LastRun" Type="datetime" />
+          <Property Name="NextRun" Type="datetime" />
+          <Property Name="CreatedDate" Type="datetime" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="50" />
+          <Property Name="ModifiedDate" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="50" />
+          <Property Name="IsDeleted" Type="bit" Nullable="false" />
+          <Property Name="DeletedDate" Type="datetime" />
+        </EntityType>
+        <EntityType Name="NQ2_Recipients">
+          <Key>
+            <PropertyRef Name="NagID" />
+            <PropertyRef Name="RecipientID" />
+            
+          </Key>
+          <Property Name="NagID" Type="int" Nullable="false" />
+          <Property Name="RecipientID" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="IsPaused" Type="bit" Nullable="false" />
+          <Property Name="SnoozeUntil" Type="datetime" />
+        </EntityType>
+        <EntityType Name="NQ2_UserList">
+          <Key>
+            <PropertyRef Name="LoginID" />
+          </Key>
+          <Property Name="LoginID" Type="varchar" MaxLength="50" Nullable="false"/>
+          <Property Name="NetworkLogin" Type="varchar" MaxLength="50" />
+          <Property Name="FirstName" Type="varchar" MaxLength="50" />
+          <Property Name="LastName" Type="varchar" MaxLength="50" />
+          <Property Name="FullName" Type="varchar" MaxLength="101" />
+          <Property Name="QEmailAddress" Type="varchar" MaxLength="100" />
+          <Property Name="IsActive" Type="bit" />
+        </EntityType>
+        <Function Name="APP_UserInfo_SELECT" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="UserID" Type="varchar" Mode="In" />
+          <Parameter Name="AppID" Type="varchar" Mode="In" />
+        </Function>
+        <Function Name="NQ2_Update_Run_Times" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="NagID" Type="int" Mode="In" />
+          <Parameter Name="RunTime" Type="datetime" Mode="In" />
+          <Parameter Name="FromPaused" Type="bit" Mode="In" />
+        </Function>
+        <EntityContainer Name="AcmeDataModelStoreContainer">
+          <EntitySet Name="NQ2_AdditionalUsers" EntityType="Self.NQ2_AdditionalUsers" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="NQ2_MonthlySchedules" EntityType="Self.NQ2_MonthlySchedules" store:Type="Tables" Schema="dbo" />
+          <EntitySet Name="NQ2_Nags" EntityType="Self.NQ2_Nags" store:Type="Tables" Schema="dbo"></EntitySet>
+          <EntitySet Name="NQ2_Recipients" EntityType="Self.NQ2_Recipients" store:Type="Tables" Schema="dbo"></EntitySet>
+          <EntitySet Name="NQ2_UserList" EntityType="Self.NQ2_UserList" store:Type="Views" Schema="dbo">
+          </EntitySet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="AcmeDataModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="AcmeDataContext" annotation:LazyLoadingEnabled="true" >
+          <FunctionImport Name="GetUserInfo" ReturnType="Collection(AcmeDataModel.UserInfo)">
+            <Parameter Name="UserID" Mode="In" Type="String" />
+            <Parameter Name="AppID" Mode="In" Type="String" />
+          </FunctionImport>
+          <EntitySet Name="AdditionalUsers" EntityType="AcmeDataModel.AdditionalUser" />
+          <EntitySet Name="Nags" EntityType="AcmeDataModel.Nag" />
+          <EntitySet Name="Recipients" EntityType="AcmeDataModel.Recipient" />
+          <AssociationSet Name="NagsRecipients" Association="AcmeDataModel.NagsRecipients">
+            <End Role="Nags" EntitySet="Nags" />
+            <End Role="Recipients" EntitySet="Recipients" />
+          </AssociationSet>
+          <EntitySet Name="Users" EntityType="AcmeDataModel.User" />
+          <AssociationSet Name="RecipientUser" Association="AcmeDataModel.RecipientUser">
+            <End Role="Recipient" EntitySet="Recipients" />
+            <End Role="User" EntitySet="Users" />
+          </AssociationSet>
+          <AssociationSet Name="NagUser" Association="AcmeDataModel.NagUser">
+            <End Role="Nag" EntitySet="Nags" />
+            <End Role="User" EntitySet="Users" />
+          </AssociationSet>
+          <FunctionImport Name="UpdateRunTimes">
+            <Parameter Name="NagID" Mode="In" Type="Int32" />
+            <Parameter Name="RunTime" Mode="In" Type="DateTime" />
+            <Parameter Name="FromPaused" Mode="In" Type="Boolean" />
+          </FunctionImport>
+          <EntitySet Name="MonthlySchedules" EntityType="AcmeDataModel.MonthlySchedule" />
+          <AssociationSet Name="NQ2_MonthlySchedulesNag" Association="AcmeDataModel.NQ2_MonthlySchedulesNag">
+            <End Role="NQ2_MonthlySchedules" EntitySet="MonthlySchedules" />
+            <End Role="Nag" EntitySet="Nags" />
+          </AssociationSet>
+        </EntityContainer>
+        <ComplexType Name="UserInfo">
+          <Property Type="String" Name="FullName" Nullable="true" MaxLength="100" />
+          <Property Type="String" Name="Initials" Nullable="true" MaxLength="5" />
+          <Property Type="Int32" Name="RoleID" Nullable="true" />
+          <Property Type="String" Name="RoleName" Nullable="true" MaxLength="20" />
+        </ComplexType>
+        <EntityType Name="AdditionalUser">
+          <Key>
+            <PropertyRef Name="LoginID" />
+          </Key>
+          <Property Name="LoginID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="FirstName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="LastName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="QEmailAddress" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="Nag">
+          <Key>
+            <PropertyRef Name="NagID" />
+          </Key>
+          <Property Name="NagID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Subject" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="ControllerID" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="BodyText" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="StartTime" Type="DateTime" Precision="3" />
+          <Property Name="EndTime" Type="DateTime" Precision="3" />
+          <Property Name="DaysOfWeek" Type="AcmeDataModel.DaysOfWeek" Nullable="false" />
+          <Property Name="TimesOfDay" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="StartDate" Type="DateTime" Precision="3" />
+          <Property Name="EndDate" Type="DateTime" Precision="3" />
+          <Property Name="LastRun" Type="DateTime" Precision="3" />
+          <Property Name="NextRun" Type="DateTime" Precision="3" />
+          <Property Name="IsPaused" Type="Boolean" Nullable="false" />
+          <Property Name="CreatedDate" Type="DateTime" Precision="3" />
+          <Property Name="CreatedBy" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsDeleted" Type="Boolean" Nullable="false" />
+          <Property Name="DeletedDate" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="Recipients" Relationship="AcmeDataModel.NagsRecipients" FromRole="Nags" ToRole="Recipients" />
+          <NavigationProperty Name="Controller" Relationship="AcmeDataModel.NagUser" FromRole="Nag" ToRole="User" />
+          <Property Name="Interval" Type="Int32" Nullable="true" />
+          <NavigationProperty Name="MonthlySchedules" Relationship="AcmeDataModel.NQ2_MonthlySchedulesNag" FromRole="Nag" ToRole="NQ2_MonthlySchedules" />
+        </EntityType>
+        <EntityType Name="Recipient">
+          <Key>
+            <PropertyRef Name="NagID" />
+            <PropertyRef Name="RecipientID" />
+          </Key>
+          <Property Name="NagID" Type="Int32" Nullable="false" />
+          <Property Name="RecipientID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsPaused" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Nag" Relationship="AcmeDataModel.NagsRecipients" FromRole="Recipients" ToRole="Nags" />
+          <NavigationProperty Name="User" Relationship="AcmeDataModel.RecipientUser" FromRole="Recipient" ToRole="User" />
+          <Property Name="SnoozeUntil" Type="DateTime" Precision="3" />
+        </EntityType>
+        <Association Name="NagsRecipients">
+          <End Type="AcmeDataModel.Nag" Role="Nags" Multiplicity="1" />
+          <End Type="AcmeDataModel.Recipient" Role="Recipients" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Nags">
+              <PropertyRef Name="NagID" />
+            </Principal>
+            <Dependent Role="Recipients">
+              <PropertyRef Name="NagID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="User" >
+          <Key>
+            <PropertyRef Name="LoginID" />
+          </Key>
+          <Property Name="LoginID" Type="String" Nullable="false" />
+          <Property Name="NetworkLogin" Type="String" Nullable="false" />
+          <Property Name="FirstName" Type="String" Nullable="false" />
+          <Property Name="LastName" Type="String" Nullable="false" />
+          <Property Name="FullName" Type="String" Nullable="false" />
+          <Property Name="QEmailAddress" Type="String" Nullable="false" />
+          <Property Name="IsActive" Type="Boolean" Nullable="true" />
+          <NavigationProperty Name="Recipients" Relationship="AcmeDataModel.RecipientUser" FromRole="User" ToRole="Recipient" />
+          <NavigationProperty Name="ControlledNags" Relationship="AcmeDataModel.NagUser" FromRole="User" ToRole="Nag" />
+        </EntityType>
+        <Association Name="RecipientUser">
+          <End Type="AcmeDataModel.Recipient" Role="Recipient" Multiplicity="*" />
+          <End Type="AcmeDataModel.User" Role="User" Multiplicity="1" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="LoginID" />
+            </Principal>
+            <Dependent Role="Recipient">
+              <PropertyRef Name="RecipientID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="NagUser">
+          <End Type="AcmeDataModel.Nag" Role="Nag" Multiplicity="*" />
+          <End Type="AcmeDataModel.User" Role="User" Multiplicity="1" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="LoginID" />
+            </Principal>
+            <Dependent Role="Nag">
+              <PropertyRef Name="ControllerID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EnumType Name="DaysOfWeek" UnderlyingType="Byte" IsFlags="true" a:ExternalTypeName="Entities.Enums.DaysOfWeek" xmlns:a="http://schemas.microsoft.com/ado/2006/04/codegeneration" />
+        <EntityType Name="MonthlySchedule">
+          <Key>
+            <PropertyRef Name="ScheduleID" />
+          </Key>
+          <Property Name="ScheduleID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="NagID" Type="Int32" Nullable="false" />
+          <Property Name="Ordinal" Type="Int32" Nullable="false" />
+          <Property Name="DaysOfWeek" Type="Byte" Nullable="false" />
+          <Property Name="MonthFrequency" Type="AcmeDataModel.MonthFrequency" Nullable="false" />
+          <Property Name="XMonths" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Nag" Relationship="AcmeDataModel.NQ2_MonthlySchedulesNag" FromRole="NQ2_MonthlySchedules" ToRole="Nag" />
+        </EntityType>
+        <Association Name="NQ2_MonthlySchedulesNag">
+          <End Type="AcmeDataModel.MonthlySchedule" Role="NQ2_MonthlySchedules" Multiplicity="*" />
+          <End Type="AcmeDataModel.Nag" Role="Nag" Multiplicity="1" />
+          <ReferentialConstraint>
+            <Principal Role="Nag">
+              <PropertyRef Name="NagID" />
+            </Principal>
+            <Dependent Role="NQ2_MonthlySchedules">
+              <PropertyRef Name="NagID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EnumType Name="MonthFrequency" UnderlyingType="Int32" a:ExternalTypeName="Entities.Enums.MonthFrequency" xmlns:a="http://schemas.microsoft.com/ado/2006/04/codegeneration" />
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="AcmeDataModelStoreContainer" CdmEntityContainer="AcmeDataContext" >
+          <FunctionImportMapping FunctionImportName="GetUserInfo" FunctionName="AcmeDataModel.Store.APP_UserInfo_SELECT">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="AcmeDataModel.UserInfo">
+                <ScalarProperty Name="FullName" ColumnName="FullName" />
+                <ScalarProperty Name="Initials" ColumnName="Initials" />
+                <ScalarProperty Name="RoleID" ColumnName="RoleID" />
+                <ScalarProperty Name="RoleName" ColumnName="RoleName" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <EntitySetMapping Name="AdditionalUsers">
+            <EntityTypeMapping TypeName="AcmeDataModel.AdditionalUser">
+              <MappingFragment StoreEntitySet="NQ2_AdditionalUsers">
+                <ScalarProperty Name="QEmailAddress" ColumnName="QEmailAddress" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="LoginID" ColumnName="LoginID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Nags">
+            <EntityTypeMapping TypeName="AcmeDataModel.Nag">
+              <MappingFragment StoreEntitySet="NQ2_Nags">
+                <ScalarProperty Name="Interval" ColumnName="Interval" />
+                <ScalarProperty Name="NextRun" ColumnName="NextRun" />
+                <ScalarProperty Name="LastRun" ColumnName="LastRun" />
+                <ScalarProperty Name="EndDate" ColumnName="EndDate" />
+                <ScalarProperty Name="StartDate" ColumnName="StartDate" />
+                <ScalarProperty Name="TimesOfDay" ColumnName="TimesOfDay" />
+                <ScalarProperty Name="DaysOfWeek" ColumnName="DaysOfWeek" />
+                <ScalarProperty Name="ControllerID" ColumnName="ControllerID" />
+                <ScalarProperty Name="EndTime" ColumnName="EndTime" />
+                <ScalarProperty Name="StartTime" ColumnName="StartTime" />
+                <ScalarProperty Name="DeletedDate" ColumnName="DeletedDate" />
+                <ScalarProperty Name="IsDeleted" ColumnName="IsDeleted" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="ModifiedDate" ColumnName="ModifiedDate" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+                <ScalarProperty Name="IsPaused" ColumnName="IsPaused" />
+                <ScalarProperty Name="BodyText" ColumnName="BodyText" />
+                <ScalarProperty Name="Subject" ColumnName="Subject" />
+                <ScalarProperty Name="NagID" ColumnName="NagID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Users">
+            <EntityTypeMapping TypeName="AcmeDataModel.User">
+              <MappingFragment StoreEntitySet="NQ2_UserList">
+                <ScalarProperty Name="LoginID" ColumnName="LoginID" />
+                <ScalarProperty Name="NetworkLogin" ColumnName="NetworkLogin" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="FullName" ColumnName="FullName" />
+                <ScalarProperty Name="QEmailAddress" ColumnName="QEmailAddress" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Recipients">
+            <EntityTypeMapping TypeName="AcmeDataModel.Recipient">
+              <MappingFragment StoreEntitySet="NQ2_Recipients">
+                <ScalarProperty Name="SnoozeUntil" ColumnName="SnoozeUntil" />
+                <ScalarProperty Name="IsPaused" ColumnName="IsPaused" />
+                <ScalarProperty Name="RecipientID" ColumnName="RecipientID" />
+                <ScalarProperty Name="NagID" ColumnName="NagID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="UpdateRunTimes" FunctionName="AcmeDataModel.Store.NQ2_Update_Run_Times" />
+          <EntitySetMapping Name="MonthlySchedules">
+            <EntityTypeMapping TypeName="AcmeDataModel.MonthlySchedule">
+              <MappingFragment StoreEntitySet="NQ2_MonthlySchedules">
+                <ScalarProperty Name="XMonths" ColumnName="XMonths" />
+                <ScalarProperty Name="MonthFrequency" ColumnName="MonthFrequency" />
+                <ScalarProperty Name="DaysOfWeek" ColumnName="DaysOfWeek" />
+                <ScalarProperty Name="Ordinal" ColumnName="Ordinal" />
+                <ScalarProperty Name="NagID" ColumnName="NagID" />
+                <ScalarProperty Name="ScheduleID" ColumnName="ScheduleID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

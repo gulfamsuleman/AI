@@ -1,0 +1,100 @@
+<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="PrioritiesScheduling.master.cs" Inherits="QProcess.PrioritiesScheduling" %>
+<%--<%@ Register TagPrefix="modal" TagName="Modal" Src="~/Controls/Shared/ModalFramework.ascx" %>--%>
+
+<!DOCTYPE html>
+<html lang="en">
+<head runat="server">
+    <meta charset="utf-8" />
+    <title><%=QProcess.Configuration.AppSettings.AppName %></title>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<script>
+		var clientLoadBegin = new Date(); //harmless; timespan performance counter
+	</script>
+    <asp:PlaceHolder runat="server">
+        <script src="Scripts/modernizr-2.5.3.js"></script>
+    </asp:PlaceHolder>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+	<link rel="stylesheet" href="Content/bootstrap.min.css" />
+	<link rel="stylesheet" href="Content/bs-submenu.css" />
+	<link rel="stylesheet" href="Content/datepicker.css" />
+    <link rel="stylesheet" href="Content/font-awesome.css" />
+	<link rel="stylesheet" href="Content/jquery.contextMenu.css" />
+    <link rel="stylesheet" href="Content/jquery-impromptu.css" />
+    <link rel="stylesheet" href="Content/PrioritiesSchedulingSite.css?v=<%= System.IO.File.GetLastWriteTime(Server.MapPath($"Content/PrioritiesSchedulingSite.css")).Ticks.ToString() %>" />
+	<link rel="stylesheet" href="Content/<%=Firm %>/ColorScheme.css?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Content/{Firm}/ColorScheme.css")).Ticks.ToString() %>" />
+	<script src="Scripts/jquery-1.9.1.min.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/jquery-1.9.1.min.js")).Ticks.ToString() %>"></script>
+	<script src="Scripts/bootstrap.min.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/bootstrap.min.js")).Ticks.ToString() %>"></script>
+	<script src="Scripts/bootstrap-hover-dropdown.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/bootstrap-hover-dropdown.js")).Ticks.ToString() %>"></script>
+	<script src="Scripts/jquery.lw-datepicker.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/jquery.lw-datepicker.js")).Ticks.ToString() %>"></script>
+    <script src="Scripts/jquery.contextMenu.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/jquery.contextMenu.js")).Ticks.ToString() %>"></script>
+	<script src="Scripts/jquery.highlight-3.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/jquery.highlight-3.js")).Ticks.ToString() %>"></script>
+	<script src="Scripts/main.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/main.js")).Ticks.ToString() %>"></script>
+	<script src="Scripts/utils.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/utils.js")).Ticks.ToString() %>"></script>
+	<script src="Scripts/dragndrop.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/dragndrop.js")).Ticks.ToString() %>"></script>
+	<script src="Scripts/Footer.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/Footer.js")).Ticks.ToString() %>"></script>
+    <script src="Scripts/jquery-impromptu.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/jquery-impromptu.js")).Ticks.ToString() %>"></script>
+     <script src="Scripts/common.js?v=<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/common.js")).Ticks.ToString() %>" type="text/javascript"></script> 
+	<%--<script>
+		$(document).ready(function () {
+			$(".nav li a").click(function (e) {
+				updateLastPage(e);
+			});
+		});
+		function updateLastPage(e) {
+			var page = $(e.target).attr("href");
+			$.ajax({
+				url: "/DataService.asmx/UpdateLastPage",
+				type: "POST",
+				data: JSON.stringify({ page: page }),
+				contentType: "application/json"
+			});
+		}
+	</script>--%>
+	<asp:ContentPlaceHolder runat="server" ID="HeadContent"/>
+</head>
+<body id="PrioritiesSchedulingBody">
+    <header id="site-header">
+        <nav id="site-nav" class="navbar navbar-default navbar-fixed-top" role="navigation">
+			<div class="container">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="MyStatus.aspx"><img src="/Images/<%=QProcess.Configuration.AppSettings.Firm %>/logo_new.gif" alt="QProcess"/></a>
+				</div>
+				<ul class="nav nav-tabs navbar-nav navbar-left">
+					<li id="SchedulePrioritiesLi" runat="server"><a href="SchedulePriorities.aspx">Set Priority Schedule</a></li>
+					<li id="PrioritiesScheduleReportLi" runat="server"><a href="PrioritiesScheduleReport.aspx">Priority Schedule History</a></li>
+					<li id="SupervisorsPriorityScheduleLi" runat="server"><a href="SupervisorsPrioritySchedule.aspx">Priority Schedule</a></li>
+                    <li id="ScheduleReportsLi" runat="server"><a href="ScheduleReports.aspx">Schedule Reports</a></li>
+                    <li id="LateReportLi" runat="server"><a href="LateReport.aspx">Late Reports</a></li>
+                    <li id="ExcuseLi" runat="server"><a href="ExcusePriorities.aspx">Excuse</a></li>
+					
+				</ul>
+				
+						
+			</div>
+		</nav>
+    </header>
+    <div id="site-main">
+        <section class="container">
+            <asp:ContentPlaceHolder runat="server" ID="MainContent" />
+        </section>
+    </div>
+  
+	
+	
+	
+	<asp:ContentPlaceHolder runat="server" ID="ScriptContent">
+	</asp:ContentPlaceHolder>
+	<%--<script>
+		var wolslt = window.onload;
+		window.onload = slt;
+		
+		function slt() {
+			if (wolslt) wolslt();
+			saveLoadTimes();
+		}
+	</script>--%>
+<%--	<modal:Modal runat="server" ID="ModalFramework" />--%>
+</body>
+</html>
+<!-- Copyright © 2024 Renegade Swish, LLC -->
+

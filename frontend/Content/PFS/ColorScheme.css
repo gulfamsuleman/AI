@@ -1,0 +1,567 @@
+/*
+    This file is intended to hold all CSS styles for deployment-specific color schemes across all pages. 
+    Layout styles *should* be universal, but environment-specific tweaks to
+    element size/positioning (i.e. logos) is acceptable here.
+
+*/
+
+:root {
+    --scheme-pri-fill-color: #000030;
+    --scheme-pri-text-color: #fff;
+    --scheme-sec-fill-color: #900101;
+    --scheme-sec-text-color: #fff;
+    --scheme-body-bg-color: #f4fff4;
+    --scheme-body-text-color: black;
+    --scheme-body-link-color: black;
+    --scheme-body-texthighlight-color: #000030;
+    --scheme-titlebar-color: #ebebeb;
+    --scheme-reportline-color: #ffeded;
+    --scheme-reportheader-color: #e8d8d8;
+}
+
+/* General */
+
+html {
+    background-color: #f4fff4;
+}
+
+a {
+    color: #000000;
+}
+
+body {
+    background-color: #f4fff4;
+}
+
+/*Time Zone Picker*/
+#divTimeZonePicker {
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+    #divTimeZonePicker > .content {
+        background-color: #fefefe;
+    }
+
+    #divTimeZonePicker .close {
+        color: #1f1f1f;
+    }
+
+.btn-tz {
+    background-color: var(--scheme-pri-fill-color);
+    color: var(--scheme-pri-text-color);
+}
+
+    .btn-tz:hover {
+        background-color: var(--scheme-sec-fill-color);
+        color: var(--scheme-sec-text-color);
+    }
+
+#lbTimeZoneText.override {
+    color: #ff0000 !important;
+}
+
+#lbClientTimeZone {
+    /*            float: left;*/
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
+}
+
+    #lbClientTimeZone .quickLink > span {
+        cursor: pointer;
+    }
+
+        #lbClientTimeZone .quickLink > span:hover {
+            text-decoration: underline;
+            color: var(--scheme-sec-fill-color) !important;
+        }
+
+        #lbClientTimeZone .quickLink > span.active {
+            color: var(--scheme-pri-fill-color);
+        }
+
+.timezone-map polygon.active {
+    fill: var(--scheme-sec-fill-color) !important;
+}
+
+.timezone-map polygon[data-selected="true"] {
+    fill: var(--scheme-pri-fill-color) !important;
+}
+
+.Cbox .quickLink span:hover {
+    color: var(--scheme-sec-text-color) !important;
+    background-color: var(--scheme-sec-fill-color) !important;
+    cursor: pointer;
+}
+
+.Cbox .quickLink span.active {
+    color: var(--scheme-pri-text-color) !important;
+    background-color: var(--scheme-pri-fill-color) !important;
+}
+
+/* Main Layout */
+
+#site-main {
+    background-color: #f4fff4;
+    border: 2px solid #000000;
+}
+
+.site-logo:hover, .site-logo:focus {
+    background-color: #f4fff4;
+}
+
+#site-footer {
+    clear: both;
+    background-color: #f4fff4;
+    font-size: 1em;
+    min-height: 30px;
+    /*border-top: 3px solid #000000;*/
+    padding: 5px 0;
+    font-size: 0.9em;
+}
+
+.ui-accordion-header.ui-state-active {
+    background-color: black;
+}
+
+.selected-day .day-of-week {
+    background-color: #000000;
+    border-bottom: 1px solid #BBBBBB;
+}
+
+/* line 275, ../scss/_lw-datepicker.scss */
+li.lw-dp-active-day:nth-child(n), li.lw-dp-active-day:hover:nth-child(n) {
+    background: none;
+}
+
+.selected-day {
+    background-color: #f4f4ff !important;
+}
+
+.normal .day-of-week {
+    background-color: #e8d8d8 !important;
+}
+
+.normal {
+    background-color: #fff4f4 !important;
+}
+
+.today {
+    background-color: #fff4f4 !important;
+}
+
+.blue, .blue:active, blue:hover, blue:visited, blue:focus {
+    color: #000000;
+}
+
+/* Calendar-Datepicker */
+.lw-dp {
+    background: #e8d8d8 !important;
+}
+
+li.lw-dp-active-day::before, li.lw-dp-active-day:hover::before {
+    background: #000000;
+}
+
+/* Change Request Email */
+h4 {
+    color: #000000;
+}
+
+.navbar > .container .navbar-brand,
+.navbar > .container-fluid .navbar-brand {
+    margin-left: 8px;
+    margin-right: -1px;
+}
+
+/* Change Requests */
+.active-checklist .title-bar {
+    background: #f8ebeb;
+}
+
+.change-request-header {
+    background: #FFf4f4 !important;
+}
+
+/* Groups */
+.panel-default > .panel-heading {
+    background-color: #f4fff4;
+}
+
+/* Help */
+.title {
+    color: #000000;
+}
+
+.glossary-header {
+    color: #000000;
+}
+
+.glossary p b {
+    color: #000000;
+}
+
+.glossary .glossary header {
+    color: #000000;
+}
+
+/* Manage Tasks */
+.mtform-assignments fieldset {
+    background: #eddddd;
+    border: 2px solid #000000;
+}
+
+table.table-listing > tbody > tr > td {
+    background-color: #f4fff4;
+}
+
+table.table-listing > thead > tr > th {
+    background-color: #000040;
+}
+
+/* Mobile */
+#mobileTitle {
+    color: #fff;
+    background-color: #900101;
+    border: 1px solid #000;
+}
+
+.task-line {
+    width: 93%;
+}
+
+/* Found this:
+
+    @media (max-width: 1580.98px) {
+
+   with no end curly brace
+
+*/
+
+
+@media (max-width: 767.98px) {
+    .offcanvas-collapse {
+    }
+
+        .offcanvas-collapse.open {
+        }
+}
+
+/* My Inbox */
+.report-list-head {
+    background-color: #e8d8d8;
+}
+
+/* My Status */
+#available-tasks-table {
+    background-color: #ffeded;
+}
+
+#available-tasks-panel {
+    background-color: #000000;
+}
+
+    #available-tasks-panel .active-checkbox {
+        background-color: #e8d8d8;
+    }
+
+/* My Tasks */
+.active-checklist .checklist-summary {
+    background: #f4fff4;
+}
+
+.checklist-items table tbody {
+    background: #f3efef;
+}
+
+.q-table thead {
+    background-color: #e8d8d8;
+}
+
+.q-table tbody {
+    background-color: #ffeded;
+}
+
+#site-nav.navbar {
+    background: #f4fff4;
+}
+
+#site-nav .navbar-nav > li > a {
+    color: white;
+    background-color: #900101;
+}
+
+#site-nav .navbar-right > li > a {
+    color: #000000;
+    background-color: #f4fff4;
+}
+
+#site-nav .navbar-right > li > a:hover,
+#site-nav .navbar-right > li > a:focus,
+#site-nav .navbar-right > .active > a {
+    /*color: #900101;*/
+    background-color: #f4fff4;
+}
+
+.panel {
+    background-color: #f4fff4;
+}
+
+.panel-heading {
+    background-color: #f8ebeb;
+}
+
+/* New Task */
+#simple-task-form {
+    background: linear-gradient(#e8d8d8, #ffffff) !important;
+}
+
+#NewTaskContent thead > tr {
+    background-color: #000000;
+}
+
+#complex-task-panel fieldset {
+    background: #f4fff4;
+}
+
+    #complex-task-panel fieldset legend {
+        color: #000000;
+    }
+
+.checklist-items table thead > tr {
+    background-color: #f4fff4;
+}
+
+.checklist-items table tbody textarea {
+    background-color: #f4fff4;
+}
+
+.btn-submit-complex {
+    color: #000000 !important;
+}
+
+/* Priorities */
+#priorities-toolbar {
+    background: #000000 !important;
+}
+
+#priority-lists-center > table table > thead {
+    background: #e8d8d8 !important;
+}
+
+#priority-lists-center > table table > tbody {
+    background: #ffeded !important;
+}
+
+#email-priority-list-table {
+    background-color: #e8d8d8;
+}
+
+#email-priority-list-panel {
+    background-color: #ffeded;
+}
+
+#priority-list {
+    background-color: #f4fff4;
+}
+
+/* Priorities Scheduling Site */
+#site-nav .navbar-nav > li > a:focus,
+#site-nav .navbar-nav > .active > a {
+    background-color: #000030;
+}
+
+/* Report Toolbar */
+.report-navbar-default {
+    background-color: #000030;
+}
+
+a.list-group-item:hover {
+    background-color: #000000;
+}
+
+a.list-group-item.active,
+a.list-group-item.active:hover,
+a.list-group-item.active:focus {
+    background-color: #FF9999 !important;
+}
+
+.nav.navbar-nav.reportmenu {
+    background-color: #f4fff4;
+}
+
+/* Status Report */
+.report-line-header,
+.multiple-collapse-member {
+    background: #e8d8d8 !important;
+}
+
+.report-line-content td {
+    background-color: #fff4f4 !important;
+}
+
+/* Task Summary */
+.title-bar {
+    background: #f8ebeb;
+}
+
+#summary-tasks-table th,
+.report-line-header,
+.multiple-collapse-member,
+#managed-tasks-table th {
+    background: #e8d8d8 !important;
+}
+
+#summary-tasks-table tbody td,
+.report-line-content td,
+#managed-tasks-table tbody td {
+    background-color: #ffeded !important;
+}
+
+/* Users */
+th {
+    background-color: #000000;
+}
+
+/* Help */
+.back-to-top-container .back-to-top {
+    background-color: #000040;
+}
+
+.conversion-btn {
+    background-color: #900101;
+    color: #FFFFFF;
+}
+
+    .conversion-btn:hover {
+        background-color: #000030;
+        color: #FFFFFF;
+    }
+
+.modal-head {
+    background: #EBEBEB;
+}
+
+.close-search {
+    background-color: #900101;
+    color: #ffffff;
+}
+
+    .close-search:hover {
+        background-color: #000030;
+        color: #FFFFFF;
+    }
+
+#dlgSearch input[type="checkbox"]:checked {
+    background-color: #900101;
+    border-color: #900101;
+}
+
+#dlgSearch input[type="radio"]:checked {
+    background-color: #900101;
+    border-color: #900101;
+}
+
+.env-specific-btn {
+    background-color: #900101;
+    color: #ffffff !important;
+}
+
+    .env-specific-btn:hover {
+        background-color: #000030;
+        color: #FFFFFF;
+    }
+
+.env-specific-alt {
+    background-color: #000030;
+    color: #FFFFFF;
+}
+
+.env-specific-banner {
+    color: #900101 !important;
+}
+
+/*******************************************************************
+    
+    Conflicts - Everything below must stay there to have precendent 
+
+********************************************************************/
+
+
+/* New Task */
+/*.active-checklist .title-bar {
+    background: #ebebff;
+}*/
+
+
+/* My Tasks */
+#manage-single-checklist .active-checklist .title-bar,
+#manageTaskDiv #manage-single-checklist .active-checklist .title-bar {
+    background: #f8ebeb;
+}
+
+#manage-single-checklist .panel-default > .panel-heading,
+#manageTaskDiv .panel-default > .panel-heading {
+    background-color: #f8ebeb;
+}
+
+#manage-single-checklist #site-nav .navbar-nav > li > a:focus,
+#manageTaskDiv#site-nav .navbar-nav > .active > a {
+    background-color: #000030;
+    color: #ffffff;
+}
+
+#site-nav .navbar-nav > li > a {
+/*    color: white;
+    background-color: #900101;
+    border: solid 1px #000000;*/
+}
+
+#site-nav .navbar-right > li > a:hover,
+#site-nav .navbar-right > li > a:focus,
+#site-nav .navbar-right > .active > a {
+    background-color: transparent;
+    color: #900101;
+    text-decoration: none !important;
+}
+
+/* Task Summary */
+th {
+    background-color: #e8d8d8;
+}
+
+#task-summary-panel .title-bar {
+    background-color: #f8ebeb;
+}
+
+/* Groups */
+#user-groups-table th {
+    background-color: #000000;
+}
+
+/* Reports */
+.filters-bar {
+    /*background: #f4fff4;*/
+    background: #fff5f5 !important;
+}
+
+/*tbody tr td[data-role=priority], tbody tr td[data-role=action] {
+    background: #ece9d8 !important;
+}
+*/
+/* Copyright © 2024 Renegade Swish, LLC */
+
+/* Department Tasks */
+.gridReview {
+    color: green !important;
+}
+
+.gridReviewOverdue {
+    color: brown !important;
+}
+
+/* My Status */
+#supervisors-panel th {
+    background-color: #e8d8d8;
+}

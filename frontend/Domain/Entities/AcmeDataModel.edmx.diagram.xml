@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="d948c5fa003a4651a1d62ac07cf0ec5c" Name="Nag2EntityDiagram" >
+        <EntityTypeShape EntityType="AcmeDataModel.AdditionalUser" Width="1.5" PointX="0.75" PointY="0.75" />
+        <EntityTypeShape EntityType="AcmeDataModel.Nag" Width="1.5" PointX="2.75" PointY="0.75" />
+        <EntityTypeShape EntityType="AcmeDataModel.Recipient" Width="1.5" PointX="4.875" PointY="0.75" />
+        <AssociationConnector Association="AcmeDataModel.NagsRecipients" />
+        <EntityTypeShape EntityType="AcmeDataModel.User" Width="1.5" PointX="7.125" PointY="0.75" />
+        <AssociationConnector Association="AcmeDataModel.RecipientUser" />
+        <AssociationConnector Association="AcmeDataModel.NagUser" />
+        <EntityTypeShape EntityType="AcmeDataModel.MonthlySchedule" Width="1.5" PointX="5.375" PointY="4.75" />
+        <AssociationConnector Association="AcmeDataModel.NQ2_MonthlySchedulesNag" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

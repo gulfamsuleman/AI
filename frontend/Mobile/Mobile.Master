@@ -1,0 +1,787 @@
+<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Mobile.master.cs" Inherits="QProcess.Mobile.Mobile" %>
+
+<!DOCTYPE html>
+
+<html>
+<head runat="server">
+    <title><%=QProcess.Configuration.AppSettings.AppName %></title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <link href="/Content/mobile.css?v=<%= System.IO.File.GetLastWriteTime(Server.MapPath($"/Content/mobile.css")).Ticks.ToString() %>" rel="stylesheet" />
+    <link rel="stylesheet" href="/Content/font-awesome.css" />
+    <%--<script src="/Scripts/jquery-1.9.1.min.js"></script>--%>
+    <script src="/Scripts/jquery-1.11.1.min.js"></script>
+    <script src="/Scripts/jquery-ui-1.10.1.min.js"></script>
+
+    <script src="/Scripts/common.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("/Scripts/common.js")).Ticks.ToString() %>"></script>
+    <script src="/Scripts/utils.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("/Scripts/utils.js")).Ticks.ToString() %>"></script>
+    <script src="/Scripts/ai-chatbot.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("/Scripts/ai-chatbot.js")).Ticks.ToString() %>"></script>
+    <script src="/Scripts/Search.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("/Scripts/Search.js")).Ticks.ToString() %>"></script>
+
+    <link href="/Content/mobi/mobiscroll.animation.css" rel="stylesheet" type="text/css" />
+    <link href="/Content/mobi/mobiscroll.frame.css" rel="stylesheet" type="text/css" />
+    <link href="/Content/mobi/mobiscroll.frame.android.css" rel="stylesheet" type="text/css" />
+    <link href="/Content/mobi/mobiscroll.frame.android-holo.css" rel="stylesheet" type="text/css" />
+    <link href="/Content/mobi/mobiscroll.frame.ios.css" rel="stylesheet" type="text/css" />
+    <link href="/Content/mobi/mobiscroll.scroller.css" rel="stylesheet" type="text/css" />
+    <link href="/Content/mobi/mobiscroll.scroller.android.css" rel="stylesheet" type="text/css" />
+    <link href="/Content/mobi/mobiscroll.scroller.android-holo.css" rel="stylesheet" type="text/css" />
+    <link href="/Content/mobi/mobiscroll.scroller.ios.css" rel="stylesheet" type="text/css" />
+    <link href="/Content/mobi/mobiscroll.android-holo-light.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="/Content/timezone-picker.css?<%= System.IO.File.GetLastWriteTime(Server.MapPath("/Content/timezone-picker.css")).Ticks.ToString() %>" />
+    <link rel="stylesheet" href="/Content/<%=Firm %>/ColorScheme.css?<%= System.IO.File.GetLastWriteTime(Server.MapPath("/Content/{Firm}/ColorScheme.css")).Ticks.ToString() %>" />
+    <link rel="stylesheet" href="/Content/ai-chat.css?<%= System.IO.File.GetLastWriteTime(Server.MapPath("/Content/ai-chat.css")).Ticks.ToString() %>" />
+
+    <script src="/Scripts/mobi/mobiscroll.core.js"></script>
+    <script src="/Scripts/mobi/mobiscroll.frame.js"></script>
+    <script src="/Scripts/mobi/mobiscroll.scroller.js"></script>
+
+    <script src="/Scripts/mobi/mobiscroll.util.datetime.js"></script>
+    <script src="/Scripts/mobi/mobiscroll.datetimebase.js"></script>
+    <script src="/Scripts/mobi/mobiscroll.datetime.js"></script>
+    <script src="/Scripts/mobi/mobiscroll.select.js"></script>
+
+    <script src="/Scripts/mobi/mobiscroll.frame.android.js"></script>
+    <script src="/Scripts/mobi/mobiscroll.frame.android-holo.js"></script>
+    <script src="/Scripts/mobi/mobiscroll.frame.ios.js"></script>
+
+    <script src="/Scripts/mobi/mobiscroll.android-holo-light.js"></script>
+
+    <script src="/Scripts/MobileDragndrop.js"></script>
+    <script src="/Scripts/jquery.highlight-3.js"></script>
+    <script src="/Scripts/TimeZone/moment-with-locales.min.js"></script>
+    <script src="/Scripts/TimeZone/moment-timezone-with-data-2012-2022.min.js"></script>
+    <script src="/Scripts/TimeZone/timezone-picker.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("/Scripts/TimeZone/timezone-picker.js")).Ticks.ToString() %>"></script>
+
+    <script>        
+        var isMobile = true;
+    </script>
+
+    <asp:ContentPlaceHolder ID="headContent" runat="server"></asp:ContentPlaceHolder>
+</head>
+<body>
+    <!-- Notification Bell Button -->
+    <button id="bellButton" class="btn btn-default notification-bell" style="position: fixed; z-index: 1051;">
+        <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" stroke-width="2"
+            viewBox="0 0 24 24" width="28" height="28">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002
+                 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67
+                 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595
+                 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+        </svg>
+        <span id="notifCount" class="notification-badge" style="display: none;"></span>
+    </button>
+    <!-- Slide-Out Notification Panel -->
+    <div id="notificationPanel" style="position: fixed; top: 0; right: -350px; width: 320px; max-width: 90vw; height: 100vh; background: #fff; box-shadow: -2px 0 8px rgba(0,0,0,0.2); z-index: 1101; transition: right 0.3s;">
+        <button id="closePanel" title="Hide Notifications" style="display: none;">
+            <svg width="30" height="30" fill="currentColor" viewBox="0 0 15 15">
+                <path fill-rule="evenodd" d="M6.646 3.646a.5.5 0 0 1 .708 0l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L10.293 8 6.646 4.354a.5.5 0 0 1 0-.708z"></path>
+            </svg>
+        </button>
+        <h4 style="margin: 20px 0 10px 20px;">Notifications</h4>
+        <div class="notification-list" style="padding: 0 20px 20px 20px; max-height: 84vh; overflow-y: auto;"></div>
+    </div>
+    <div id="notificationOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.01); z-index: 1051;"></div>
+    <nav id="navHeader" class="navbar navbar-expand-md fixed-top navbar-light nav-white">
+        <a class="navbar-brand xx-size" href="#">
+            <img src="../Images/<%=QProcess.Configuration.AppSettings.Get("Firm")%>/logo_new.gif" style="max-height: 34px;" alt="<%=QProcess.Configuration.AppSettings.Get("Firm")%>Process" /></a>
+        <a class="navbar-brand xs-size hide" href="#">
+            <img src="../Images/<%=QProcess.Configuration.AppSettings.Get("Firm")%>/logo_sm.gif" style="max-height: 34px;" alt="<%=QProcess.Configuration.AppSettings.Get("Firm")%>Process" /></a>
+        <span id="mobileTitle" class="s-size">My Tasks</span>
+        <button class="navbar-toggler p-0 border-0" type="button" data-toggle="offcanvas">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="navbar-collapse offcanvas-collapse nav-white" id="navbarSlideLayer">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="MobileMyTasks.aspx">My Tasks</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="MobileCalendar.aspx">Calendar</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="MobileManageTasks.aspx">Manage Tasks</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="MobileNewTask.aspx">New Task</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="MobileChangeRequests.aspx">Change Requests</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="MobileReports.aspx">Reports</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="MobileGroups.aspx">Groups</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="MobileTaskSummary.aspx">Task Summary</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="MobileMyStatus.aspx">My Status</a>
+                </li>
+                <% if (QUser.SupervisorStatus > 0)
+                    { %>
+                <li class="nav-item">
+                    <a class="nav-link" href="MobileInbox.aspx">Inbox</a>
+                </li>
+                <%} %>
+                <li class="nav-item">
+                    <a class="nav-link" href="MobilePriorities.aspx">Priorities</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="MobileHelp.aspx">Help</a>
+                </li>
+            </ul>
+            <button id="btn-search" class="btn btn-outline-success my-2 my-sm-0" type="button">Search</button>
+            <div id="div-desktop">
+                <a href="../Default.aspx?ViewMode=desktop"><i class="fa fa-desktop"></i>Desktop View</a>
+            </div>
+            <div id="lbTimeZone">
+                <a href="#"><i class="fa fa-globe"></i><span></span></a>
+            </div>
+            <div id="lbTimeZoneConverter">
+                <a href="MobileTimezoneConversion.aspx"><i class="fa fa-globe"></i>Timezone Converter</a>
+            </div>
+            <%--<% if (ConfigurationManager.AppSettings["Firm"] == "Q")
+                { %>
+            <div>
+                <button id="qbotBtn" class="btn btn-outline-primary my-2 my-sm-0"><i class="fa fa-wechat"></i>Q Bot</button>
+            </div>
+            <% } %>--%>
+        </div>
+        <div class="navbar-collapse offcanvas-collapse nav-white" id="navSlideLayer">
+            <asp:ContentPlaceHolder ID="sliderContent" runat="server"></asp:ContentPlaceHolder>
+        </div>
+    </nav>
+
+    <asp:ContentPlaceHolder ID="navContent" runat="server"></asp:ContentPlaceHolder>
+
+    <main id="main" class="container">
+        <asp:ContentPlaceHolder ID="mainContent" runat="server"></asp:ContentPlaceHolder>
+        <form id="form1" runat="server">
+            <asp:ContentPlaceHolder ID="formContent" runat="server"></asp:ContentPlaceHolder>
+        </form>
+    </main>
+
+    <script type="text/javascript">
+        let slider = $('#navSlideLayer');
+
+        const SWIPE_DELETE_THRESHOLD = 30; // px, lower for easier delete
+        const SWIPE_EXAGGERATION = 1.5;    // exaggerate card movement
+
+        $(function () {
+            'use strict'
+
+            $("ul.navbar-nav li").each(function () {
+                var ctl = $(this);
+                if (ctl.find("a").text() == mobileTitle) {
+                    ctl.addClass("active");
+                    return false;
+                }
+            });
+            $("#mobileTitle").text(mobileTitle);
+            $('[data-toggle="offcanvas"]').on('click', function () {
+                if (slider.hasClass('open')) {
+                    slider.toggleClass('open');
+                    tzLoaded = false;
+                }
+
+                $('#navbarSlideLayer').toggleClass('open');
+            });
+            $("#btn-search").on("click", function () {
+                var details = window.location.pathname + window.location.search;
+                logFeatureUsage("GlobalSearch", details);
+                window.location.href = "../GlobalSearch.aspx?mobile=true";
+            });
+        });
+        function getFormattedDate(date) {
+            let year = date.getFullYear();
+            let month = (1 + date.getMonth()).toString().padStart(2, '0');
+            let day = date.getDate().toString().padStart(2, '0');
+
+            return month + '/' + day + '/' + year;
+        }
+        function getMobileOperatingSystem() {
+            var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+                return "ios";
+            }
+
+            return "android-holo-light";
+        }
+
+        function expandObject(jQuerySelector) {
+            jQuerySelector.find("[data-role='expand-indicator']").removeClass("fa-plus-square-o").addClass("fa-minus-square-o");
+            jQuerySelector.find(".collapsed").removeClass("collapsed").addClass("expanded");
+            jQuerySelector.attr("data-collapse-state", "expanded");
+        }
+
+        function collapseObject(jQuerySelector) {
+
+            jQuerySelector.find("[data-role='expand-indicator']").removeClass("fa-minus-square-o").addClass("fa-plus-square-o");
+            jQuerySelector.find(".expanded").removeClass("expanded").addClass("collapsed");
+            jQuerySelector.attr("data-collapse-state", "collapsed");
+
+        }
+
+        function bindExpandAllClick() {
+            $("[data-role='expand-all']").click(function (e) {
+                e.preventDefault();
+                var target = $(e.target).closest("label");
+                target.attr("data-role", "collapse-all");
+                expandAll();
+                target.unbind("click");
+                bindCollapseAllClick();
+            });
+        }
+
+        function expandAll() {
+            var collapsedItems = $(".collapsible-item[data-collapse-state='collapsed']");
+            expandObject(collapsedItems);
+        }
+
+        function bindCollapseAllClick() {
+            $("[data-role='collapse-all']").click(function (e) {
+                e.preventDefault();
+                var target = $(e.target).closest("label");
+                target.attr("data-role", "expand-all");
+                collapseAll();
+                target.unbind("click");
+                bindExpandAllClick();
+            });
+        }
+
+        function collapseAll() {
+            var expandedItems = $(".collapsible-item[data-collapse-state='expanded']");
+            collapseObject(expandedItems);
+        }
+
+        $(document).on('click', "[data-collapse-target='true']", (function (e) {
+            e.preventDefault();
+            var parentObject = $(e.target).closest(".collapsible-item");
+            if (parentObject.attr("data-collapse-state") === "collapsed") {
+                expandObject(parentObject);
+                if (typeof expandCallback === 'function') {
+                    expandCallback(parentObject);
+                }
+            } else if (parentObject.attr("data-collapse-state") === "expanded") {
+                collapseObject(parentObject);
+            } else {
+                console.error("A collapsible object on this page has reached an error state. Please contact your system administrator.");
+            }
+        }));
+    </script>
+    <script>
+        var tzLoaded = false;
+        var myTz = { LastTimeZone: null, TimeZoneOverride: null, OffsetFromServer: 0 };
+        var wolslt = window.onload;
+        window.onload = slt;
+
+        function slt() {
+            if (wolslt) wolslt();
+            if (typeof saveLoadTimes !== 'undefined') saveLoadTimes();
+        }
+
+        function getTimeZone() {
+            $.ajax({
+                url: "../Services/ControlService.asmx/GetTimeZoneInfo",
+                data: JSON.stringify({ tz: Intl.DateTimeFormat().resolvedOptions().timeZone }),
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json",
+                success: function (msg) {
+                    myTz = msg.d;
+                    var pad = "&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;";
+                    var color = "";
+                    var tzName = "";
+
+                    if (myTz.TimeZoneOverride != null && myTz.TimeZoneOverride != "") {
+                        tzName = myTz.TimeZoneOverride;
+
+                        if (myTz.TimeZoneOverride != myTz.LastTimeZone) color = "override";
+                    } else {
+                        tzName = myTz.LastTimeZone;
+                    }
+
+                    if (color == "")
+                        $("#lbTimeZone").html(`<i class="fa fa-globe"></i> <a href="#" id="lbTimeZoneText">${tzName}</a>`);
+                    else
+                        $("#lbTimeZone").html(`<i class="fa fa-globe"></i> <a href="#" id="lbTimeZoneText" class="${color}">${tzName}</a>`);
+                }
+            });
+        }
+
+        $("#lbTimeZone").on("click", function () {
+            if (slider.hasClass("open")) { //already open; close it
+                slider.toggleClass('open');
+                slider.html("");
+                tzLoaded = false;
+            }
+
+            slider.toggleClass('open');
+
+            slider.html("<div id='divTimeZonePicker'><div class='content'><span class='close'>&times;</span></div></div>");
+
+            $("#divTimeZonePicker").show();
+
+            if (!tzLoaded) {
+                tzLoaded = true;
+
+                $('#divTimeZonePicker > .content').timezonePicker({
+                    width: 500,
+                    height: 200,
+                    quickLink: [{
+                        "PT": "America/Los_Angeles",
+                        "AZ": "America/Phoenix",
+                        "MT": "America/Denver",
+                        "CT": "America/Chicago",
+                        "ET": "America/New_York",
+                        "AT": "America/Port_of_Spain",
+                        "GMT": "Europe/London",
+                        "EET": "Asia/Nicosia",
+                        "PhST": "Asia/Manila",
+                        "AWST": "Australia/Perth",
+                        "NZT": "Pacific/Auckland",
+                    }],
+                    dayLightSaving: ((typeof moment == "function") ? (true) : (false))
+                });
+
+                $('#divTimeZonePicker > .content').append(`
+                <span id="lbClientTimeZone">Client Time Zone: <b class="quickLink"><span data-select="${Intl.DateTimeFormat().resolvedOptions().timeZone}">${Intl.DateTimeFormat().resolvedOptions().timeZone}</a></b></span>
+                <button id="btnSaveTz" class="btn btn-primary btn-tz">Save</button>`);
+
+                //$('#divTimeZonePicker > .content').append(`
+                //    <span id="lbClientTimeZone">Client Time Zone: <b>${Intl.DateTimeFormat().resolvedOptions().timeZone}</b></span>
+                //    <button id="btnCancelTz" class="btn btn-danger btn-tz">Cancel</button>
+                //    <button id="btnSaveTz" class="btn btn-primary btn-tz">Override Time Zone</button>`);
+
+                $("#divTimeZonePicker .close, #btnCancelTz").on("click", function () {
+                    slider.toggleClass('open');
+                    slider.html("");
+                    tzLoaded = false;
+                });
+
+                $("#btnSaveTz").on("click", function () {
+                    $.ajax({
+                        url: "../Services/ControlService.asmx/SetTimeZoneInfo",
+                        data: JSON.stringify({ tz: $("#divTimeZonePicker select").val() }),
+                        type: "POST",
+                        dataType: "json",
+                        contentType: "application/json",
+                        success: function (msg) {
+                            if (msg.d) {
+                                $("#divTimeZonePicker").hide();
+                                //getTimeZone();
+                                window.location.reload(true);
+                            } else {
+                                alert("There was an error processing your request. Please contact IT for assistance.");
+                            }
+                        }
+                    });
+                });
+            }
+
+
+            var tzName = "";
+            if (myTz.TimeZoneOverride != null && myTz.TimeZoneOverride != "") {
+                tzName = myTz.TimeZoneOverride;
+
+                if (myTz.TimeZoneOverride != myTz.LastTimeZone) color = "red";
+            } else {
+                tzName = myTz.LastTimeZone;
+            }
+
+            if (tzName == null || tzName == "")
+                $("#divTimeZonePicker select").val(Intl.DateTimeFormat().resolvedOptions().timeZone).change();
+            else
+                $("#divTimeZonePicker select").val($("#lbTimeZoneText").text()).change();
+        });
+
+        getTimeZone();
+    </script>
+    <script>
+        var chatbotLoaded = false;
+        $("#qbotBtn").on("click", function () {
+            if (slider.hasClass("open")) {
+                slider.toggleClass('open');
+                slider.html("");
+                chatbotLoaded = false;
+            }
+
+            if (!chatbotLoaded) {
+                slider.toggleClass('open');
+
+                slider.html(`<div id="webchat" class="webChatDisplay-mobile">
+                                <div id="ChatArea"></div>
+                                <div id="chatcontrols">
+                                    <textarea type="text" id="chatInput" placeholder="Enter Message..." rows="2" ></textarea>
+                                    <button id="sendButtonMobile" class="btn chat-button-mobile" onclick="sendChatMessage()" title="Send Message"><i class="fa fa-paper-plane"></i></button>
+                                </div>
+                            </div>`);
+
+                showBotMobile();
+            }
+        });
+
+        function getNotificationCount() {
+            $.ajax({
+                url: "../DataService.asmx/GetNotificationCount",
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json",
+                success: function (msg) {
+                    let data = msg.d;
+                    let btn = $('#notifCount');
+                    if (data == 0) {
+                        btn.hide();
+                    } else {
+                        btn.text(data);
+                        btn.show();
+                    }
+                }
+            });
+        }
+
+        $('#bellButton').on('click', function () {
+            logFeatureUsage('OpenNotifications', window.location.pathname + window.location.search);
+            $('#notificationPanel').addClass('open');
+            $('#notifCount').hide();
+            $('#closePanel').show();
+            $('#notificationOverlay').show();
+
+            $.ajax({
+                url: "../DataService.asmx/GetNotification",
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json",
+                success: function (msg) {
+                    let data = msg.d;
+                    let div = $("div.notification-list");
+
+                    if (!data) {
+                        div.html(`<p>No new notifications.</p>`);
+                        return;
+                    }
+
+                    let items = JSON.parse(data);
+                    if (items.length == 0) {
+                        div.html(`<p>No new notifications.</p>`);
+                        return;
+                    }
+
+                    div.html("");
+                    for (let i = 0; i < items.length; i++) {
+                        let e = items[i];
+                        let css = e.ReadDate == undefined ? "unread" : "";
+                        let view = "";
+                        if (e.UrlText && e.UrlText !== "") {
+                            let url = e.Url;
+                            // Always rewrite to mobile manage page if it's a task link
+                            if (url.indexOf('ManageTasks.aspx') !== -1) {
+                                url = url.replace('ManageTasks.aspx', 'MobileManageTasks.aspx');
+                            }
+                            if (url.indexOf('MyInbox.aspx') !== -1) {
+                                url = url.replace('MyInbox.aspx', 'MobileInbox.aspx');
+                            }
+                            if (url.indexOf('MyStatus.aspx') !== -1) {
+                                url = url.replace('MyStatus.aspx', 'MobileMyStatus.aspx');
+                            }
+                            view = `<span class="view" onclick="window.location.href = '${url}'">${e.UrlText}</span>`;
+                        }
+                        div.append(`
+                            <div class="notify-swipe-wrapper">
+                                <div class="swipe-trash-icon">
+                                    <img src="/Images/Nags/delete.png" alt="Delete" width="28" height="28"/>
+                                </div>
+                                <div class="notify-card ${css}" data-id="${e.Id}">
+                                    <div class="notify-content">
+                                        <div class="notify-header">
+                                            <span class="subject">${e.Subject}</span>
+                                            <span class="notify-date">${e.CreatedDate.substring(0, 10)}</span>
+                                        </div>
+                                        <div class="notify-detail">${e.Detail}</div>
+                                        ${view}
+                                        <span class="trash">Delete</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `);
+                    }
+                }
+            });
+        });
+
+        $('#closePanel, #notificationOverlay').on('click', function () {
+            $('#notificationPanel').removeClass('open');
+            $('#closePanel').hide();
+            $('#notificationOverlay').hide();
+        });
+
+        $(document).ready(function () {
+            getNotificationCount();
+            setInterval(getNotificationCount, 600000); // 10 min
+        });
+
+        if (!window.mobileNotifHandlersAttached) {
+            function markNotificationRead($notifyCard) {
+                $notifyCard.removeClass('unread');
+                let id = $notifyCard.data('id');
+                if (id) {
+                    $.ajax({
+                        url: "../DataService.asmx/ReadNotification",
+                        data: JSON.stringify({ id: id }),
+                        type: "POST",
+                        dataType: "json",
+                        contentType: "application/json"
+                    });
+                }
+            }
+            // Helper: check if event target is .view or .trash or inside them
+            function isButtonTarget(e) {
+                return $(e.target).closest('.view, .trash').length > 0;
+            }
+
+            // Track tap vs drag for expand/collapse
+            let notifTapHandled = false;
+
+            // Touch drag/tap logic for swipe-to-delete and expand/collapse
+            $('.notification-list').on('touchstart', '.notify-card', function (e) {
+                const touch = e.originalEvent.touches[0];
+                this.startX = touch.clientX;
+                this.startY = touch.clientY;
+                this.isDragging = true;
+                this.lockedDirection = null;
+                $(this).css('transition', ''); // Remove transition for smooth drag
+            });
+            $('.notification-list').on('touchmove', '.notify-card', function (e) {
+                if (!this.isDragging) return;
+                const touch = e.originalEvent.touches[0];
+                const diffX = touch.clientX - this.startX;
+                const diffY = touch.clientY - this.startY;
+
+                // Direction lock: decide if this is a horizontal or vertical gesture
+                if (!this.lockedDirection) {
+                    if (Math.abs(diffX) > 10 && Math.abs(diffX) > Math.abs(diffY)) {
+                        this.lockedDirection = 'horizontal';
+                    } else if (Math.abs(diffY) > 10 && Math.abs(diffY) > Math.abs(diffX)) {
+                        this.lockedDirection = 'vertical';
+                    }
+                }
+
+                if (this.lockedDirection === 'horizontal') {
+                    this.wasDragged = true;
+                    e.preventDefault(); // Lock vertical scroll
+                    // Exaggerate the movement for responsiveness
+                    let exaggeratedX = diffX * SWIPE_EXAGGERATION;
+                    if (exaggeratedX > 0) exaggeratedX = 0;
+                    $(this).css('transform', `translateX(${exaggeratedX}px)`);
+
+                    // Visual feedback: fade in trash icon, switch image, and change background
+                    let $icon = $(this).siblings('.swipe-trash-icon');
+                    let opacity = Math.min(Math.abs(diffX) / 80, 1);
+                    $icon.css('opacity', opacity);
+
+                    // Background color: more red as you swipe
+                    let percent = Math.min(Math.abs(diffX) / 80, 1);
+                    let r = 255;
+                    let g = Math.round(255 - (255 - 234) * percent);
+                    let b = Math.round(255 - (255 - 234) * percent);
+                    $(this).css('background', `rgb(${r},${g},${b})`);
+                }
+            });
+
+            $('.notification-list').on('touchend', '.notify-card', function (e) {
+                if (!this.isDragging) return;
+                this.isDragging = false;
+                const touch = e.originalEvent.changedTouches[0];
+                const diffX = touch.clientX - this.startX;
+                const $card = $(this);
+                const $icon = $card.siblings('.swipe-trash-icon');
+
+                if (this.lockedDirection === 'horizontal' && diffX < -SWIPE_DELETE_THRESHOLD) {
+                    $card.css({
+                        'transition': 'transform 0.2s ease',
+                        'transform': 'translateX(-100vw)'
+                    });
+                    setTimeout(function () {
+                        let id = $card.data('id');
+                        let wrapper = $card.closest('.notify-swipe-wrapper');
+                        $.ajax({
+                            url: "../DataService.asmx/DeleteNotification",
+                            data: JSON.stringify({ id: id }),
+                            type: "POST",
+                            dataType: "json",
+                            contentType: "application/json",
+                            success: function () {
+                                wrapper.remove();
+                            }
+                        });
+                    }, 200);
+                } else {
+                    $card.css({
+                        'transition': 'transform 0.2s ease',
+                        'transform': 'translateX(0)',
+                        'background': ''
+                    });
+                    setTimeout(function () {
+                        $card.css('transition', '');
+                    }, 200);
+                    $icon.css('opacity', 0);
+                }
+            });
+
+            // Expand/collapse on click/tap, but not on .view or .trash, and not after drag/swipe
+            $('.notification-list').on('touchend', '.notify-content', function (e) {
+                if (isButtonTarget(e)) return;
+                let card = $(this).closest('.notify-card')[0];
+                if (card.wasDragged) {
+                    card.wasDragged = false; // Reset for next interaction
+                    return;
+                }
+                notifTapHandled = true;
+                $(card).toggleClass('expanded');
+                $(card).removeClass('unread');
+                // Mark as read on server
+                let id = $(card).data('id');
+                markNotificationRead($(card));
+            });
+
+            $('.notification-list').on('click', '.notify-content', function (e) {
+                if (e.button !== 0) return;
+                if (isButtonTarget(e)) return;
+                let card = $(this).closest('.notify-card')[0];
+                if (card.wasDragged) {
+                    card.wasDragged = false; // Reset for next interaction
+                    return;
+                }
+                if (notifTapHandled) {
+                    notifTapHandled = false;
+                    return;
+                }
+                $(card).toggleClass('expanded');
+                $(card).removeClass('unread');
+                // Mark as read on server
+                let id = $(card).data('id');
+                markNotificationRead($(card));
+            });
+
+
+            // Delete button handler (already correct)
+            $('.notification-list').on('click', '.trash', function (e) {
+                e.stopPropagation();
+                let $card = $(this).closest('.notify-card');
+                let id = $card.data('id');
+                let wrapper = $card.closest('.notify-swipe-wrapper');
+                $.ajax({
+                    url: "../DataService.asmx/DeleteNotification",
+                    data: JSON.stringify({ id: id }),
+                    type: "POST",
+                    dataType: "json",
+                    contentType: "application/json",
+                    success: function () {
+                        wrapper.remove();
+                    }
+                });
+            });
+
+            // Mouse drag support for swipe-to-delete (desktop browsers)
+            $('.notification-list').on('mousedown', '.notify-card', function (e) {
+                if (e.button !== 0) return; // Only left mouse button
+                this.startX = e.clientX;
+                this.startY = e.clientY;
+                this.isDragging = true;
+                this.lockedDirection = null;
+                $(this).css('transition', '');
+                // Attach mousemove/mouseup to document for smooth drag
+                let $card = $(this);
+                function mouseMoveHandler(ev) {
+                    if (!$card[0].isDragging) return;
+                    const diffX = ev.clientX - $card[0].startX;
+                    const diffY = ev.clientY - $card[0].startY;
+                    if (!$card[0].lockedDirection) {
+                        if (Math.abs(diffX) > 10 && Math.abs(diffX) > Math.abs(diffY)) {
+                            $card[0].lockedDirection = 'horizontal';
+                        } else if (Math.abs(diffY) > 10 && Math.abs(diffY) > Math.abs(diffX)) {
+                            $card[0].lockedDirection = 'vertical';
+                        }
+                    }
+                    if ($card[0].lockedDirection === 'horizontal') {
+                        $card[0].wasDragged = true;
+                        ev.preventDefault();
+                        let exaggeratedX = diffX * SWIPE_EXAGGERATION;
+                        if (exaggeratedX > 0) exaggeratedX = 0;
+                        $card.css('transform', `translateX(${exaggeratedX}px)`);
+                        // Visual feedback
+                        let $icon = $card.siblings('.swipe-trash-icon');
+                        let opacity = Math.min(Math.abs(diffX) / 80, 1);
+                        $icon.css('opacity', opacity);
+
+                        let percent = Math.min(Math.abs(diffX) / 80, 1);
+                        let r = 255;
+                        let g = Math.round(255 - (255 - 234) * percent);
+                        let b = Math.round(255 - (255 - 234) * percent);
+                        $card.css('background', `rgb(${r},${g},${b})`);
+                        $icon.css('background', `rgb(${r},${g},${b})`);
+                    }
+                }
+                function mouseUpHandler(ev) {
+                    if (!$card[0].isDragging) return;
+                    $card[0].isDragging = false;
+                    const diffX = ev.clientX - $card[0].startX;
+                    const $icon = $card.siblings('.swipe-trash-icon');
+                    if ($card[0].lockedDirection === 'horizontal' && diffX < -SWIPE_DELETE_THRESHOLD) {
+                        $card.css({
+                            'transition': 'transform 0.2s ease',
+                            'transform': 'translateX(-100vw)'
+                        });
+                        setTimeout(function () {
+                            let id = $card.data('id');
+                            let wrapper = $card.closest('.notify-swipe-wrapper');
+                            $.ajax({
+                                url: "../DataService.asmx/DeleteNotification",
+                                data: JSON.stringify({ id: id }),
+                                type: "POST",
+                                dataType: "json",
+                                contentType: "application/json",
+                                success: function () {
+                                    wrapper.remove();
+                                }
+                            });
+                        }, 200);
+                    } else {
+                        $card.css({
+                            'transition': 'transform 0.2s ease',
+                            'transform': 'translateX(0)',
+                            'background': ''
+                        });
+                        $icon.css('background', '');
+                        setTimeout(function () {
+                            $card.css('transition', '');
+                        }, 200);
+                        $icon.css('opacity', 0);
+                    }
+                    $(document).off('mousemove', mouseMoveHandler);
+                    $(document).off('mouseup', mouseUpHandler);
+                }
+                $(document).on('mousemove', mouseMoveHandler);
+                $(document).on('mouseup', mouseUpHandler);
+            });
+
+            window.mobileNotifHandlersAttached = true;
+        }
+    </script>
+
+    <asp:ContentPlaceHolder ID="scriptContent" runat="server"></asp:ContentPlaceHolder>
+</body>
+</html>
+<!-- Copyright © 2024 Renegade Swish, LLC -->
+

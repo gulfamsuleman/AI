@@ -1,0 +1,33 @@
+body {
+}
+
+#formContainer {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+#taskCsvUpload {
+    margin-left:10px;
+}
+
+#uploadContainer {
+    padding: 10px;
+    margin: 10px;
+    border: 1px solid black;
+    border-radius: 15px;
+}
+
+#resultContainer {
+    padding: 10px;
+    margin: 10px;
+    border-radius: 15px;
+}
+
+.bulk-upload-button {
+    margin: 10px;
+}
+/* Copyright © 2024 Renegade Swish, LLC */
+

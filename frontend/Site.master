@@ -1,0 +1,893 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.master.cs" Inherits="QProcess.SiteMaster" %>
+
+<%@ Register TagPrefix="modal" TagName="Modal" Src="~/Controls/Shared/ModalFramework.ascx" %>
+<!-- Connected to server: <%=System.Environment.MachineName %> -->
+<!DOCTYPE html>
+<html lang="en">
+<head runat="server">
+    <meta charset="utf-8" />
+    <title><%=QProcess.Configuration.AppSettings.AppName %></title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <%--<meta name="viewport" content="width=device-width, initial-scale=1" />--%>
+    <script>
+        var clientLoadBegin = new Date(); //harmless; performance-tracking
+        var Firm = "<%=Firm%>";
+        var svrTz = <%=TimeZoneInfo.Local.BaseUtcOffset.TotalMilliseconds + (TimeZoneInfo.Local.IsDaylightSavingTime(QProcess.Session.CurrentSession.UserTimeZone.GetLocalTimeNow()) ? 3600000 : 0)%>;
+        var clntTz = new Date().getTimezoneOffset() * 60 * -1000; //necessary; avoids incorrect conversions of epoch-based time values
+        
+        // Store user information in local storage
+        var userName = "<%=QProcess.Session.CurrentSession.QUser.Username%>";
+        var userFullName = "<%=QProcess.Session.CurrentSession.QUser.FullName%>";
+        
+        // Store user full name in local storage when page loads
+        if (userFullName && userFullName.trim() !== "") {
+            localStorage.setItem('userFullName', userFullName);
+            localStorage.setItem('userName', userName);
+            console.log('User information stored in local storage:', { userName: userName, fullName: userFullName });
+        }
+    </script>
+    <asp:PlaceHolder runat="server">
+        <script src="Scripts/modernizr-2.5.3.js"></script>
+    </asp:PlaceHolder>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="Content/bootstrap.min.css?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Content/bootstrap.min.css")).Ticks.ToString() %>" />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" />
+    <link rel="stylesheet" href="Content/bs-submenu.css" />
+    <link rel="stylesheet" href="Content/datepicker.css" />
+    <link rel="stylesheet" href="/Content/timezone-picker.css?<%= System.IO.File.GetLastWriteTime(Server.MapPath("/Content/timezone-picker.css")).Ticks.ToString() %>" />
+    <link rel="stylesheet" href="Content/font-awesome.css" />
+    <link rel="stylesheet" href="Content/jquery.contextMenu.css" />
+    <link rel="stylesheet" href="Content/jquery-impromptu.css" />
+    <link rel="stylesheet" href="Content/bootstrap-switch.css" />
+    <link rel="stylesheet" href="Content/Site.css?v=<%= System.IO.File.GetLastWriteTime(Server.MapPath($"Content/Site.css")).Ticks.ToString() %>" />
+    <link rel="stylesheet" href="Content/<%=Firm %>/ColorScheme.css?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Content/{Firm}/ColorScheme.css")).Ticks.ToString() %>" />
+    <link rel="stylesheet" href="Content/Search.css?<%= System.IO.File.GetLastWriteTime(Server.MapPath("/Content/Search.css")).Ticks.ToString() %>" />
+    <link rel="stylesheet" href="/Content/ai-chat.css?<%= System.IO.File.GetLastWriteTime(Server.MapPath("/Content/ai-chat.css")).Ticks.ToString() %>" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+    <script src="Scripts/jquery-1.9.1.min.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/jquery-1.9.1.min.js")).Ticks.ToString() %>"></script>
+    <script src="Scripts/jquery-ui-1.13.2.min.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/jquery-ui-1.13.2.min.js")).Ticks.ToString() %>"></script>
+    <script src="Scripts/bootstrap.min.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/bootstrap.min.js")).Ticks.ToString() %>"></script>
+    <script src="Scripts/bootstrap-hover-dropdown.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/bootstrap-hover-dropdown.js")).Ticks.ToString() %>"></script>
+    <script src="Scripts/jquery.lw-datepicker.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/jquery.lw-datepicker.js")).Ticks.ToString() %>"></script>
+    <script src="Scripts/jquery.contextMenu.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/jquery.contextMenu.js")).Ticks.ToString() %>"></script>
+    <script src="Scripts/jquery.highlight-3.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/jquery.highlight-3.js")).Ticks.ToString() %>"></script>
+    <script src="Scripts/main.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/main.js")).Ticks.ToString() %>"></script>
+    <script src="Scripts/utils.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/utils.js")).Ticks.ToString() %>"></script>
+    <script src="Scripts/dragndrop.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/dragndrop.js")).Ticks.ToString() %>"></script>
+    <script src="Scripts/Footer.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/Footer.js")).Ticks.ToString() %>"></script>
+    <script src="Scripts/jquery-impromptu.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/jquery-impromptu.js")).Ticks.ToString() %>"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-gauge@0.2.0/dist/chartjs-gauge.min.js"></script>
+    <script src="Scripts/common.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/common.js")).Ticks.ToString() %>"></script>
+    <script src="Scripts/Search.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/Search.js")).Ticks.ToString() %>"></script>
+    <script src="/Scripts/TimeZone/moment-with-locales.min.js"></script>
+    <script src="/Scripts/TimeZone/moment-timezone-with-data-2012-2022.min.js"></script>
+    <script src="/Scripts/bootstrap-switch.js"></script>
+    <script src="/Scripts/TimeZone/timezone-picker.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("/Scripts/TimeZone/timezone-picker.js")).Ticks.ToString() %>"></script>
+    <script src="/Scripts/ai-chatbot.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("/Scripts/ai-chatbot.js")).Ticks.ToString() %>"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $(".nav li a").click(function (e) {
+                updateLastPage(e);
+            });
+
+            $(document).on("click", ".footerLinks:not(.expanded)",
+                function () {
+                    $("#site-footer .row .col-xs-8.col-xs-offset-2").addClass("expanded");
+                    resize();
+                });
+
+            //updateLastPage($(".nav li.active a")[0]);
+
+            var hrefList = new Map();
+            hrefList.set("F1", "Help.aspx");
+
+            $("#site-nav .nav li a").each(function (e) {
+                var href = $(this).attr("href");
+                if (e < 9)
+                    hrefList.set(`${e + 1}`, href);
+                if (e == 9) hrefList.set(`${0}`, href);
+                if (e == 10) hrefList.set(`-`, href);
+                if (e == 11) hrefList.set(`+`, href);
+
+                switch (href) {
+                    case "ManageTasks.aspx":
+                        hrefList.set('a', href);
+                        break;
+                    case "ChangeRequests.aspx":
+                        hrefList.set('h', href);
+                        break;
+                    case "MyStatus.aspx":
+                        hrefList.set('s', href);
+                        break;
+                    case "MyInbox.aspx":
+                        hrefList.set('i', href);
+                        break;
+                    default:
+                        hrefList.set(href.substring(0, 1).toLowerCase(), href);
+                        break;
+                }
+
+            });
+
+            $("#site-main").scroll(function () {
+                let button = $("#backToTop");
+                let upButton = $("#scrollUpBtn");
+                let downButton = $("#scrollDownBtn");
+                if ($(this).scrollTop() > 200 && $("#dlgSearch").is(":visible")) {
+                    button.show();
+                    if (!isMyTask) {
+                        //upButton.show();
+                        //downButton.show();
+                    }
+                } else {
+                    button.hide();
+                    upButton.hide();
+                    downButton.hide();
+                }
+            });
+
+
+            $(document).on("keyup", function (e) {
+                if ((e.ctrlKey && e.altKey) || e.key == "F1") {
+                    var link = "";
+                    for (const [key, value] of hrefList) {
+                        if (e.key == key)
+                            link = value;
+                    }
+                    window.location.replace(link);
+                }
+            });
+
+        });
+        function updateLastPage(e) {
+            var page = $(e.target).attr("href");
+            $.ajax({
+                url: "/DataService.asmx/UpdateLastPage",
+                type: "POST",
+                data: JSON.stringify({ page: page }),
+                contentType: "application/json"
+            });
+        } <a href="Site.master">Site.master</a>
+
+        var isMobile = false;
+    </script>
+    <asp:ContentPlaceHolder runat="server" ID="HeadContent" />
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            populateRecentHistory();
+
+            function filterDate(e) {
+
+                let element = e.target;
+                let timePeriod = $(element).data("role");
+                let fromDate = $("#txtSearchFromDate");
+                let toDate = $("#txtSearchToDate");
+                let today = new Date();
+                $(toDate).val(new Date(today.setDate(today.getDate() + 1)).toLocaleDateString("en-US"));
+
+                switch (timePeriod.toLowerCase()) {
+                    case "today":
+                        $(fromDate).val(new Date().toLocaleDateString("en-US"));
+                        break;
+                    case "week":
+                        var week = new Date();
+                        week.setDate(week.getDate() - 7);
+                        $(fromDate).val(week.toLocaleDateString("en-US"));
+                        break;
+                    case "month":
+                        var month = new Date();
+                        month.setDate(month.getDate() - 30);
+                        $(fromDate).val(month.toLocaleDateString("en-US"));
+                    default:
+                        break;
+                }
+
+                submitSearch();
+            }
+
+            let reportSections = [];
+            let currentIndex = 0;
+
+            function scrollTo(index) {
+                let body = $("#site-main");
+                body.animate({ scrollTop: $(reportSections[index]).offset().top },
+                    'fast');
+            }
+            function scrollToTop() {
+                let body = $("#site-main");
+                body.animate({ scrollTop: 0 },
+                    'fast');
+            }
+
+            function scrollUpReport() {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    scrollTo(currentIndex);
+                }
+            }
+
+            function scrollDownReport() {
+                if (currentIndex < $(reportSections).length - 1) {
+                    currentIndex++;
+                    scrollTo(currentIndex);
+                }
+            }
+
+            $("#btnToday").on("click", filterDate);
+            $("#btnThisWeek").on("click", filterDate);
+            $("#btnThisMonth").on("click", filterDate);
+
+            $("#scrollUpBtn").on("click", scrollUpReport);
+            $("#scrollDownBtn").on("click", scrollDownReport);
+            $("#backToTop").on("click", scrollToTop);
+
+            if (window.location.href.indexOf("MyTasks") >= 0
+                || window.location.href.indexOf("Calendar") >= 0
+                || window.location.href.indexOf("MyStatus") >= 0
+                //|| window.location.href.indexOf("MyInbox") >= 0
+            ) {
+                if ($("#divTaskList").length > 0) {
+                    $("#divIncludeArchive, #divIncludeAll, #my-status-search-actions, #divSearchDate").hide();
+                    $(".search-criteria").css("display", "flex").css("flex-direction", "row-reverse");
+                    $("#dlgSearch").addClass("task-dialog");
+                    $('#dlgSearch .bar-wrap').addClass("task-bar-wrap");
+                    $("#searchProgress").addClass("task-search");
+
+                    isMyTask = true;
+                } else if ($("#calendar").length > 0) {
+                    $("#divIncludeArchive, #divIncludeAll, #my-status-search-actions, #divSearchDate").hide();
+                    $(".search-criteria").css("display", "flex").css("flex-direction", "row-reverse");
+                    $("#dlgSearch").addClass("task-dialog");
+                    $('#dlgSearch .bar-wrap').addClass("task-bar-wrap");
+                    $("#searchProgress").addClass("task-search");
+
+                    isCalendar = true;
+                } else {
+                    $("#dlgSearch").addClass("status-dialog");
+                    $('#dlgSearch .bar-wrap').addClass("status-bar-wrap");
+                    $("#searchProgress").addClass("status-search");
+                }
+            } else {
+                $("#dlgSearch").addClass("status-dialog");
+                $("#lnkSearchPage").hide();
+            }
+
+
+            $('#dlgSearch .date').lwDatepicker({ onChange: submitSearch });
+
+            $(window).click(function (event) {
+                let div = $("#dlgSearch .bar-wrap");
+
+                if (!div.is(":visible")) return;
+
+                if ($(event.target).closest("#dlgSearch .bar-inactive").length
+                    || $(event.target).text() == "Search Page") return;
+
+                if (!$(event.target).closest("#dlgSearch .bar-wrap").length) div.hide();
+            });
+            $('#txtSearchInput').on('keydown', function () {
+
+                //$('#dlgSearch .bar-wrap').show();
+                //$('#dlgSearch .bar input').focus();
+            });
+
+
+            $("#recentHistory").on("click", function () {
+                $("txtSearchInput").css("background-color", "white");
+                populateRecentHistory();
+            });
+
+            $('#txtSearchInput').on('keyup', function (e) {
+                populateRecentHistory();
+
+                //$("#searchProgress").show();
+                switch (e.key) {
+                    case 'Escape':
+                        $('#dlgSearch .bar-wrap').hide();
+                        e.preventDefault();
+                        break;
+                    case 'Enter':
+                        submitSearch();
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        if ($("#dlgSearch #recentHistory").is(":visible")) {
+                            let li = $("#dlgSearch #recentHistory li");
+                            let active = $("#dlgSearch #recentHistory li.active");
+                            if (active.length == 0) {
+                                li.eq(li.length - 1).addClass("active");
+                                $(this).val(li.eq(li.length - 1).text());
+                            } else {
+                                let idx = active.index() - 1;
+                                if (idx < 0) idx = li.length - 1;
+                                active.removeClass("active");
+                                li.eq(idx).addClass("active");
+                                $(this).val(li.eq(idx).text());
+                            }
+                        }
+                        break;
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        if ($("#dlgSearch #recentHistory").is(":visible")) {
+                            let li = $("#dlgSearch #recentHistory li");
+                            let active = $("#dlgSearch #recentHistory li.active");
+                            if (active.length == 0) {
+                                li.eq(0).addClass("active");
+                                $(this).val(li.eq(0).text());
+                            } else {
+                                let idx = active.index() + 1;
+                                if (idx >= li.length) idx = 0;
+                                active.removeClass("active");
+                                li.eq(idx).addClass("active");
+                                $(this).val(li.eq(idx).text());
+                            }
+                        }
+                        break;
+                    default:
+                        // support auto search as you type
+                        if (timeoutSearchRef != null) { clearTimeout(timeoutSearchRef); }
+                        timeoutSearchRef = setTimeout(autoSearchText, searchInterval);
+
+                        // support persisting search history after searchPersistentInterval (# of seconds)
+                        if (timeoutSearchPersistRef != null) { clearTimeout(timeoutSearchPersistRef); }
+                        timeoutSearchPersistRef = setTimeout(autoSearchHistoryText, searchPersistentInterval);
+                        break;
+                }
+            });
+            $("#chkIncludeTask, #chkIncludeItem, #chkIncludeComment, #chkIncludeAll, #chkIncludeArchive").on("change", function () { submitSearch(); });
+        });
+    </script>
+</head>
+<body>
+    <!-- Bell Icon -->
+    <button id="bellButton" class="btn btn-default notification-bell">
+        <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" stroke-width="2"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002
+                 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67
+                 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595
+                 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+        </svg>
+        <span id="notifCount" class="notification-badge"></span>
+    </button>
+    <!-- Slide-Out Panel -->
+    <div id="notificationPanel">
+        <button id="closePanel" title="Hide Notifications">
+            <svg width="30" height="30" fill="currentColor" viewBox="0 0 15 15">
+                <path fill-rule="evenodd" d="M6.646 3.646a.5.5 0 0 1 .708 0l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L10.293 8 6.646 4.354a.5.5 0 0 1 0-.708z" />
+            </svg>
+        </button>
+        <h4>Notifications</h4>
+        <div class="notification-list"></div>
+    </div>
+
+    <div id="dlgSearch">
+        <div class="modal-content">
+            <div class="modal-head">
+                <div style="display: flex; position: relative;">
+                    <input id="txtSearchInput"
+                        autocomplete="off"
+                        list="recentHistory"
+                        placeholder="Start typing to search..."
+                        class="search-text-inactive"
+                        style="border: 0; flex: 1 1 100%; height: 40px; border-radius: 50px; padding: 0 10px;" />
+                    <datalist id="recentHistory">
+                    </datalist>
+                    <div id="searchProgress"
+                        style="float: right; position: absolute; left: 45%; top: 20%; display: none; white-space: nowrap;"
+                        class="search-size">
+                        <img src="images/searching.gif" />
+                        Searching...please wait
+                    </div>
+                </div>
+                <div class="search-criteria">
+                    <%--<div id="my-tasks-search-actions" class="dlg-font inline">
+                        Search in: 
+                        <input checked="checked" type="checkbox" id="chkIncludeTask" />
+                        <label for="chkIncludeTask">Task Name</label>
+                        <input checked="checked" type="checkbox" id="chkIncludeItem" />
+                        <label id="chkIncludeItemlbl" for="chkIncludeItem">Checklist Items</label>
+                    </div>
+
+                    <div id="my-status-search-actions" class="dlg-font inline">
+                        <input checked="checked" type="checkbox" id="chkIncludeComment" />
+                        <label for="chkIncludeComment">Comments</label>
+
+                    </div>--%>
+
+                    <div id="divSearchDate" class="inline dlg-font" style="margin-left: 25px;">
+                        From:
+                        <input type="text" class="date" id="txtSearchFromDate" readonly="readonly" />
+                        to
+                        <input type="text" class="date" id="txtSearchToDate" readonly="readonly" />
+                        Or:
+                        <button data-role="today" class="btn env-specific-btn" style="margin-left: 10px;" id="btnToday">Today</button>
+                        <button data-role="week" class="btn env-specific-btn" id="btnThisWeek">Week</button>
+                        <button data-role="month" class="btn env-specific-btn" id="btnThisMonth">Month</button>
+                    </div>
+
+
+                    <div style="float: right; font-size: 12px;" class="dlg-font">
+                        <div id="divLogicAndOr" class="inline">
+                            <input name="logicAndOr" checked="checked" type="radio" id="chkIncludeAll" value="true" />
+                            <label for="chkIncludeAll">Must match all words</label>
+                            <input name="logicAndOr" type="radio" id="chkIncludeAny" value="false" />
+                            <label for="chkIncludeAny">Can match any word</label>
+                            <input name="logicAndOr" type="radio" id="chkAdvanced" value="" />
+                            <label for="chkAdvanced">Advanced matching</label>
+                        </div>
+                        <div id="divIncludeArchive" class="inline">
+                            <input type="checkbox" id="chkIncludeArchive" />
+                            <label style="margin-top: 4px;" for="chkIncludeArchive">Include archived</label>
+                        </div>
+                        <%--<div id="divIncludeAll" class="inline dlg-font">
+                            <input checked="checked" type="checkbox" id="chkIncludeAll" />
+                            <label for="chkIncludeAll">Must include all words</label>
+                        </div>--%>
+                        <button onclick="closeSearch();" class="btn env-specific-btn close-search" style="cursor: pointer; margin-left: 35px;">Close</button>
+                        <button onclick="refreshSearch();" class="btn env-specific-btn close-search" style="cursor: pointer; margin-right: 15px;">Reset</button>
+                    </div>
+                </div>
+                <%--<div class="bar-wrap">
+                    <div class="bar">
+                        <div class="search-bar">
+                            <input class="search-text" style="border: 0; flex: 1 1 100%; padding: 0 10px;" />
+                        </div>
+                        <div class="recent-list">
+                            <ul></ul>
+                        </div>
+                    </div>
+                </div>--%>
+            </div>
+        </div>
+    </div>
+
+    <header id="site-header">
+        <nav id="site-nav" class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="MyStatus.aspx">
+                        <img src="/Images/<%=Firm%>/logo_new.gif" style="max-height: 34px;" alt="<%=Firm%>Process" /></a>
+                </div>
+                <ul class="nav nav-tabs navbar-nav navbar-left">
+                    <li id="MyTasksLi" runat="server"><a href="MyTasks.aspx">My Tasks</a></li>
+                    <li id="CalendarLi" runat="server"><a href="Calendar.aspx">Calendar</a></li>
+                    <li id="ManageTasksLi" runat="server"><a href="ManageTasks.aspx">Manage Tasks</a></li>
+                    <li id="NewTaskLi" runat="server"><a href="NewTask.aspx">New Task</a></li>
+                    <li id="ChangeRequestsLi" runat="server"><a href="ChangeRequests.aspx">Change Requests</a></li>
+                    <li id="ReportssLi" runat="server"><a href="Reports.aspx">Reports</a></li>
+                    <% if (QUser.IsAdmin)
+                        { %>
+                    <li id="UsersLi" runat="server"><a href="Users.aspx">Users</a></li>
+                    <% }
+                        else
+                        { %>
+                    <li id="GroupsLi" runat="server"><a href="Groups.aspx">Groups</a></li>
+                    <% } %>
+                    <li id="TaskSummaryLi" runat="server"><a href="TaskSummary.aspx">Task Summary</a></li>
+                    <li id="MyStatusLi" runat="server"><a href="MyStatus.aspx">My Status</a></li>
+                    <% if (QUser.SupervisorStatus > 0)
+                        { %>
+                    <li id="MyInboxLi" runat="server"><a href="MyInbox.aspx">Inbox</a></li>
+                    <%} %>
+                    <li id="PrioritiesLi" runat="server"><a href="Priorities.aspx">Priorities</a></li>
+                    <!--<li id="NagsLi" runat="server"><a href="Nags.aspx">Nags</a></li>-->
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><button class="aiButton btn" title="Click to toggle chat window"><i class="fa fa-wechat"></i>Q Bot</button></li>
+                    <!--<li><a href="#" onclick="javascript:return window.open('TaskSearch.aspx','newtask')">Find Tasks</a></li>
+                    <li><a>|</a></li>-->
+                    <%-- <% if (ConfigurationManager.AppSettings["Firm"] == "Q")
+                        { %>--%>
+                    <li id="lnkSearchPage" style="margin-right: 15px;">
+                        <a href="#" onclick="logSearchPageAccess(); setTimeout(searchPage, 750); return false;">Search Page</a>
+                    </li>
+                    <%--<% } %>--%>
+                    <li>
+                        <a href="#"
+                            onclick="logFeatureUsage('GlobalSearch', window.location.pathname + window.location.search); return window.open('GlobalSearch.aspx', 'globalsearch');">Global Search
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <div id="site-main">
+        <div class="env-specific-banner" id="searchResults" style="display: none;"></div>
+        <section class="container">
+            <asp:ContentPlaceHolder runat="server" ID="MainContent" />
+        </section>
+    </div>
+    <button style="float: left;" class="btn env-specific-btn" id="scrollUpBtn"><i class="fa fa-arrow-up"></i></button>
+    <button style="float: left;" class="btn env-specific-btn" id="scrollDownBtn"><i class="fa fa-arrow-down"></i></button>
+    <button style="float: left;" class="btn env-specific-btn" id="backToTop">To Top</button>
+    <% if (!(this.Page is QProcess.IFooterHidden))
+        { %>
+    <footer id="site-footer" class="navbar navbar-fixed-bottom">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-8 col-xs-offset-1 text-center footerLinks">
+                    <a href="Help.aspx" target="help_page">Help</a><span>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span>
+                    <a href="Vacation.aspx">Vacation</a><span>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span>
+                    <a href="BulkAssignments.aspx">Bulk Assignments</a><span>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span>
+                    <% if (QUser.IsGradingAdmin)
+                        { %>
+                    <a href="Outprocessing.aspx">User Outprocessing</a><span>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span>
+                    <a href="SupervisorsAdmin.aspx" target="_blank">Supervisors Admin</a><span>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span>
+                    <a href="TestManagement.aspx">Test Management</a><span>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span>
+                    <% }%>
+                    <% if (QUser.IsApiAdmin)
+                        { %>
+                    <a href="AuthTokenEmailRequest.aspx">External API Access</a><span>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span>
+                    <% } %>
+                    <a data-action="view-groups" style="cursor: pointer;">View Groups</a><span>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span>
+                    <a href="Automations.aspx">Automations</a><span>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span>
+                    <a data-action="preferences" style="cursor: pointer;">Preferences</a>
+                    <% if (QUser.IsOverdueAdmin)
+                        { %>
+                    <span>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span><a data-action="overdueAdmin" style="cursor: pointer;">Overdue Admin</a>
+                    <% }
+                    %>
+                    <%if (ConfigurationManager.AppSettings["ShowMobileLink"].ToLowerInvariant() == "true")
+                        { %>
+                    <span>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span>
+                    <a href="<%= Request.Url.PathAndQuery.Replace("ViewMode=desktop", "") + (Request.Url.PathAndQuery.Contains("?") ? "" : "?") + "&ViewMode=mobile" %>"><i class="fa fa-mobile-phone"></i>&nbsp;Mobile&nbsp;View</a>
+                    <%} %>
+                    <span id="lbTimeZone"></span>
+                </div>
+                <div class="col-xs-3 text-right">
+                    &copy; <%: QProcess.Session.CurrentSession.UserTimeZone.GetLocalTimeNow().Year %> Renegade Swish, LLC
+                </div>
+            </div>
+        </div>
+    </footer>
+    <%} %>
+
+    <input id="server-load" type="hidden" value="<%= ServerLoadTime %>" />
+    <input id="current-page-name" type="hidden" value="<%= CurrentPageName %>" />
+    <% if (this.Page is QProcess.IProvideReportIdForLogging)
+        { %>
+    <input id="hidden-report-id" type="hidden" value="<%= ReportId %>" />
+    <% } %>
+    <% if (this.Page is QProcess.IProvideLastViewTimeForLogging)
+        { %>
+    <input id="last-viewed" type="hidden" value="<%= LastViewTime %>" />
+    <% } %>
+
+    <div class="notification-box" data-shown="false">
+        <span data-role="message"></span>
+        <i class="fa fa-times" data-role="close"></i>
+    </div>
+    <asp:ContentPlaceHolder runat="server" ID="ScriptContent">
+    </asp:ContentPlaceHolder>
+    <style type="text/css">
+        
+    </style>
+    <script>
+        var tzLoaded = false;
+        var myTz = { LastTimeZone: null, TimeZoneOverride: null, OffsetFromServer: 0 };
+        var wolslt = window.onload;
+        window.onload = slt;
+
+        function slt() {
+            if (wolslt) wolslt();
+            saveLoadTimes();
+        }
+
+        function getTimeZone() {
+            $.ajax({
+                url: "../Services/ControlService.asmx/GetTimeZoneInfo",
+                data: JSON.stringify({ tz: Intl.DateTimeFormat().resolvedOptions().timeZone }),
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json",
+                success: function (msg) {
+                    myTz = msg.d;
+                    var pad = "&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;";
+                    var color = "";
+                    var tzName = "";
+
+                    if (myTz.TimeZoneOverride != null && myTz.TimeZoneOverride != "") {
+                        tzName = myTz.TimeZoneOverride;
+
+                        if (myTz.TimeZoneOverride != myTz.LastTimeZone) color = "override";
+                    } else {
+                        tzName = myTz.LastTimeZone;
+                    }
+
+
+                    if (color == "")
+                        $("#lbTimeZone").html(pad + `<i class="fa fa-globe"></i> <a href="#" id="lbTimeZoneText">${tzName}</a>`);
+                    else
+                        $("#lbTimeZone").html(pad + `<i class="fa fa-globe"></i> <a href="#" id="lbTimeZoneText" class="${color}">${tzName}</a>`);
+
+
+                    $(window).trigger("resize");
+                }
+            });
+        }
+
+        $("#lbTimeZone").on("click", function () {
+            $("#divTimeZonePicker").show();
+
+            if (!tzLoaded) {
+                tzLoaded = true;
+
+                $('#divTimeZonePicker > .content').timezonePicker({
+                    width: 500,
+                    height: 200,
+                    quickLink: [{
+                        "PT": "America/Los_Angeles",
+                        "AZ": "America/Phoenix",
+                        "MT": "America/Denver",
+                        "CT": "America/Chicago",
+                        "ET": "America/New_York",
+                        "AT": "America/Port_of_Spain",
+                        "GMT": "Europe/London",
+                        "EET": "Asia/Nicosia",
+                        "PhST": "Asia/Manila",
+                        "AWST": "Australia/Perth",
+                        "NZT": "Pacific/Auckland",
+                    }],
+                    dayLightSaving: ((typeof moment == "function") ? (true) : (false))
+                });
+
+                $('#divTimeZonePicker > .content').append(`
+                    <span id="lbClientTimeZone">Client Time Zone: <b class="quickLink"><span data-select="${Intl.DateTimeFormat().resolvedOptions().timeZone}">${Intl.DateTimeFormat().resolvedOptions().timeZone}</a></b></span>
+                    <button id="btnSaveTz" class="btn btn-primary btn-tz">Save</button>`);
+
+                //$('#divTimeZonePicker > .content').append(`
+                //    <span id="lbClientTimeZone">Client Time Zone: <b>${Intl.DateTimeFormat().resolvedOptions().timeZone}</b></span>
+                //    <button id="btnCancelTz" class="btn btn-danger btn-tz">Cancel</button>
+                //    <button id="btnSaveTz" class="btn btn-primary btn-tz">Override Time Zone</button>`);
+
+                $("#divTimeZonePicker .close, #btnCancelTz").on("click", function () {
+                    $("#divTimeZonePicker").hide();
+                });
+
+                $("#btnSaveTz").on("click", function () {
+                    $.ajax({
+                        url: "../Services/ControlService.asmx/SetTimeZoneInfo",
+                        data: JSON.stringify({ tz: $("#divTimeZonePicker select").val() }),
+                        type: "POST",
+                        dataType: "json",
+                        contentType: "application/json",
+                        success: function (msg) {
+                            if (msg.d) {
+                                $("#divTimeZonePicker").hide();
+                                //getTimeZone();
+                                window.location.reload(true);
+                            } else {
+                                alert("There was an error processing your request. Please contact IT for assistance.");
+                            }
+                        }
+                    });
+                });
+            }
+
+
+            var tzName = "";
+            if (myTz.TimeZoneOverride != null && myTz.TimeZoneOverride != "") {
+                tzName = myTz.TimeZoneOverride;
+
+                if (myTz.TimeZoneOverride != myTz.LastTimeZone) color = "red";
+            } else {
+                tzName = myTz.LastTimeZone;
+            }
+
+            if (tzName == null || tzName == "")
+                $("#divTimeZonePicker select").val(Intl.DateTimeFormat().resolvedOptions().timeZone).change();
+            else
+                $("#divTimeZonePicker select").val($("#lbTimeZoneText").text()).change();
+        });
+
+        function getNotificationCount() {
+            $.ajax({
+                url: "../DataService.asmx/GetNotificationCount",
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json",
+                success: function (msg) {
+                    let data = msg.d;
+                    let btn = $('#notifCount');
+
+                    if (data == 0) {
+                        btn.hide();
+                    } else {
+                        btn.text(data);
+                        btn.show();
+                    }
+                }
+            });
+        }
+
+        $('#bellButton').on('click', function () {
+            logFeatureUsage('OpenNotifications', window.location.pathname + window.location.search);
+            $('#notificationPanel').addClass('open');
+            $('#notifCount').hide();
+
+            $.ajax({
+                url: "../DataService.asmx/GetNotification",
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json",
+                success: function (msg) {
+                    let data = msg.d;
+                    let div = $("div.notification-list");
+
+                    if (data == undefined || data == null || data == "") {
+                        div.html(`<p>No new notifications.</p>`);
+                        return;
+                    }
+
+                    let items = JSON.parse(data);
+                    if (items.length == 0) {
+                        div.html(`<p>No new notifications.</p>`);
+                        return;
+                    }
+
+                    div.html("");
+                    for (let i = 0; i < items.length; i++) {
+                        let e = items[i];
+                        let css = e.ReadDate == undefined ? "unread" : "";
+                        let view = "";
+                        if (e.UrlText != undefined && e.UrlText != "")
+                            view = `<span class="view" onclick="window.location.href = '${e.Url}'">${e.UrlText}</span>`;
+
+                        div.append(`
+                            <div class="notify-card ${css}" data-id="${e.Id}">
+                              <div class="notify-content">
+                                <div>
+                                    <span class="notify-date">${e.CreatedDate.substring(0, 10)}</span>
+                                    <span class="subject">${e.Subject}</span>
+                                </div>
+                                <p class="text-ellipsis">${e.Detail}</p>
+                                ${view}
+                                <span class="trash">Delete</span>
+                              </div>
+                              <button class="swipe-notify-delete">Delete</button>
+                            </div>`);
+                    }
+
+                    div.find(".notify-content > p, .notify-content > div").on("click", function () {
+                        $(this).parent().find("p").removeClass("text-ellipsis");
+                        $(this).parent().find("span.view, span.trash").css("display", "block");
+                        let id = $(this).closest(".notify-card").data("id");
+
+                        $.ajax({
+                            url: "../DataService.asmx/ReadNotification",
+                            data: JSON.stringify({ id: id }),
+                            type: "POST",
+                            dataType: "json",
+                            contentType: "application/json"
+                        });
+                    });
+                    div.find("span.trash").on("click", function () {
+                        let id = $(this).closest(".notify-card").data("id");
+                        let prt = $(this).closest(".notify-card");
+
+                        $.ajax({
+                            url: "../DataService.asmx/DeleteNotification",
+                            data: JSON.stringify({ id: id }),
+                            type: "POST",
+                            dataType: "json",
+                            contentType: "application/json",
+                            success: function (msg) {
+                                prt.remove();
+                            }
+                        });
+                    });
+
+                    // allow swiping left to delete for touch enabled devices
+                    div.find(".notify-content").each(function () {
+                        let startX = 0;
+                        let currentX = 0;
+                        let isDragging = false;
+                        const swipeItem = this;
+
+                        swipeItem.addEventListener("touchstart", (e) => {
+                            startX = e.touches[0].clientX;
+                            isDragging = true;
+                        });
+                        swipeItem.addEventListener("touchmove", (e) => {
+                            if (!isDragging) return;
+                            currentX = e.touches[0].clientX;
+                            const diffX = currentX - startX;
+                            if (diffX < 0) {
+                                swipeItem.style.transform = `translateX(${diffX}px)`;
+                            }
+                        });
+                        swipeItem.addEventListener("touchend", () => {
+                            isDragging = false;
+                            if (currentX == 0) return;
+
+                            const diffX = currentX - startX;
+                            currentX = 0;
+
+                            if (diffX < -50) {
+                                swipeItem.style.transform = 'translateX(-80px)';
+                            } else {
+                                swipeItem.style.transform = 'translateX(0)';
+                            }
+                        });
+                    });
+
+                    div.find(".swipe-notify-delete").on("click", function () {
+                        $(this).parent().remove();
+                    });
+                }
+            });
+        });
+
+        $('#closePanel').on('click', function () {
+            $('#notificationPanel').removeClass('open');
+        });
+
+        $(document).ready(function () {
+            getTimeZone();
+            getNotificationCount();
+
+            // Run the function at 10-minute (600,000 milliseconds) interval
+            setInterval(getNotificationCount, 600000);
+        });
+    </script>
+    <div id="divTimeZonePicker">
+        <div class="content">
+            <div class="close other-controls">
+                <span>&times;</span>
+            </div>
+            <span class="converter-btn btn"><a href="TimezoneConversion.aspx">Task Timezone Converter</a></span>
+        </div>
+    </div>
+    <modal:Modal runat="server" ID="ModalFramework" />
+    
+    <!-- Modern Chatbot Widget -->
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="chat-header-title">
+                <div class="avatar">
+                    <div class="avatar-status online"></div>
+                </div>
+                <div>
+                    <h1>AI Assistant</h1>
+                    <p class="status">Online</p>
+                </div>
+            </div>
+            <button class="minimize-btn" aria-label="Minimize chat">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            </button>
+        </div>
+        
+        <div class="chat-messages" id="chat-messages">
+            <div class="message bot-message">
+                <div class="message-content">
+                    <p>Hi there! 👋 How can I help you today?</p>
+                </div>
+                <span class="message-time">Just now</span>
+            </div>
+        </div>
+        
+        <div class="chat-input-container">
+            <div class="input-wrapper">
+                <input type="text" id="user-input" placeholder="Type your message..." aria-label="Type your message">
+                <button id="send-btn" aria-label="Send message">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <button class="chat-toggle" id="chat-toggle" aria-label="Toggle chat" title="Click to toggle chat window">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+    </button>
+</body>
+</html>
+<!-- Copyright � 2024 Renegade Swish, LLC -->
+

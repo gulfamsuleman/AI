@@ -1,0 +1,29 @@
+#users-table, #user-groups-table {
+	width: 100%;
+}
+
+.fa-plus {
+    color: green;
+}
+
+.panel-default > .panel-heading{
+    font-weight: bold;
+    text-align: center;
+    background-color:#ffffff;
+    border: none;
+}
+
+td{
+    border: solid 1px #ddd;
+}
+
+th {
+    background-color:#003366;
+    color: #ffffff;
+}
+
+#users-in-group > thead > tr > th, #users-in-group > tbody > tr > td {
+    padding:5px;
+}
+/* Copyright © 2024 Renegade Swish, LLC */
+

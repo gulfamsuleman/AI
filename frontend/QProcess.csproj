@@ -1,0 +1,2308 @@
+﻿<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
+  <Import Project="packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.0\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{E80D7D9D-5B39-40BB-B0C4-30CA88FF2077}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>QProcess</RootNamespace>
+    <AssemblyName>QProcess</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <Use64BitIISExpress>true</Use64BitIISExpress>
+    <IISExpressSSLPort>44399</IISExpressSSLPort>
+    <IISExpressAnonymousAuthentication>enabled</IISExpressAnonymousAuthentication>
+    <IISExpressWindowsAuthentication>disabled</IISExpressWindowsAuthentication>
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Alachisoft.NCache.Runtime, Version=4.4.0.0, Culture=neutral, PublicKeyToken=cff5926ed6a53769, processorArchitecture=MSIL">
+      <HintPath>packages\Alachisoft.NCache.SDK.4.4.0.0\lib\net40\Alachisoft.NCache.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Alachisoft.NCache.Web, Version=4.4.0.0, Culture=neutral, PublicKeyToken=cff5926ed6a53769, processorArchitecture=MSIL">
+      <HintPath>packages\Alachisoft.NCache.SDK.4.4.0.0\lib\net40\Alachisoft.NCache.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="AspNet.ScriptManager.jQuery, Version=3.7.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\AspNet.ScriptManager.jQuery.3.7.1\lib\net45\AspNet.ScriptManager.jQuery.dll</HintPath>
+    </Reference>
+    <Reference Include="AspNet.ScriptManager.jQuery.UI.Combined, Version=1.13.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\AspNet.ScriptManager.jQuery.UI.Combined.1.13.2\lib\net45\AspNet.ScriptManager.jQuery.UI.Combined.dll</HintPath>
+    </Reference>
+    <Reference Include="ClosedXML, Version=0.104.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\ClosedXML.0.104.2\lib\netstandard2.0\ClosedXML.dll</HintPath>
+    </Reference>
+    <Reference Include="ClosedXML.Parser, Version=1.0.0.0, Culture=neutral, PublicKeyToken=1d5f7376574c51ec, processorArchitecture=MSIL">
+      <HintPath>packages\ClosedXML.Parser.1.2.0\lib\netstandard2.0\ClosedXML.Parser.dll</HintPath>
+    </Reference>
+    <Reference Include="CsvHelper, Version=33.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
+      <HintPath>packages\CsvHelper.33.0.1\lib\net48\CsvHelper.dll</HintPath>
+    </Reference>
+    <Reference Include="DELETE_ME, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\CodeContracts.Unofficial.1.0.0.2\lib\net40-client\DELETE_ME.dll</HintPath>
+    </Reference>
+    <Reference Include="DocumentFormat.OpenXml, Version=3.1.1.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>packages\DocumentFormat.OpenXml.3.1.1\lib\net46\DocumentFormat.OpenXml.dll</HintPath>
+    </Reference>
+    <Reference Include="DocumentFormat.OpenXml.Framework, Version=3.1.1.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>packages\DocumentFormat.OpenXml.Framework.3.1.1\lib\net46\DocumentFormat.OpenXml.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetOpenAuth.AspNet, Version=4.0.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
+      <HintPath>packages\DotNetOpenAuth.AspNet.4.0.3.12163\lib\net40-full\DotNetOpenAuth.AspNet.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetOpenAuth.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
+      <HintPath>packages\DotNetOpenAuth.Core.4.0.3.12163\lib\net40-full\DotNetOpenAuth.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetOpenAuth.OAuth, Version=4.0.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
+      <HintPath>packages\DotNetOpenAuth.OAuth.Core.4.0.3.12163\lib\net40-full\DotNetOpenAuth.OAuth.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetOpenAuth.OAuth.Consumer, Version=4.0.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
+      <HintPath>packages\DotNetOpenAuth.OAuth.Consumer.4.0.3.12163\lib\net40-full\DotNetOpenAuth.OAuth.Consumer.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetOpenAuth.OpenId, Version=4.0.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
+      <HintPath>packages\DotNetOpenAuth.OpenId.Core.4.0.3.12163\lib\net40-full\DotNetOpenAuth.OpenId.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetOpenAuth.OpenId.RelyingParty, Version=4.0.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
+      <HintPath>packages\DotNetOpenAuth.OpenId.RelyingParty.4.0.3.12163\lib\net40-full\DotNetOpenAuth.OpenId.RelyingParty.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="ExcelNumberFormat, Version=1.1.0.0, Culture=neutral, PublicKeyToken=23c6f5d73be07eca, processorArchitecture=MSIL">
+      <HintPath>packages\ExcelNumberFormat.1.1.0\lib\net20\ExcelNumberFormat.dll</HintPath>
+    </Reference>
+    <Reference Include="HtmlAgilityPack, Version=1.4.6.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <HintPath>packages\HtmlAgilityPack.1.4.6\lib\Net45\HtmlAgilityPack.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net, Version=2.0.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>packages\log4net.2.0.15\lib\net45\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Membership.OpenAuth, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.AspNet.Membership.OpenAuth.1.0.0\lib\net45\Microsoft.AspNet.Membership.OpenAuth.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.HashCode, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Bcl.HashCode.1.1.1\lib\net461\Microsoft.Bcl.HashCode.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=2.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.IdentityModel.Abstractions, Version=8.0.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.IdentityModel.Abstractions.8.0.2\lib\net472\Microsoft.IdentityModel.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.JsonWebTokens, Version=6.35.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.IdentityModel.JsonWebTokens.6.35.1\lib\net472\Microsoft.IdentityModel.JsonWebTokens.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Logging, Version=8.0.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.IdentityModel.Logging.8.0.2\lib\net472\Microsoft.IdentityModel.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Protocols, Version=5.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.IdentityModel.Protocols.5.3.0\lib\net461\Microsoft.IdentityModel.Protocols.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect, Version=5.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.IdentityModel.Protocols.OpenIdConnect.5.3.0\lib\net461\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Tokens, Version=6.35.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.IdentityModel.Tokens.6.35.1\lib\net472\Microsoft.IdentityModel.Tokens.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Owin.4.2.2\lib\net45\Microsoft.Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Host.SystemWeb, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Owin.Host.SystemWeb.4.2.2\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Owin.Security.4.2.2\lib\net45\Microsoft.Owin.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.Cookies, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Owin.Security.Cookies.4.2.2\lib\net45\Microsoft.Owin.Security.Cookies.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.Jwt, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Owin.Security.Jwt.4.2.2\lib\net45\Microsoft.Owin.Security.Jwt.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.OAuth, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Owin.Security.OAuth.4.2.2\lib\net45\Microsoft.Owin.Security.OAuth.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.OpenIdConnect, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Owin.Security.OpenIdConnect.4.2.2\lib\net45\Microsoft.Owin.Security.OpenIdConnect.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json.Bson, Version=1.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.Bson.1.0.2\lib\net45\Newtonsoft.Json.Bson.dll</HintPath>
+    </Reference>
+    <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
+      <HintPath>packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net, Version=3.0.0.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <HintPath>packages\protobuf-net.3.1.25\lib\net462\protobuf-net.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net.Core, Version=3.0.0.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <HintPath>packages\protobuf-net.Core.3.1.25\lib\net462\protobuf-net.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="RBush, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\RBush.4.0.0\lib\net47\RBush.dll</HintPath>
+    </Reference>
+    <Reference Include="SixLabors.Fonts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=d998eea7b14cab13, processorArchitecture=MSIL">
+      <HintPath>packages\SixLabors.Fonts.1.0.0\lib\netstandard2.0\SixLabors.Fonts.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Immutable, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Collections.Immutable.8.0.0\lib\net462\System.Collections.Immutable.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IdentityModel.Tokens.Jwt, Version=6.35.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\System.IdentityModel.Tokens.Jwt.6.35.1\lib\net472\System.IdentityModel.Tokens.Jwt.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.Formatting, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.AspNet.WebApi.Client.6.0.0\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.WebRequest" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Text.Encodings.Web, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Text.Encodings.Web.6.0.0\lib\net461\System.Text.Encodings.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Json, Version=6.0.0.11, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Text.Json.6.0.11\lib\net461\System.Text.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Http, Version=5.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.AspNet.WebApi.Core.5.3.0\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Providers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.AspNet.Providers.Core.1.1\lib\net40\System.Web.Providers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="TimeZoneConverter, Version=6.1.0.0, Culture=neutral, PublicKeyToken=e20ab7d0d9479841, processorArchitecture=MSIL">
+      <HintPath>packages\TimeZoneConverter.6.1.0\lib\net462\TimeZoneConverter.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Abstractions, Version=5.11.7.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
+      <HintPath>packages\Unity.5.11.10\lib\net48\Unity.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Container, Version=5.11.11.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
+      <HintPath>packages\Unity.5.11.10\lib\net48\Unity.Container.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".gitattributes" />
+    <None Include=".gitignore" />
+    <Content Include="ApiService.asmx" />
+    <Content Include="app_online.htm" />
+    <Content Include="AuthTokenEmailRequest.aspx" />
+    <Content Include="Automations.aspx" />
+    <Content Include="BulkTaskUpload.aspx" />
+    <Content Include="ChatbotService.asmx" />
+    <Content Include="Content\ai-chat.css" />
+    <Content Include="Content\AuthTokenEmailRequest.css" />
+    <Content Include="Content\bootstrap-switch.css" />
+    <Content Include="Content\bootstrap-switch.min.css" />
+    <Content Include="Content\BulkTaskUpload.css" />
+    <Content Include="Content\calendar-datepicker.css" />
+    <Content Include="Content\Dashboard.css" />
+    <Content Include="Content\DashboardDetailedView.css" />
+    <Content Include="Content\dataTables.bootstrap5.css" />
+    <Content Include="Content\DetailedUserGrid.css" />
+    <Content Include="Content\jstree\mobileStyle.css" />
+    <Content Include="Content\mobile.css" />
+    <Content Include="Content\MobileCalendar.css" />
+    <Content Include="Content\MobileChangeRequest.css" />
+    <Content Include="Content\MobileTimezoneConversion.css" />
+    <Content Include="Content\mobi\mobiscroll.android-holo-light.css" />
+    <Content Include="Content\mobi\mobiscroll.animation.css" />
+    <Content Include="Content\mobi\mobiscroll.frame.android-holo.css" />
+    <Content Include="Content\mobi\mobiscroll.frame.android.css" />
+    <Content Include="Content\mobi\mobiscroll.frame.css" />
+    <Content Include="Content\mobi\mobiscroll.frame.ios-classic.css" />
+    <Content Include="Content\mobi\mobiscroll.frame.ios.css" />
+    <Content Include="Content\mobi\mobiscroll.frame.jqm.css" />
+    <Content Include="Content\mobi\mobiscroll.frame.sense-ui.css" />
+    <Content Include="Content\mobi\mobiscroll.frame.wp.css" />
+    <Content Include="Content\mobi\mobiscroll.icons.css" />
+    <Content Include="Content\mobi\mobiscroll.image.css" />
+    <Content Include="Content\mobi\mobiscroll.mobiscroll-dark.css" />
+    <Content Include="Content\mobi\mobiscroll.scroller.android-holo.css" />
+    <Content Include="Content\mobi\mobiscroll.scroller.android.css" />
+    <Content Include="Content\mobi\mobiscroll.scroller.css" />
+    <Content Include="Content\mobi\mobiscroll.scroller.ios-classic.css" />
+    <Content Include="Content\mobi\mobiscroll.scroller.ios.css" />
+    <Content Include="Content\mobi\mobiscroll.scroller.jqm.css" />
+    <Content Include="Content\mobi\mobiscroll.scroller.sense-ui.css" />
+    <Content Include="Content\mobi\mobiscroll.scroller.wp.css" />
+    <Content Include="Content\mobi\mobiscroll.wp-light.css" />
+    <Content Include="Content\Outprocessing.css" />
+    <Content Include="Content\PFS\ColorScheme.css" />
+    <Content Include="Content\PHI\ColorScheme.css" />
+    <Content Include="Content\QGraphs.css" />
+    <Content Include="Content\Q\ColorScheme.css" />
+    <Content Include="Content\Search.css" />
+    <Content Include="Content\TEB\ColorScheme.css" />
+    <Content Include="BulkAssignments.aspx" />
+    <Content Include="Calendar.aspx" />
+    <Content Include="ChangeRequests.aspx" />
+    <Content Include="ChecklistExport.aspx" />
+    <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\bs-submenu.css" />
+    <Content Include="Content\BulkAssignments.css" />
+    <Content Include="Content\Calendar.css" />
+    <Content Include="Content\ChangeRequestEmail.css" />
+    <Content Include="Content\ChangeRequests.css" />
+    <Content Include="Content\datepicker.css" />
+    <Content Include="Content\font-awesome.css" />
+    <Content Include="Content\globalSearch.css" />
+    <Content Include="Content\Grading.css" />
+    <Content Include="Content\GradingAdmin.css" />
+    <Content Include="Content\GradingApprovals.css" />
+    <Content Include="Content\Groups.css" />
+    <Content Include="Content\Help.css" />
+    <Content Include="Content\Inprocess.css" />
+    <Content Include="Content\jquery-impromptu.css" />
+    <Content Include="Content\jquery.contextMenu.css" />
+    <Content Include="Content\jquery.timepicker.css" />
+    <Content Include="Content\jquery.ui.timepicker.css" />
+    <Content Include="Content\jquery.validity.css" />
+    <Content Include="Content\jstree\32px.png" />
+    <Content Include="Content\jstree\40px.png" />
+    <Content Include="Content\jstree\style.css" />
+    <Content Include="Content\jstree\style.min.css" />
+    <Content Include="Content\jstree\throbber.gif" />
+    <Content Include="Content\ManageTasks.css" />
+    <Content Include="Content\MyInbox.css" />
+    <Content Include="Content\MyStatus.css" />
+    <Content Include="Content\MyTasks.css" />
+    <Content Include="Content\Nags.css" />
+    <Content Include="Content\NewTask.css" />
+    <Content Include="Content\PrintBase.css" />
+    <Content Include="Content\PrintBlackAndWhite.css" />
+    <Content Include="Content\PrintLargeFont.css" />
+    <Content Include="Content\Priorities.css" />
+    <Content Include="Content\PrioritiesSchedulingSite.css" />
+    <Content Include="Content\Reassign.css" />
+    <Content Include="Content\ReassignControllers.css" />
+    <Content Include="Content\ReportLoadTimes.css" />
+    <Content Include="Content\ReportResize.css" />
+    <Content Include="Content\Reports.css" />
+    <Content Include="Content\ReportToolbar.css" />
+    <Content Include="Content\Site.css" />
+    <Content Include="Content\StatusReport.css" />
+    <Content Include="Content\Suggestion.css" />
+    <Content Include="Content\SupervisorsAdmin.css" />
+    <Content Include="Content\TaskSummary.css" />
+    <Content Include="Content\TestManagement.css" />
+    <Content Include="Content\themes\base\accordion.css" />
+    <Content Include="Content\themes\base\all.css" />
+    <Content Include="Content\themes\base\autocomplete.css" />
+    <Content Include="Content\themes\base\base.css" />
+    <Content Include="Content\themes\base\button.css" />
+    <Content Include="Content\themes\base\core.css" />
+    <Content Include="Content\themes\base\datepicker.css" />
+    <Content Include="Content\themes\base\dialog.css" />
+    <Content Include="Content\themes\base\draggable.css" />
+    <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
+    <Content Include="Content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
+    <Content Include="Content\themes\base\images\ui-bg_glass_55_fbf9ee_1x400.png" />
+    <Content Include="Content\themes\base\images\ui-bg_glass_65_ffffff_1x400.png" />
+    <Content Include="Content\themes\base\images\ui-bg_glass_75_dadada_1x400.png" />
+    <Content Include="Content\themes\base\images\ui-bg_glass_75_e6e6e6_1x400.png" />
+    <Content Include="Content\themes\base\images\ui-bg_glass_95_fef1ec_1x400.png" />
+    <Content Include="Content\themes\base\images\ui-bg_highlight-soft_75_cccccc_1x100.png" />
+    <Content Include="Content\themes\base\images\ui-icons_222222_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_2e83ff_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_444444_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_454545_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_555555_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_777620_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_777777_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_888888_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_cc0000_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_cd0a0a_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_ffffff_256x240.png" />
+    <Content Include="Content\themes\base\jquery-ui.css" />
+    <Content Include="Content\themes\base\jquery-ui.min.css" />
+    <Content Include="Content\themes\base\menu.css" />
+    <Content Include="Content\themes\base\progressbar.css" />
+    <Content Include="Content\themes\base\resizable.css" />
+    <Content Include="Content\themes\base\selectable.css" />
+    <Content Include="Content\themes\base\selectmenu.css" />
+    <Content Include="Content\themes\base\slider.css" />
+    <Content Include="Content\themes\base\sortable.css" />
+    <Content Include="Content\themes\base\spinner.css" />
+    <Content Include="Content\themes\base\tabs.css" />
+    <Content Include="Content\themes\base\theme.css" />
+    <Content Include="Content\themes\base\tooltip.css" />
+    <Content Include="Content\TimezoneConversion.css" />
+    <Content Include="Controls\Shared\ChangeRequestComments.ascx" />
+    <Content Include="Controls\Shared\ChecklistHistory.ascx" />
+    <Content Include="Controls\Shared\DetailedUserGrid.ascx" />
+    <Content Include="Controls\Shared\GroupReassignment.ascx" />
+    <Content Include="Controls\Shared\MobileChangeRequest.ascx" />
+    <Content Include="Controls\Shared\QDataGrid.ascx" />
+    <Content Include="Controls\Shared\QGraphs.ascx" />
+    <Content Include="Controls\Shared\TaskReassignments.ascx" />
+    <Content Include="Dashboard.aspx" />
+    <Content Include="DashboardDetailedView.aspx" />
+    <Content Include="Images\ChatBubbleCHover.svg" />
+    <Content Include="Images\ChatBubbleC.svg" />
+    <Content Include="Images\Help\Auto-1.png" />
+    <Content Include="Images\Help\Auto-2.png" />
+    <Content Include="Images\Help\Auto-3.png" />
+    <Content Include="Images\Help\Auto-4.png" />
+    <Content Include="Images\Help\Auto-5.png" />
+    <Content Include="Images\Help\exp-1.png" />
+    <Content Include="Images\Help\image017.png" />
+    <Content Include="Images\Help\image055.png" />
+    <Content Include="Images\Help\image165.png" />
+    <Content Include="Images\Help\image166.png" />
+    <Content Include="Images\Help\image250.png" />
+    <Content Include="Images\Help\image251.png" />
+    <Content Include="Images\Help\image252.png" />
+    <Content Include="Images\Help\image253.png" />
+    <Content Include="Images\Help\image254.png" />
+    <Content Include="Images\Help\image255.png" />
+    <Content Include="Images\Help\image256.png" />
+    <Content Include="Images\Help\image257.png" />
+    <Content Include="Images\Help\image258.png" />
+    <Content Include="Images\Help\image259.png" />
+    <Content Include="Images\Help\image260.png" />
+    <Content Include="Images\Help\image261.png" />
+    <Content Include="Images\Help\MS-1.png" />
+    <Content Include="Images\Help\Notif-1.png" />
+    <Content Include="Images\Help\Notif-2.png" />
+    <Content Include="Images\Help\Notif-3.png" />
+    <Content Include="Images\Help\NT-1.png" />
+    <Content Include="Images\Help\PL-1.png" />
+    <Content Include="Images\Help\PL-2.png" />
+    <Content Include="Images\Help\sd-1.png" />
+    <Content Include="Images\Help\sd-2.png" />
+    <Content Include="Images\Help\sd-3.png" />
+    <Content Include="Images\Help\sd-4.png" />
+    <Content Include="Images\Help\sd-5.png" />
+    <Content Include="Images\Help\sd-6.png" />
+    <Content Include="Images\Help\sd-7.png" />
+    <Content Include="Images\Help\th-1.png" />
+    <Content Include="Images\Help\th-2.png" />
+    <Content Include="Images\Help\th-3.png" />
+    <Content Include="Images\Help\th-4.png" />
+    <Content Include="Images\Help\TskHis-1.png" />
+    <Content Include="Images\Help\tz-1.png" />
+    <Content Include="Images\Help\tz-2.png" />
+    <Content Include="Images\Help\tz-3.png" />
+    <Content Include="Images\Help\tz-4.png" />
+    <Content Include="Images\Help\tz-5.png" />
+    <Content Include="Images\Help\tz-6.png" />
+    <Content Include="Images\Help\tz-7.png" />
+    <Content Include="Mobile\MobileManageTasksExport.aspx" />
+    <Content Include="Mobile\MobileTimezoneConversion.aspx" />
+    <Content Include="Scripts\ai-chatbot.js" />
+    <Content Include="Scripts\bootstrap-switch.js" />
+    <Content Include="Scripts\bootstrap-switch.min.js" />
+    <Content Include="Scripts\Dashboard.js" />
+    <Content Include="Scripts\DashboardDetailedView.js" />
+    <Content Include="Scripts\DetailedUserGrid.js" />
+    <Content Include="Scripts\GroupReassignments.js" />
+    <Content Include="Scripts\lc_switch.js" />
+    <Content Include="Scripts\MobileChangeRequest.js" />
+    <Content Include="Scripts\MobileDragndrop.js" />
+    <Content Include="Scripts\modernizr-2.5.3.js" />
+    <Content Include="Scripts\QDataGrid.js" />
+    <Content Include="Scripts\QGraph.js" />
+    <Content Include="Scripts\Search.js" />
+    <Content Include="Scripts\TaskReassignments.js" />
+    <Content Include="Scripts\TimezoneConversion.js" />
+    <Content Include="Scripts\TimeZone\moment-timezone-with-data-2012-2022.min.js" />
+    <Content Include="Scripts\TimeZone\moment-timezone.min.js" />
+    <Content Include="Scripts\TimeZone\moment-with-locales.min.js" />
+    <Content Include="Scripts\TimeZone\moment.min.js" />
+    <Content Include="Content\timezone-picker.css" />
+    <Content Include="Scripts\TimeZone\timezone-picker.js" />
+    <Content Include="Scripts\TimeZone\timezone-picker.min.js" />
+    <Content Include="Content\Users.css" />
+    <Content Include="Content\Vacation.css" />
+    <Content Include="Content\_README_IMPORTANT.txt" />
+    <Content Include="ControlsSlim\Shared\ChecklistHeader.html" />
+    <Content Include="ControlsSlim\Shared\MobileChecklistHeader.html" />
+    <Content Include="Controls\Calendar\CalendarDayOfWeek.ascx" />
+    <Content Include="Controls\Calendar\OverdueCalendarDay.ascx" />
+    <Content Include="Controls\ChangeRequests\ChangeRequest.ascx" />
+    <Content Include="Controls\ChangeRequests\ChangeRequestDenyEmail.ascx" />
+    <Content Include="Controls\ChangeRequests\ChangeRequestItemAddition.ascx" />
+    <Content Include="Controls\ChangeRequests\ChangeRequestItemChange.ascx" />
+    <Content Include="Controls\ChangeRequests\ChangeRequestItemChangeNatural.ascx" />
+    <Content Include="Controls\ChangeRequests\ChangeRequestItemRemoval.ascx" />
+    <Content Include="Controls\Footer\Preferences.ascx" />
+    <Content Include="Controls\Footer\ViewGroups.ascx" />
+    <Content Include="Controls\Grading\GradingAdminDetails.ascx" />
+    <Content Include="Controls\Grading\GradingDeductions.ascx" />
+    <Content Include="Controls\Grading\GradingPeriods.ascx" />
+    <Content Include="Controls\Grading\GradingReportsOnHold.ascx" />
+    <Content Include="Controls\Grading\GradingUsers.ascx" />
+    <Content Include="Controls\Grading\GradingVacations.ascx" />
+    <Content Include="Controls\ManageTasks\AssignmentPanel.ascx" />
+    <Content Include="Controls\ManageTasks\TaskEditPanel.ascx" />
+    <Content Include="Controls\ManageTasks\WorkingOnNow.ascx" />
+    <Content Include="Controls\MyInbox\ConfidentialReports.ascx" />
+    <Content Include="Controls\MyInbox\DueDateChanges.ascx" />
+    <Content Include="Controls\MyInbox\InboxReportsView.ascx" />
+    <Content Include="Controls\MyInbox\ManageEmails.ascx" />
+    <Content Include="Controls\MyInbox\MobileReportList.ascx" />
+    <Content Include="Controls\MyInbox\ReportList.ascx" />
+    <Content Include="Controls\MyInbox\Visibility.ascx" />
+    <Content Include="Controls\MyStatus\AddExistingTask.ascx" />
+    <Content Include="Controls\MyStatus\AttorneyClient.ascx" />
+    <Content Include="Controls\MyStatus\BulkUpdate.ascx" />
+    <Content Include="Controls\MyStatus\CommentViewer.ascx" />
+    <Content Include="Controls\MyStatus\CopyTask.ascx" />
+    <Content Include="Controls\MyStatus\EmailComments.ascx" />
+    <Content Include="Controls\MyStatus\Export.ascx" />
+    <Content Include="Controls\MyStatus\ManageReports.ascx" />
+    <Content Include="Controls\MyStatus\MoveTask.ascx" />
+    <Content Include="Controls\MyStatus\ReportLine.ascx" />
+    <Content Include="Controls\MyStatus\ReportLineEmail.ascx" />
+    <Content Include="Controls\MyStatus\ReportLineExport.ascx" />
+    <Content Include="Controls\MyStatus\ResizeReport.ascx" />
+    <Content Include="Controls\MyStatus\Sections.ascx" />
+    <Content Include="Controls\MyStatus\Timeline.ascx" />
+    <Content Include="Controls\MyTasks\Timeline.ascx" />
+    <Content Include="Controls\NewTask\ComplexTask.ascx" />
+    <Content Include="Controls\Priorities\AvailableTasks.ascx" />
+    <Content Include="Controls\Priorities\AvailableUsers.ascx" />
+    <Content Include="Controls\Priorities\Comments.ascx" />
+    <Content Include="Controls\Priorities\SetDefaultPriorityList.ascx" />
+    <Content Include="Controls\Priorities\CreatePriorityList.ascx" />
+    <Content Include="Controls\Priorities\DeletePriorityList.ascx" />
+    <Content Include="Controls\Priorities\EmailConfirmation.ascx" />
+    <Content Include="Controls\Priorities\EmailPriorityList.ascx" />
+    <Content Include="Controls\Priorities\Fonts.ascx" />
+    <Content Include="Controls\Priorities\Message.ascx" />
+    <Content Include="Controls\Priorities\PriorityLines.ascx" />
+    <Content Include="Controls\Priorities\PriorityLinesEmail.ascx" />
+    <Content Include="Controls\Priorities\PriorityList.ascx" />
+    <Content Include="Controls\Priorities\SwitchPriorityList.ascx" />
+    <Content Include="Controls\Reports\History.ascx" />
+    <Content Include="Controls\Reports\Overdue.ascx" />
+    <Content Include="Controls\Reports\OverdueMessage.ascx" />
+    <Content Include="Controls\Reports\ReportsOverview.ascx" />
+    <Content Include="Controls\Reports\SortBy.ascx" />
+    <Content Include="Controls\Reports\TasksByPerson.ascx" />
+    <Content Include="Controls\Reports\ThreeDayOverdue.ascx" />
+    <Content Include="Controls\Shared\AddGroup.ascx" />
+    <Content Include="Controls\Shared\AlertsRemindersPanel.ascx" />
+    <Content Include="Controls\Shared\AssignedToPanel.ascx" />
+    <Content Include="Controls\Shared\AssigneesMultiSelect.ascx" />
+    <Content Include="Controls\Shared\Checklist.ascx" />
+    <Content Include="Controls\Shared\ChecklistExport.ascx" />
+    <Content Include="Controls\Shared\ChecklistHeader.ascx" />
+    <Content Include="Controls\Shared\ChecklistItemsPanel.ascx" />
+    <Content Include="Controls\Shared\ChecklistPreview.ascx" />
+    <Content Include="Controls\Shared\CommentList.ascx" />
+    <Content Include="Controls\Shared\Controllers.ascx" />
+    <Content Include="Controls\Shared\ControllersPanel.ascx" />
+    <Content Include="Controls\Shared\EditGroup.ascx" />
+    <Content Include="Controls\Shared\Filters.ascx" />
+    <Content Include="Controls\Shared\Help.ascx" />
+    <Content Include="Controls\Shared\ItemBase.ascx" />
+    <Content Include="Controls\Shared\ItemBaseExport.ascx" />
+    <Content Include="Controls\Shared\ModalFramework.ascx" />
+    <Content Include="Controls\Shared\NewTask.ascx" />
+    <Content Include="Controls\Shared\RelatedComments.ascx" />
+    <Content Include="Controls\Shared\ReportToolbar.ascx" />
+    <Content Include="Controls\Shared\SchedulingPanel.ascx" />
+    <Content Include="Controls\Shared\StatusReport.ascx" />
+    <Content Include="Controls\Shared\StatusReportsPanel.ascx" />
+    <Content Include="Controls\Shared\Supervisors.ascx" />
+    <Content Include="Controls\Shared\Throbber.ascx" />
+    <Content Include="Controls\Shared\ViewAlerts.ascx" />
+    <Content Include="Controls\TaskSummary\SetStatus.ascx" />
+    <Content Include="Controls\TaskSummary\StatusTaskLine.ascx" />
+    <Content Include="Controls\TaskSummary\StatusTasks.ascx" />
+    <Content Include="Controls\TaskSummary\TasksPanel.ascx" />
+    <Content Include="DataService.asmx" />
+    <Content Include="Default.aspx" />
+    <Content Include="SQL\20250728_PageUsage.sql" />
+    <Content Include="SQL\20250729_PriorityListSet_GetComments_UTC.sql" />
+    <Content Include="SQL\_Archived\2025071001_QStatus_GlobalSearchNew.sql" />
+    <Content Include="SQL\_Archived\2025071101_TaskContent_Tables_SPs.sql" />
+    <Content Include="SQL\_Archived\2025071401_QStatus_MyStatusSearch.sql" />
+    <Content Include="SQL\_Archived\2025071601_QStatus_MyStatusSearch_02.sql" />
+    <Content Include="SQL\_Archived\2025071602_QStatus_MyTaskSearch_02.sql" />
+    <Content Include="SQL\_Archived\2025071701_PageUsageLog.sql" />
+    <Content Include="SQL\_Archived\2025072301_QCheck_RedactedTaskList.sql" />
+    <Content Include="SQL\_Archived\20250512_Task-From-Template-Setup.sql" />
+    <Content Include="SQL\_Archived\20250519_BulkImportPreferences.sql" />
+    <Content Include="SQL\_Archived\20250520_PriorityListSet_GetComments.sql" />
+    <Content Include="SQL\_Archived\20250521_BulkImportPreferences_Updates.sql" />
+    <Content Include="SQL\_Archived\20250523_BulkImportPreferences_3rd_Update.sql" />
+    <Content Include="SQL\_Archived\20250529_QStatus_GetTaskItemDetailsByStatusReportID.sql" />
+    <Content Include="SQL\_Archived\20250602_QCheck_CreateSimple_part1.sql" />
+    <Content Include="SQL\_Archived\20250603_PreferenceChanges.sql" />
+    <Content Include="SQL\_Archived\20250609_QStatus_CreateNewPriorityComment.sql" />
+    <Content Include="SQL\_Archived\20250611_PriorityCommentHistoryChanges.sql" />
+    <Content Include="SQL\_Archived\20250613_PriorityListSet_GetComments.sql" />
+    <Content Include="SQL\_Archived\01.02.2025 QCheck_Approval_NewDeadline.sql" />
+    <Content Include="SQL\_Archived\12.30.24 Last Controller For Checklist Check.sql" />
+    <Content Include="SQL\_Archived\12.30.24 Supervisor Popup - QStatus_GetControllerUserIDsByReportID.sql" />
+    <Content Include="SQL\_Archived\12.30.24 Supervisor Popup 2 - IsPersonalReportByReportID.sql" />
+    <Content Include="SQL\_Archived\12.31.24 QCheck_AddItemsToChecklistThroughApi.sql" />
+    <Content Include="SQL\_Archived\12.31.24 QCheck_ChangeTaskDueDateThroughApi.sql" />
+    <Content Include="SQL\_Archived\12.31.24 QCheck_GetStatusOfTasksByStatusReport.sql" />
+    <Content Include="SQL\_Archived\12.7.24 Get Checklists By Status Report ID.sql" />
+    <Content Include="SQL\_Archived\2024-10-02_SqlScriptAudit.sql" />
+    <Content Include="SQL\_Archived\2024102201_TimeZoneChanges.sql" />
+    <Content Include="SQL\_Archived\2024111101_TimeZoneChanges_2.sql" />
+    <Content Include="SQL\_Archived\2024112101_TimeZoneChanges_AntonioChanges.sql" />
+    <Content Include="SQL\_Archived\2024120601_FixPriorityCommentGetters.sql" />
+    <Content Include="SQL\_Archived\20241210_CreateTaskThroughChatbot.sql" />
+    <Content Include="SQL\_Archived\2025012701_FixChangeRequestDoubleJoin.sql" />
+    <Content Include="SQL\_Archived\2025020401_QCheck_Approval_DeadlineHistory.sql" />
+    <Content Include="SQL\_Archived\20250319_QCheck_RedactedTaskList.sql" />
+    <Content Include="SQL\_Archived\20250414_QStatus_GetActiveChecklistIdByChecklistId.sql" />
+    <Content Include="SQL\_Archived\20250414_QStatus_GetChangeHistory.sql" />
+    <Content Include="SQL\_Archived\20250414_QStatus_GetCommentsAllHistory.sql" />
+    <Content Include="SQL\_Archived\20250414_QStatus_GetDeadlineHistory.sql" />
+    <Content Include="SQL\_Archived\20250415_QStatus_GetCommentsAllHistory.sql" />
+    <Content Include="SQL\_Archived\20250417_QStatus_GetDeadlineHistory.sql" />
+    <Content Include="SQL\_Archived\20250423_QProcess_Dashboard_Scripts.sql" />
+    <Content Include="SQL\_Archived\20250424_QCheck_GetActiveChecklistIdByChecklistId.sql" />
+    <Content Include="SQL\_Archived\20250424_QStatus_GetCommentsAllHistory.sql" />
+    <Content Include="SQL\_Archived\20250425_QStatus_GetCommentsAllHistory.sql" />
+    <Content Include="SQL\_Archived\20250429_QStatus_GetChangeHistory.sql" />
+    <Content Include="SQL\_Archived\20250429_QStatus_GetDeadlineHistory.sql" />
+    <Content Include="SQL\_Archived\20250430_QStatus_GetChangeHistory.sql" />
+    <Content Include="SQL\_Archived\20250430_QStatus_GetDeadlineHistory.sql" />
+    <Content Include="SQL\_Archived\20250507_PriorityList_SaveEntirePriorityOrder.sql" />
+    <Content Include="SQL\_Archived\20250512_NotificationsTouchpoints.sql" />
+    <Content Include="SQL\_Archived\20250515_QCheck_CreateSimple_Part1_ORIGINAL.sql" />
+    <Content Include="SQL\_Archived\20250515_QCheck_GetMyChecklistsByFolder_ORIGINAL.sql" />
+    <Content Include="SQL\_Archived\20250616_PriorityListSet_GetComments_UTC.sql" />
+    <Content Include="SQL\_Archived\20250708_Change_Request_Scheduling_Fix.sql" />
+    <Content Include="SQL\_Archived\2025071401_TaskContent_Refresh_Jobs.sql" />
+    <Content Include="SQL\_Archived\2025072201_QCheck_WeeklySummaryEmail.sql" />
+    <Content Include="SQL\_Archived\2025072401_AutoEmailPreferences_WeeklySummaryEmail.sql" />
+    <Content Include="SQL\_Archived\Audit\Audit_Setup.sql" />
+    <Content Include="SQL\_Archived\Audit\PriorityListSet_GetComments.sql" />
+    <Content Include="SQL\_Archived\Audit\PriorityList_Get.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck2_AddItem.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_ActiveInstanceAlert_SingleUser.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_ActiveTasksAssigned.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_ActiveTasksManaged.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_AddItem.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_Approval_AddItem.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_Approval_DelItem.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_Approval_GetChecklistName.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_Approval_GetSupervisorChangeRequests.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_Approval_UpdateChecklistName.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_Approval_UpdateItem.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_CompleteChecklist.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_CreateActiveItem.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_CreateSimple_part1.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_DelItem.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_GetActiveChecklistTaskTypes.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_GetCalendarChecklists.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_GetChecklistItems.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_GetMyChecklistsByFolder.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_GetName.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_GetOverdueTasks.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_GetPotentialNATasks.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_GetSingleChecklist.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_GetUserChecklists.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_SlimGetUserChecklists.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_UpdateChecklistName.sql" />
+    <Content Include="SQL\_Archived\Audit\QCheck_UpdateItem.sql" />
+    <Content Include="SQL\_Archived\Audit\QStatus_GetArchive.sql" />
+    <Content Include="SQL\_Archived\Audit\QStatus_GetCommentsAll.sql" />
+    <Content Include="SQL\_Archived\Audit\QStatus_GetLatestComments.sql" />
+    <Content Include="SQL\_Archived\Audit\QStatus_GetRelatedComments.sql" />
+    <Content Include="SQL\_Archived\Audit\QStatus_GetReport.sql" />
+    <Content Include="SQL\_Archived\Audit\QStatus_GetReportLatestComments.sql" />
+    <Content Include="SQL\_Archived\Audit\QStatus_GetReportList.sql" />
+    <Content Include="SQL\_Archived\Audit\QStatus_GetReportList_Supervised.sql" />
+    <Content Include="SQL\_Archived\Audit\QStatus_GetReportName.sql" />
+    <Content Include="SQL\_Archived\Audit\QStatus_GetReportTaskListByUser.sql" />
+    <Content Include="SQL\_Archived\Audit\QStatus_GetSlimCommentsAll.sql" />
+    <Content Include="SQL\_Archived\Audit\QStatus_GetSlimCommentsByIds.sql" />
+    <Content Include="SQL\_Archived\Audit\QStatus_GetTaskTypes.sql" />
+    <Content Include="SQL\_Archived\Audit\_Audit_Script_Consolidated.sql" />
+    <Content Include="SQL\_Archived\Consolidated Scripts for all API Methods 10102024.sql" />
+    <Content Include="SQL\_Archived\CREATE QStatus_ReportValidation.sql" />
+    <Content Include="SQL\_Archived\DB Scripts\ALTER Stored Procedure Util_UserTestReport 08022024.sql" />
+    <Content Include="SQL\_Archived\DB Scripts\CREATE QCheck_GetMyTasksToAddExcludeAlreadyAdded 20240709.sql" />
+    <Content Include="SQL\_Archived\DB Scripts\CREATE Stored Procedure Util_UserTestReport 07152024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\ALTER QCheck_CompleteChecklist 10042024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\ALTER QCheck_CreateSimple_part1 07302024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\ALTER QCheck_CreateTaskThroughApi 10022024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\ALTER Util_GradeTest_Breakdown 07162024 V2.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\ALTER Util_GradeTest_Breakdown 07162024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\ALTER Util_GradeTest_Breakdown 07252024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\Consolidated Scripts for all API Methods 10102024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\CREATE API_RevokeApiKey 09172024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\CREATE API_RevokeSigningKey 09172024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\CREATE QCheck_AddApiKey 09122024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\CREATE QCheck_AddJwtKey 09122024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\CREATE QCheck_CompleteTaskByTaskNameOrId 10032024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\CREATE QCheck_CreateTaskThroughApi 09122024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\CREATE QCheck_GetAllApiKeys 09162024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\CREATE QCheck_GetAllSigningKeys 09172024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\CREATE QCheck_GetStatusOfTaskByTaskOrUser 10032024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\CREATE QCheck_MultipleNameCheck 10042024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\CREATE QCheck_OutprocessAndReplaceUser 07192024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\CREATE QCheck_RetrieveApiKey 09132024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\CREATE QCheck_RetrieveJwtKey 09132024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\CREATE QStatus_AddTaskToStatusSection 10042024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\CREATE QStatus_CreateNewCommentThroughAPI 10042024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\CREATE QStatus_GetTaskTypeByReport 08282024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\CREATE QStatus_GetUserTaskStatusThroughAPI 10042024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\CREATE QStatus_ReportValidation 10022024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\CREATE QUtil_CcreateComplexTask 07292024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\CREATE Security Key Tables 09122024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\CREATE Util_CreateComplexFoundationTask 07302024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\CREATE Util_CreateComplexTaskBasedOnTemplate 07302024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\CREATE Util_Log3rdPartyAccessAttempt 09122024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\ORIGINAL QCheck_CreateSimple_part1 BACKUP 07302024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\ORIGINAL Util_GradeTest_Breakdown BACKUP 07162024.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\QCheck_SlimGetUserOtherOverdueChecklists.sql" />
+    <Content Include="SQL\_Archived\New SQL Scripts\QStatus_GetSlimChecklistItems.sql" />
+    <Content Include="SQL\_Archived\PFS\20240326-00 - DROP DB.sql" />
+    <Content Include="SQL\_Archived\PFS\20240326-01 - Create DB.sql" />
+    <Content Include="SQL\_Archived\PFS\20240326-02 - Initial Users And App Settings.sql" />
+    <Content Include="SQL\_Archived\PriorityList\20240510-01 - New Schema and Data Migration.sql" />
+    <Content Include="SQL\_Archived\PriorityList\20240521-01 - Update Stored Procs.sql" />
+    <Content Include="SQL\_Archived\PriorityList\20240521-02 - Move old schema to zzz_ backups.sql" />
+    <Content Include="SQL\_Archived\QCheck_Notification.sql" />
+    <Content Include="SQL\_Archived\QCheck_SlimGetUserOtherOverdueChecklists.sql" />
+    <Content Include="SQL\_Archived\QProcess-Search-Setup.sql" />
+    <Content Include="SQL\_Archived\QStatus_GlobalSearch.sql" />
+    <Content Include="SQL\_Archived\QStatus_SaveSearchHistory.sql" />
+    <Content Include="SQL\_Archived\TEB\2023-03-22 Update Calendar Filters.sql" />
+    <Content Include="SQL\_Archived\TEB\2024-02-16 - Update Checklist Views With Pending Extension.sql" />
+    <Content Include="SQL\_Archived\TimeZone\TableChanges.sql" />
+    <Content Include="SQL\_Archived\UPDATE QCheck_GetCalendarChecklists 05082025.sql" />
+    <Content Include="StatusReportTasks.aspx" />
+    <Content Include="DepartmentTasks.aspx" />
+    <Content Include="Error\Error.aspx" />
+    <Content Include="Error\ifihadany.png" />
+    <Content Include="ExcuseOverdueTasks.aspx" />
+    <Content Include="ExcusePriorities.aspx" />
+    <Content Include="favicon.ico" />
+    <Content Include="fonts\fontawesome-webfont.svg" />
+    <Content Include="FromEmail\BrowserDetect.aspx" />
+    <Content Include="FromEmail\Complete.aspx" />
+    <Content Include="FromEmail\CompleteChecklist.aspx" />
+    <Content Include="FromEmail\ExtensionRequest.aspx" />
+    <Content Include="FromEmail\jquery-1.9.1.min.js" />
+    <Content Include="FromEmail\na.aspx" />
+    <Content Include="Global.asax" />
+    <Content Include="GlobalSearch.aspx" />
+    <Content Include="Grading.aspx" />
+    <Content Include="GradingAdmin.aspx" />
+    <Content Include="GradingApprovals.aspx" />
+    <Content Include="Groups.aspx" />
+    <Content Include="health.html" />
+    <Content Include="Help.aspx" />
+    <Content Include="Images\Arrow.gif" />
+    <Content Include="Images\asc.gif" />
+    <Content Include="Images\bg.gif" />
+    <Content Include="Images\collapse.gif" />
+    <Content Include="Images\complete.gif" />
+    <Content Include="Images\conf.gif" />
+    <Content Include="Images\copy.gif" />
+    <Content Include="Images\cut.png" />
+    <Content Include="Images\delete.gif" />
+    <Content Include="Images\desc.gif" />
+    <Content Include="Images\door.png" />
+    <Content Include="Images\edit.gif" />
+    <Content Include="Images\excel.gif" />
+    <Content Include="Images\expand.gif" />
+    <Content Include="Images\export.png" />
+    <Content Include="Images\filter.gif" />
+    <Content Include="Images\font.gif" />
+    <Content Include="Images\Help Page Copy.htm" />
+    <Content Include="Images\help.gif" />
+    <Content Include="Images\Help\cal1.png" />
+    <Content Include="Images\Help\cal2.png" />
+    <Content Include="Images\Help\change.1.png" />
+    <Content Include="Images\Help\group.1.png" />
+    <Content Include="Images\Help\group.2.png" />
+    <Content Include="Images\Help\help1.png" />
+    <Content Include="Images\Help\image001.png" />
+    <Content Include="Images\Help\image002.png" />
+    <Content Include="Images\Help\image003.jpg" />
+    <Content Include="Images\Help\image004.gif" />
+    <Content Include="Images\Help\image005.jpg" />
+    <Content Include="Images\Help\image006.png" />
+    <Content Include="Images\Help\image007.jpg" />
+    <Content Include="Images\Help\image008.png" />
+    <Content Include="Images\Help\image009.gif" />
+    <Content Include="Images\Help\image010.png" />
+    <Content Include="Images\Help\image011.gif" />
+    <Content Include="Images\Help\image012.gif" />
+    <Content Include="Images\Help\image013.png" />
+    <Content Include="Images\Help\image014.png" />
+    <Content Include="Images\Help\image015.gif" />
+    <Content Include="Images\Help\image016.png" />
+    <Content Include="Images\Help\image018.png" />
+    <Content Include="Images\Help\image019.png" />
+    <Content Include="Images\Help\image020.png" />
+    <Content Include="Images\Help\image021.gif" />
+    <Content Include="Images\Help\image022.gif" />
+    <Content Include="Images\Help\image022a.gif" />
+    <Content Include="Images\Help\image022b.gif" />
+    <Content Include="Images\Help\image023.gif" />
+    <Content Include="Images\Help\image024.gif" />
+    <Content Include="Images\Help\image025.gif" />
+    <Content Include="Images\Help\image026.gif" />
+    <Content Include="Images\Help\image027.gif" />
+    <Content Include="Images\Help\image028.gif" />
+    <Content Include="Images\Help\image029.jpg" />
+    <Content Include="Images\Help\image030.jpg" />
+    <Content Include="Images\Help\image031.gif" />
+    <Content Include="Images\Help\image032.png" />
+    <Content Include="Images\Help\image033.gif" />
+    <Content Include="Images\Help\image034.gif" />
+    <Content Include="Images\Help\image035.png" />
+    <Content Include="Images\Help\image036.png" />
+    <Content Include="Images\Help\image037.jpg" />
+    <Content Include="Images\Help\image038.png" />
+    <Content Include="Images\Help\image039.jpg" />
+    <Content Include="Images\Help\image040.png" />
+    <Content Include="Images\Help\image041.png" />
+    <Content Include="Images\Help\image042.png" />
+    <Content Include="Images\Help\image043.gif" />
+    <Content Include="Images\Help\image044.png" />
+    <Content Include="Images\Help\image045.png" />
+    <Content Include="Images\Help\image046.png" />
+    <Content Include="Images\Help\image047.gif" />
+    <Content Include="Images\Help\image048.gif" />
+    <Content Include="Images\Help\image049.png" />
+    <Content Include="Images\Help\image050.gif" />
+    <Content Include="Images\Help\image051.png" />
+    <Content Include="Images\Help\image052.gif" />
+    <Content Include="Images\Help\image053.gif" />
+    <Content Include="Images\Help\image054.png" />
+    <Content Include="Images\Help\image056.png" />
+    <Content Include="Images\Help\image057.jpg" />
+    <Content Include="Images\Help\image058.gif" />
+    <Content Include="Images\Help\image059.gif" />
+    <Content Include="Images\Help\image060.gif" />
+    <Content Include="Images\Help\image061.jpg" />
+    <Content Include="Images\Help\image062.png" />
+    <Content Include="Images\Help\image063.gif" />
+    <Content Include="Images\Help\image064.png" />
+    <Content Include="Images\Help\image065.gif" />
+    <Content Include="Images\Help\image066.gif" />
+    <Content Include="Images\Help\image067.gif" />
+    <Content Include="Images\Help\image068.gif" />
+    <Content Include="Images\Help\image069.gif" />
+    <Content Include="Images\Help\image070.gif" />
+    <Content Include="Images\Help\image071.gif" />
+    <Content Include="Images\Help\image072.gif" />
+    <Content Include="Images\Help\image073.gif" />
+    <Content Include="Images\Help\image074.png" />
+    <Content Include="Images\Help\image075.png" />
+    <Content Include="Images\Help\image076.png" />
+    <Content Include="Images\Help\image077.png" />
+    <Content Include="Images\Help\image078.png" />
+    <Content Include="Images\Help\image079.png" />
+    <Content Include="Images\Help\image080.png" />
+    <Content Include="Images\Help\image081.gif" />
+    <Content Include="Images\Help\image082.gif" />
+    <Content Include="Images\Help\image083.png" />
+    <Content Include="Images\Help\image084.gif" />
+    <Content Include="Images\Help\image085.gif" />
+    <Content Include="Images\Help\image086.gif" />
+    <Content Include="Images\Help\image087.gif" />
+    <Content Include="Images\Help\image088.gif" />
+    <Content Include="Images\Help\image089.gif" />
+    <Content Include="Images\Help\image090.gif" />
+    <Content Include="Images\Help\image091.gif" />
+    <Content Include="Images\Help\image092.gif" />
+    <Content Include="Images\Help\image093.jpg" />
+    <Content Include="Images\Help\image094.jpg" />
+    <Content Include="Images\Help\image095.jpg" />
+    <Content Include="Images\Help\image096.jpg" />
+    <Content Include="Images\Help\image097.jpg" />
+    <Content Include="Images\Help\image098.png" />
+    <Content Include="Images\Help\image099.png" />
+    <Content Include="Images\Help\image100.gif" />
+    <Content Include="Images\Help\image101.png" />
+    <Content Include="Images\Help\image102.png" />
+    <Content Include="Images\Help\image103.gif" />
+    <Content Include="Images\Help\image104.gif" />
+    <Content Include="Images\Help\image105.gif" />
+    <Content Include="Images\Help\image106.gif" />
+    <Content Include="Images\Help\image107.png" />
+    <Content Include="Images\Help\image108.gif" />
+    <Content Include="Images\Help\image109.gif" />
+    <Content Include="Images\Help\image110.gif" />
+    <Content Include="Images\Help\image111.gif" />
+    <Content Include="Images\Help\image112.gif" />
+    <Content Include="Images\Help\image113.gif" />
+    <Content Include="Images\Help\image114.gif" />
+    <Content Include="Images\Help\image115.gif" />
+    <Content Include="Images\Help\image116.gif" />
+    <Content Include="Images\Help\image117.gif" />
+    <Content Include="Images\Help\image118.gif" />
+    <Content Include="Images\Help\image119.gif" />
+    <Content Include="Images\Help\image120.gif" />
+    <Content Include="Images\Help\image121.gif" />
+    <Content Include="Images\Help\image122.gif" />
+    <Content Include="Images\Help\image123.gif" />
+    <Content Include="Images\Help\image124.gif" />
+    <Content Include="Images\Help\image125.gif" />
+    <Content Include="Images\Help\image126.gif" />
+    <Content Include="Images\Help\image127.gif" />
+    <Content Include="Images\Help\manage1.png" />
+    <Content Include="Images\Help\mystat1.png" />
+    <Content Include="Images\Help\nav1.png" />
+    <Content Include="Images\Help\nav2.png" />
+    <Content Include="Images\Help\new.1.png" />
+    <Content Include="Images\Help\new1.png" />
+    <Content Include="Images\Help\new2.png" />
+    <Content Include="Images\Help\priorities.png" />
+    <Content Include="Images\Help\priorities1.png" />
+    <Content Include="Images\Help\priorities2.png" />
+    <Content Include="Images\Help\reports.1.png" />
+    <Content Include="Images\Help\search1.png" />
+    <Content Include="Images\Help\tasksum1.png" />
+    <Content Include="Images\hourglass.gif" />
+    <Content Include="Images\inbox.gif" />
+    <Content Include="Images\loading.gif" />
+    <Content Include="Images\logo_new.gif" />
+    <Content Include="Images\magnify.gif" />
+    <Content Include="Images\managed_cl.gif" />
+    <Content Include="Images\minus.gif" />
+    <Content Include="Images\mystatus.gif" />
+    <Content Include="Images\my_cl.gif" />
+    <Content Include="Images\Nags\arrow_down.png" />
+    <Content Include="Images\Nags\arrow_down_circle.png" />
+    <Content Include="Images\Nags\arrow_left.png" />
+    <Content Include="Images\Nags\arrow_left_circle.png" />
+    <Content Include="Images\Nags\arrow_right.png" />
+    <Content Include="Images\Nags\arrow_right_circle.png" />
+    <Content Include="Images\Nags\arrow_up.png" />
+    <Content Include="Images\Nags\arrow_up_circle.png" />
+    <Content Include="Images\Nags\cancel.png" />
+    <Content Include="Images\Nags\cancel.svg" />
+    <Content Include="Images\Nags\cancel_circle.png" />
+    <Content Include="Images\Nags\cloud-upload.png" />
+    <Content Include="Images\Nags\delete.png" />
+    <Content Include="Images\Nags\delete.svg" />
+    <Content Include="Images\Nags\down.png" />
+    <Content Include="Images\Nags\down_circle.png" />
+    <Content Include="Images\Nags\edit.png" />
+    <Content Include="Images\Nags\edit.svg" />
+    <Content Include="Images\Nags\left.png" />
+    <Content Include="Images\Nags\left_circle.png" />
+    <Content Include="Images\Nags\minus.png" />
+    <Content Include="Images\Nags\minus.svg" />
+    <Content Include="Images\Nags\minus_circle.png" />
+    <Content Include="Images\Nags\more.png" />
+    <Content Include="Images\Nags\more_circle.png" />
+    <Content Include="Images\Nags\new.png" />
+    <Content Include="Images\Nags\new.svg" />
+    <Content Include="Images\Nags\ok.png" />
+    <Content Include="Images\Nags\ok.svg" />
+    <Content Include="Images\Nags\ok_circle.png" />
+    <Content Include="Images\Nags\pause.png" />
+    <Content Include="Images\Nags\pause.svg" />
+    <Content Include="Images\Nags\play-arrow.png" />
+    <Content Include="Images\Nags\play.svg" />
+    <Content Include="Images\Nags\play_white.svg" />
+    <Content Include="Images\Nags\plus.png" />
+    <Content Include="Images\Nags\plus.svg" />
+    <Content Include="Images\Nags\plus_circle.png" />
+    <Content Include="Images\Nags\plus_circle.svg" />
+    <Content Include="Images\Nags\right.png" />
+    <Content Include="Images\Nags\right_circle.png" />
+    <Content Include="Images\Nags\search.svg" />
+    <Content Include="Images\Nags\showall.svg" />
+    <Content Include="Images\Nags\snooze.svg" />
+    <Content Include="Images\Nags\up.png" />
+    <Content Include="Images\Nags\up_circle.png" />
+    <Content Include="Images\page_white_add.png" />
+    <Content Include="Images\page_white_copy.png" />
+    <Content Include="Images\page_white_delete.png" />
+    <Content Include="Images\page_white_edit.png" />
+    <Content Include="Images\page_white_paste.png" />
+    <Content Include="Images\paper.gif" />
+    <Content Include="Images\PFS\logo_sm.gif" />
+    <Content Include="Images\PFS\logo_new.gif" />
+    <Content Include="Images\PFS\Startup.html" />
+    <Content Include="Images\PHI\logo_new.gif" />
+    <Content Include="Images\PHI\logo_sm.gif" />
+    <Content Include="Images\PHI\Startup.html" />
+    <Content Include="Images\plus.gif" />
+    <Content Include="Images\plus_sm.gif" />
+    <Content Include="Images\print.gif" />
+    <Content Include="Images\Q\logo_sm.gif" />
+    <Content Include="Images\Q\logo_new.gif" />
+    <Content Include="Images\Q\Startup.html" />
+    <Content Include="Images\recycle.jpg" />
+    <Content Include="Images\recycle_full.jpg" />
+    <Content Include="Images\recycle_full_sm.jpg" />
+    <Content Include="Images\recycle_sm.jpg" />
+    <Content Include="Images\reopen_sm.gif" />
+    <Content Include="Images\reply.gif" />
+    <Content Include="Images\reports.gif" />
+    <Content Include="Images\save_sm.gif" />
+    <Content Include="Images\searching.gif" />
+    <Content Include="Images\TEB\logo_new.gif" />
+    <Content Include="Images\TEB\logo_sm.gif" />
+    <Content Include="Images\TEB\Startup.html" />
+    <Content Include="Images\timeline.gif" />
+    <Content Include="Images\tools.gif" />
+    <Content Include="Inprocess.aspx" />
+    <Content Include="LateReport.aspx" />
+    <Content Include="ManageSingleChecklist.aspx" />
+    <Content Include="ManageTasks.aspx" />
+    <Content Include="MessageToUser.ascx" />
+    <Content Include="Mobile\MobileCalendar.aspx" />
+    <Content Include="Mobile\MobileChangeRequests.aspx" />
+    <Content Include="Mobile\MobileGroups.aspx" />
+    <Content Include="Mobile\MobileHelp.aspx" />
+    <Content Include="Mobile\MobileInbox.aspx" />
+    <Content Include="Mobile\MobileManageTasks.aspx" />
+    <Content Include="Mobile\MobileMyStatus.aspx" />
+    <Content Include="Mobile\MobileMyTasks.aspx" />
+    <Content Include="Mobile\MobileNewTask.aspx" />
+    <Content Include="Mobile\MobilePriorities.aspx" />
+    <Content Include="Mobile\MobileReports.aspx" />
+    <Content Include="Mobile\MobileTaskSummary.aspx" />
+    <Content Include="MyGroups.aspx" />
+    <Content Include="MyInbox.aspx" />
+    <Content Include="Chatbot.aspx" />
+    <Content Include="MyStatus.aspx" />
+    <Content Include="MyStatusEmailForm.aspx" />
+    <Content Include="MyStatusExport.aspx" />
+    <Content Include="MyStatusPrint.aspx" />
+    <Content Include="MyTasks.aspx" />
+    <Content Include="MyTasksExport.aspx" />
+    <Content Include="NewTask.aspx" />
+    <Content Include="nnn.html" />
+    <Content Include="Outprocessing.aspx" />
+    <Content Include="OverdueTaskCharges.aspx" />
+    <Content Include="OverdueTaskReport.aspx" />
+    <Content Include="Print.aspx" />
+    <Content Include="PrintStatusPage.aspx" />
+    <Content Include="PrintTasks.aspx" />
+    <Content Include="Priorities.aspx" />
+    <Content Include="PrioritiesEmailForm.aspx" />
+    <Content Include="PrioritiesScheduleReport.aspx" />
+    <Content Include="QProcess_AJAX.aspx" />
+    <Content Include="QuickDeadlineExtensions.aspx" />
+    <Content Include="reassign.aspx" />
+    <Content Include="ReassignControllers.aspx" />
+    <Content Include="ReAssignTasksFromEmail.aspx" />
+    <Content Include="Reassign\Default.aspx" />
+    <Content Include="ReportLoadTimes.aspx" />
+    <Content Include="ReportLoadTimesExport.aspx" />
+    <Content Include="Reports.aspx" />
+    <Content Include="RunChecklistNow.aspx" />
+    <Content Include="SchedulePriorities.aspx" />
+    <Content Include="ScheduleReports.aspx" />
+    <Content Include="Scripts\AddGroup.js" />
+    <Content Include="Scripts\AddPriorityListTasks.js" />
+    <Content Include="Scripts\AddPriorityListUsers.js" />
+    <Content Include="Scripts\AlertsRemindersPanel.js" />
+    <Content Include="Scripts\AssignedToPanel.js" />
+    <Content Include="Scripts\AuthTokenEmailRequest.js" />
+    <Content Include="Scripts\bootstrap-hover-dropdown.js" />
+    <Content Include="Scripts\bootstrap-hover-dropdown.min.js" />
+    <Content Include="Scripts\bootstrap.file-input.js" />
+    <Content Include="Scripts\bootstrap.js" />
+    <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\BulkAssignments.js" />
+    <Content Include="Scripts\BulkTaskUpload.js" />
+    <Content Include="Scripts\caldate.js" />
+    <Content Include="Scripts\Calendar.js" />
+    <Content Include="Scripts\ChangeRequestDenyEmail.js" />
+    <Content Include="Scripts\ChangeRequests.js" />
+    <Content Include="Scripts\Checklist.js" />
+    <Content Include="Scripts\ChecklistItemsPanel.js" />
+    <Content Include="Scripts\common.js" />
+    <Content Include="Scripts\CommonGroupFunctions.js" />
+    <Content Include="Scripts\Controllers.js" />
+    <Content Include="Scripts\ControllersPanel.js" />
+    <Content Include="PageUsageLogHandler.ashx" />
+    <None Include="packages.config" />
+    <None Include="Scripts\jquery-3.7.1-vsdoc.js" />
+    <Content Include="Scripts\jquery-3.7.1.js" />
+    <Content Include="Scripts\jquery-3.7.1.min.js" />
+    <Content Include="Scripts\jquery-3.7.1.slim.js" />
+    <Content Include="Scripts\jquery-3.7.1.slim.min.js" />
+    <Content Include="Scripts\jquery-ui-1.13.2.js" />
+    <Content Include="Scripts\jquery-ui-1.13.2.min.js" />
+    <Content Include="Scripts\MobileCalendar.js" />
+    <Content Include="Scripts\MobileInbox.js" />
+    <Content Include="Scripts\mobi\mobiscroll.android-holo-light.js" />
+    <Content Include="Scripts\mobi\mobiscroll.appframework.js" />
+    <Content Include="Scripts\mobi\mobiscroll.core.js" />
+    <Content Include="Scripts\mobi\mobiscroll.datetime.js" />
+    <Content Include="Scripts\mobi\mobiscroll.datetimebase.js" />
+    <Content Include="Scripts\mobi\mobiscroll.frame.android-holo.js" />
+    <Content Include="Scripts\mobi\mobiscroll.frame.android.js" />
+    <Content Include="Scripts\mobi\mobiscroll.frame.ios.js" />
+    <Content Include="Scripts\mobi\mobiscroll.frame.jqm.js" />
+    <Content Include="Scripts\mobi\mobiscroll.frame.js" />
+    <Content Include="Scripts\mobi\mobiscroll.frame.wp.js" />
+    <Content Include="Scripts\mobi\mobiscroll.image.js" />
+    <Content Include="Scripts\mobi\mobiscroll.jqmwidget.js" />
+    <Content Include="Scripts\mobi\mobiscroll.listbase.js" />
+    <Content Include="Scripts\mobi\mobiscroll.scroller.js" />
+    <Content Include="Scripts\mobi\mobiscroll.select.js" />
+    <Content Include="Scripts\mobi\mobiscroll.treelist.js" />
+    <Content Include="Scripts\mobi\mobiscroll.util.datetime.js" />
+    <Content Include="Scripts\Outprocessing.js" />
+    <Content Include="Scripts\SetDefaultPriorityList.js" />
+    <Content Include="Scripts\date.js" />
+    <Content Include="Scripts\CreatePriorityList.js" />
+    <Content Include="Scripts\DeletePriorityList.js" />
+    <Content Include="Scripts\dragndrop.js" />
+    <Content Include="Scripts\EditGroup.js" />
+    <Content Include="Scripts\EmailPrioritiesList.js" />
+    <Content Include="Scripts\Footer.js" />
+    <Content Include="Scripts\Grading.js" />
+    <Content Include="Scripts\GradingAdmin.js" />
+    <Content Include="Scripts\GradingAdminDetails.js" />
+    <Content Include="Scripts\GradingApprovals.js" />
+    <Content Include="Scripts\GradingDeductions.js" />
+    <Content Include="Scripts\GradingReportsOnHold.js" />
+    <Content Include="Scripts\GradingVacations.js" />
+    <Content Include="Scripts\Groups.js" />
+    <Content Include="Scripts\InboxConfidentialReports.js" />
+    <Content Include="Scripts\InboxManageEmails.js" />
+    <Content Include="Scripts\Inprocess.js" />
+    <Content Include="PrintMaster.master" />
+    <Content Include="PrioritiesScheduling.master" />
+    <Content Include="doc\PhiProcessTest.docx" />
+    <Content Include="JQueryHandler.ashx" />
+    <Content Include="Images\PHI\warmup.webp" />
+    <Content Include="Images\Q\warmup.webp" />
+    <Content Include="Images\TEB\warmup.webp" />
+    <Content Include="Images\PFS\warmup.webp" />
+    <Content Include="doc\QProcessTest.docx" />
+    <Content Include="doc\TEBProcessTest.docx" />
+    <Content Include="doc\ProcessPFSTest.docx" />
+    <Content Include="Mobile\Mobile.Master" />
+    <None Include="Scripts\jquery-1.11.1.intellisense.js" />
+    <Content Include="Scripts\jquery-1.11.1.min.js" />
+    <Content Include="Scripts\jquery-1.9.1.min.js" />
+    <Content Include="Scripts\jquery-impromptu.js" />
+    <Content Include="Scripts\jquery-ui-1.10.1.js" />
+    <Content Include="Scripts\jquery-ui-1.10.1.min.js" />
+    <Content Include="Scripts\jquery.contextMenu.js" />
+    <Content Include="Scripts\jquery.highlight-3.js" />
+    <Content Include="Scripts\jquery.lw-datepicker.calendar.js" />
+    <Content Include="Scripts\jquery.lw-datepicker.js" />
+    <Content Include="Scripts\jquery.tablesorter.min.js" />
+    <Content Include="Scripts\jquery.timepicker.js" />
+    <Content Include="Scripts\jquery.ui.timepicker.js" />
+    <Content Include="Scripts\jquery.validity.js" />
+    <Content Include="Scripts\json2.js" />
+    <Content Include="Scripts\jstree.min.js" />
+    <Content Include="Scripts\LinkedDeadlines.js" />
+    <Content Include="Scripts\main.js" />
+    <Content Include="Scripts\ManageSingleChecklist.js" />
+    <Content Include="Scripts\ManageTasks.js" />
+    <Content Include="Scripts\masonry.pkgd.min.js" />
+    <Content Include="Scripts\Message.js" />
+    <Content Include="Scripts\modal.js" />
+    <Content Include="Scripts\MyInbox.js" />
+    <Content Include="Scripts\MyStatus.js" />
+    <Content Include="Scripts\MyTasks.js" />
+    <Content Include="Scripts\Nags.js" />
+    <Content Include="Scripts\NewTask.js" />
+    <Content Include="Scripts\OverdueMessage.js" />
+    <Content Include="Scripts\Preferences.js" />
+    <Content Include="Scripts\Priorities.js" />
+    <Content Include="Scripts\PriorityFonts.js" />
+    <Content Include="Scripts\Reassign.js" />
+    <Content Include="Scripts\ReassignControllers.js" />
+    <Content Include="Scripts\ReportLoadTimes.js" />
+    <Content Include="Scripts\ReportResize.js" />
+    <Content Include="Scripts\Reports.js" />
+    <Content Include="Scripts\ReportsHistory.js" />
+    <Content Include="Scripts\ReportsOverdue.js" />
+    <Content Include="Scripts\ReportsTasksByPerson.js" />
+    <Content Include="Scripts\ReportsThreeDayOverdue.js" />
+    <Content Include="Scripts\ReportToolbar.js" />
+    <Content Include="Scripts\SchedulePriorities.js" />
+    <Content Include="Scripts\ScheduleReports.js" />
+    <Content Include="Scripts\SchedulingPanel.js" />
+    <Content Include="Scripts\SetStatus.js" />
+    <Content Include="Scripts\StatusAddExistingTasks.js" />
+    <Content Include="Scripts\StatusAttorneyClient.js" />
+    <Content Include="Scripts\StatusBulkUpdate.js" />
+    <Content Include="Scripts\StatusCopyTask.js" />
+    <Content Include="Scripts\StatusExport.js" />
+    <Content Include="Scripts\StatusManageReports.js" />
+    <Content Include="Scripts\StatusMoveTask.js" />
+    <Content Include="Scripts\StatusReport.js" />
+    <Content Include="Scripts\StatusReportsPanel.js" />
+    <Content Include="Scripts\StatusSections.js" />
+    <Content Include="Scripts\StatusTimeline.js" />
+    <Content Include="Scripts\Suggestion.js" />
+    <Content Include="Scripts\Supervisors.js" />
+    <Content Include="Scripts\SupervisorsAdmin.js" />
+    <Content Include="Scripts\SwitchPriorityList.js" />
+    <Content Include="Scripts\TaskSummary.js" />
+    <Content Include="Scripts\TestManagement.js" />
+    <Content Include="Scripts\Users.js" />
+    <Content Include="Scripts\utils.js" />
+    <Content Include="Scripts\Vacation.js" />
+    <Content Include="Scripts\jquery-3.7.1.slim.min.map" />
+    <Content Include="Scripts\jquery-3.7.1.min.map" />
+    <None Include="Scripts\_references.js" />
+    <Content Include="Services\ControlService.asmx" />
+    <Content Include="SessionCheck.aspx" />
+    <Content Include="smsx.cab" />
+    <Content Include="Suggestion.aspx" />
+    <Content Include="SupervisorsAdmin.aspx" />
+    <Content Include="SupervisorsPrioritySchedule.aspx" />
+    <Content Include="TaskSearch.aspx" />
+    <Content Include="TaskSummary.aspx" />
+    <Content Include="PrintTasksTEB.aspx" />
+    <Content Include="TestManagement.aspx" />
+    <Content Include="TimezoneConversion.aspx" />
+    <Content Include="UserReport.aspx" />
+    <Content Include="Users.aspx" />
+    <Content Include="Vacation.aspx" />
+    <Content Include="warmup\Warmup.aspx" />
+    <Content Include="warmup\xml2json.min.js" />
+    <Content Include="Web.config" />
+    <Content Include="xslt\apnmenu1.xslt" />
+    <Content Include="xslt\apnmenu2.xslt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ApiService.asmx.cs">
+      <DependentUpon>ApiService.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="AuthTokenEmailRequest.aspx.cs">
+      <DependentUpon>AuthTokenEmailRequest.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AuthTokenEmailRequest.aspx.designer.cs">
+      <DependentUpon>AuthTokenEmailRequest.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Automations.aspx.cs">
+      <DependentUpon>Automations.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="BulkTaskUpload.aspx.cs">
+      <DependentUpon>BulkTaskUpload.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="BulkTaskUpload.aspx.designer.cs">
+      <DependentUpon>BulkTaskUpload.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ChatbotService.asmx.cs">
+      <DependentUpon>ChatbotService.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\MyInbox\MobileReportList.ascx.cs">
+      <DependentUpon>MobileReportList.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\MyInbox\MobileReportList.ascx.designer.cs">
+      <DependentUpon>MobileReportList.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Priorities\SetDefaultPriorityList.ascx.cs">
+      <DependentUpon>SetDefaultPriorityList.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Priorities\CreatePriorityList.ascx.cs">
+      <DependentUpon>CreatePriorityList.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\ChangeRequestComments.ascx.cs">
+      <DependentUpon>ChangeRequestComments.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\ChangeRequestComments.ascx.designer.cs">
+      <DependentUpon>ChangeRequestComments.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Shared\ChecklistHistory.ascx.cs">
+      <DependentUpon>ChecklistHistory.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\DetailedUserGrid.ascx.cs">
+      <DependentUpon>DetailedUserGrid.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\DetailedUserGrid.ascx.designer.cs">
+      <DependentUpon>DetailedUserGrid.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Shared\GroupReassignment.ascx.cs">
+      <DependentUpon>GroupReassignment.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\GroupReassignment.ascx.designer.cs">
+      <DependentUpon>GroupReassignment.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Shared\Help.ascx.cs">
+      <DependentUpon>Help.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\Help.ascx.designer.cs">
+      <DependentUpon>Help.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Shared\MobileChangeRequest.ascx.cs">
+      <DependentUpon>MobileChangeRequest.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\MobileChangeRequest.ascx.designer.cs">
+      <DependentUpon>MobileChangeRequest.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Shared\QDataGrid.ascx.cs">
+      <DependentUpon>QDataGrid.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\QDataGrid.ascx.designer.cs">
+      <DependentUpon>QDataGrid.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Shared\QGraphs.ascx.cs">
+      <DependentUpon>QGraphs.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\QGraphs.ascx.designer.cs">
+      <DependentUpon>QGraphs.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Shared\TaskReassignments.ascx.cs">
+      <DependentUpon>TaskReassignments.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\TaskReassignments.ascx.designer.cs">
+      <DependentUpon>TaskReassignments.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Dashboard.aspx.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Dashboard.aspx.designer.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="DashboardDetailedView.aspx.cs">
+      <DependentUpon>DashboardDetailedView.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DashboardDetailedView.aspx.designer.cs">
+      <DependentUpon>DashboardDetailedView.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Domain\UserActiveDetails.cs" />
+    <Compile Include="Domain\UserStats.cs" />
+    <Compile Include="Mobile\MobileManageTasksExport.aspx.cs">
+      <DependentUpon>MobileManageTasksExport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Mobile\MobileManageTasksExport.aspx.designer.cs">
+      <DependentUpon>MobileManageTasksExport.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Services\PerSessionLifeTimeManager.cs" />
+    <Compile Include="Services\QDIWebService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="StatusReportTasks.aspx.cs">
+      <DependentUpon>StatusReportTasks.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Domain\DOMInjector.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Domain\DummyPage.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Domain\LinkedDeadlineRepository.cs" />
+    <Compile Include="Domain\Models\UserTimeZone.cs" />
+    <Compile Include="Domain\Owin.cs" />
+    <Compile Include="Domain\SYSTEM\CryptoGuid.cs" />
+    <Compile Include="Error\Error.aspx.cs">
+      <DependentUpon>Error.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Error\Error.aspx.designer.cs">
+      <DependentUpon>Error.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Domain\SYSTEM\TimeZoneHelper.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="JQueryHandler.ashx.cs">
+      <DependentUpon>JQueryHandler.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Mobile\Mobile.Master.cs">
+      <DependentUpon>Mobile.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Mobile\Mobile.Master.designer.cs">
+      <DependentUpon>Mobile.Master</DependentUpon>
+    </Compile>
+    <Compile Include="Mobile\MobileCalendar.aspx.cs">
+      <DependentUpon>MobileCalendar.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Mobile\MobileCalendar.aspx.designer.cs">
+      <DependentUpon>MobileCalendar.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Mobile\MobileChangeRequests.aspx.cs">
+      <DependentUpon>MobileChangeRequests.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Mobile\MobileChangeRequests.aspx.designer.cs">
+      <DependentUpon>MobileChangeRequests.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Mobile\MobileGroups.aspx.cs">
+      <DependentUpon>MobileGroups.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Mobile\MobileGroups.aspx.designer.cs">
+      <DependentUpon>MobileGroups.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Mobile\MobileHelp.aspx.cs">
+      <DependentUpon>MobileHelp.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Mobile\MobileHelp.aspx.designer.cs">
+      <DependentUpon>MobileHelp.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Mobile\MobileInbox.aspx.cs">
+      <DependentUpon>MobileInbox.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Mobile\MobileInbox.aspx.designer.cs">
+      <DependentUpon>MobileInbox.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Mobile\MobileManageTasks.aspx.cs">
+      <DependentUpon>MobileManageTasks.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Mobile\MobileManageTasks.aspx.designer.cs">
+      <DependentUpon>MobileManageTasks.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Mobile\MobileMyStatus.aspx.cs">
+      <DependentUpon>MobileMyStatus.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Mobile\MobileMyStatus.aspx.designer.cs">
+      <DependentUpon>MobileMyStatus.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Mobile\MobileMyTasks.aspx.cs">
+      <DependentUpon>MobileMyTasks.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Mobile\MobileMyTasks.aspx.designer.cs">
+      <DependentUpon>MobileMyTasks.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Mobile\MobileNewTask.aspx.cs">
+      <DependentUpon>MobileNewTask.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Mobile\MobileNewTask.aspx.designer.cs">
+      <DependentUpon>MobileNewTask.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Mobile\MobilePriorities.aspx.cs">
+      <DependentUpon>MobilePriorities.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Mobile\MobilePriorities.aspx.designer.cs">
+      <DependentUpon>MobilePriorities.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Mobile\MobileReports.aspx.cs">
+      <DependentUpon>MobileReports.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Mobile\MobileReports.aspx.designer.cs">
+      <DependentUpon>MobileReports.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Mobile\MobileTaskSummary.aspx.cs">
+      <DependentUpon>MobileTaskSummary.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Mobile\MobileTaskSummary.aspx.designer.cs">
+      <DependentUpon>MobileTaskSummary.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Mobile\MobileTimezoneConversion.aspx.cs">
+      <DependentUpon>MobileTimezoneConversion.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Mobile\MobileTimezoneConversion.aspx.designer.cs">
+      <DependentUpon>MobileTimezoneConversion.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Outprocessing.aspx.cs">
+      <DependentUpon>Outprocessing.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Outprocessing.aspx.designer.cs">
+      <DependentUpon>Outprocessing.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Services\ControlService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SessionCheck.aspx.cs">
+      <DependentUpon>SessionCheck.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="SessionCheck.aspx.designer.cs">
+      <DependentUpon>SessionCheck.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="TestManagement.aspx.cs">
+      <DependentUpon>TestManagement.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TimezoneConversion.aspx.cs">
+      <DependentUpon>TimezoneConversion.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TimezoneConversion.aspx.designer.cs">
+      <DependentUpon>TimezoneConversion.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="UserReport.aspx.cs">
+      <DependentUpon>UserReport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Users.aspx.cs">
+      <DependentUpon>Users.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Vacation.aspx.cs">
+      <DependentUpon>Vacation.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Domain\AppSettings.cs" />
+    <Compile Include="Domain\BulkAssignmentRepository.cs" />
+    <Compile Include="Domain\Cache.cs" />
+    <Compile Include="Domain\CalendarRepository.cs" />
+    <Compile Include="Domain\ChangeRequestRepository.cs" />
+    <Compile Include="Domain\ChecklistRepository.cs" />
+    <Compile Include="Domain\CmdObj.cs" />
+    <Compile Include="DataService.cs">
+      <DependentUpon>DataService.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Domain\EmailPreferenceType.cs" />
+    <Compile Include="Domain\Extensions.cs" />
+    <Compile Include="Domain\GradingRepository.cs" />
+    <Compile Include="Domain\IFooterHidden.cs" />
+    <Compile Include="Domain\InboxViewType.cs" />
+    <Compile Include="Domain\IProvideLastViewTimeForLogging.cs" />
+    <Compile Include="Domain\IProvideReportIdForLogging.cs" />
+    <Compile Include="Domain\LoadTimesRepository.cs" />
+    <Compile Include="Domain\Log.cs" />
+    <Compile Include="Domain\Models.cs" />
+    <Compile Include="Domain\Models\PrioritySchedule.cs" />
+    <Compile Include="Domain\Models\SearchResult.cs" />
+    <Compile Include="Domain\Models\TaskSearchItem.cs" />
+    <Compile Include="Domain\Models\TemporaryAssignment.cs" />
+    <Compile Include="Domain\MyInboxRepository.cs" />
+    <Compile Include="Domain\PrioritiesRepository.cs" />
+    <Compile Include="Domain\QProcessControl.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Domain\QProcessMasterPage.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Domain\ReportLine.cs" />
+    <Compile Include="Domain\ReportsRepository.cs" />
+    <Compile Include="Domain\ReportType.cs" />
+    <Compile Include="Domain\RideTheLightning.cs" />
+    <Compile Include="Domain\SelectListRepository.cs" />
+    <Compile Include="Domain\Session.cs" />
+    <Compile Include="Domain\SessionPage.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Domain\StatusReportRepository.cs" />
+    <Compile Include="Domain\SuggestionRepository.cs" />
+    <Compile Include="Domain\SupervisorRepository.cs" />
+    <Compile Include="Domain\SYSTEM\DBComand.cs" />
+    <Compile Include="Domain\SYSTEM\DBManager.cs" />
+    <Compile Include="Domain\SYSTEM\DBManagerFactory.cs" />
+    <Compile Include="Domain\SYSTEM\ExtensionMethods.cs" />
+    <Compile Include="Domain\SYSTEM\IDBManager.cs" />
+    <Compile Include="Domain\TaskSummaryRepository.cs" />
+    <Compile Include="Domain\TaskType.cs" />
+    <Compile Include="Domain\ThreeDayDropdown.cs" />
+    <Compile Include="Domain\TreeNode.cs" />
+    <Compile Include="Domain\TreeViewRepository.cs" />
+    <Compile Include="Domain\UserRepository.cs" />
+    <Compile Include="Domain\ViewAlertRepository.cs" />
+    <Compile Include="BlankMaster.master.cs">
+      <DependentUpon>BlankMaster.master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="BulkAssignments.aspx.cs">
+      <DependentUpon>BulkAssignments.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Calendar.aspx.cs">
+      <DependentUpon>Calendar.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ChangeRequests.aspx.cs">
+      <DependentUpon>ChangeRequests.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ChecklistExport.aspx.cs">
+      <DependentUpon>ChecklistExport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Calendar\CalendarDayOfWeek.ascx.cs">
+      <DependentUpon>CalendarDayOfWeek.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Calendar\OverdueCalendarDay.ascx.cs">
+      <DependentUpon>OverdueCalendarDay.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\ChangeRequests\ChangeRequest.ascx.cs">
+      <DependentUpon>ChangeRequest.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\ChangeRequests\ChangeRequestDenyEmail.ascx.cs">
+      <DependentUpon>ChangeRequestDenyEmail.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\ChangeRequests\ChangeRequestItemAddition.ascx.cs">
+      <DependentUpon>ChangeRequestItemAddition.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\ChangeRequests\ChangeRequestItemChange.ascx.cs">
+      <DependentUpon>ChangeRequestItemChange.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\ChangeRequests\ChangeRequestItemChangeNatural.ascx.cs">
+      <DependentUpon>ChangeRequestItemChangeNatural.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\ChangeRequests\ChangeRequestItemRemoval.ascx.cs">
+      <DependentUpon>ChangeRequestItemRemoval.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Footer\Preferences.ascx.cs">
+      <DependentUpon>Preferences.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Footer\ViewGroups.ascx.cs">
+      <DependentUpon>ViewGroups.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Grading\GradingAdminDetails.ascx.cs">
+      <DependentUpon>GradingAdminDetails.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Grading\GradingDeductions.ascx.cs">
+      <DependentUpon>GradingDeductions.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Grading\GradingPeriods.ascx.cs">
+      <DependentUpon>GradingPeriods.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Grading\GradingReportsOnHold.ascx.cs">
+      <DependentUpon>GradingReportsOnHold.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Grading\GradingUsers.ascx.cs">
+      <DependentUpon>GradingUsers.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Grading\GradingVacations.ascx.cs">
+      <DependentUpon>GradingVacations.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\ManageTasks\AssignmentPanel.ascx.cs">
+      <DependentUpon>AssignmentPanel.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\ManageTasks\TaskEditPanel.ascx.cs">
+      <DependentUpon>TaskEditPanel.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\ManageTasks\WorkingOnNow.ascx.cs">
+      <DependentUpon>WorkingOnNow.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\MyInbox\ConfidentialReports.ascx.cs">
+      <DependentUpon>ConfidentialReports.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\MyInbox\DueDateChanges.ascx.cs">
+      <DependentUpon>DueDateChanges.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\MyInbox\InboxReportsView.ascx.cs">
+      <DependentUpon>InboxReportsView.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\MyInbox\ManageEmails.ascx.cs">
+      <DependentUpon>ManageEmails.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\MyInbox\ReportList.ascx.cs">
+      <DependentUpon>ReportList.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\MyInbox\Visibility.ascx.cs">
+      <DependentUpon>Visibility.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\MyStatus\AddExistingTask.ascx.cs">
+      <DependentUpon>AddExistingTask.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\MyStatus\AttorneyClient.ascx.cs">
+      <DependentUpon>AttorneyClient.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\MyStatus\BulkUpdate.ascx.cs">
+      <DependentUpon>BulkUpdate.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\MyStatus\CommentViewer.ascx.cs">
+      <DependentUpon>CommentViewer.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\MyStatus\CopyTask.ascx.cs">
+      <DependentUpon>CopyTask.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\MyStatus\EmailComments.ascx.cs">
+      <DependentUpon>EmailComments.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\MyStatus\Export.ascx.cs">
+      <DependentUpon>Export.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\MyStatus\ManageReports.ascx.cs">
+      <DependentUpon>ManageReports.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\MyStatus\MoveTask.ascx.cs">
+      <DependentUpon>MoveTask.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\MyStatus\ReportLine.ascx.cs">
+      <DependentUpon>ReportLine.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\MyStatus\ReportLineEmail.ascx.cs">
+      <DependentUpon>ReportLineEmail.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\MyStatus\ReportLineExport.ascx.cs">
+      <DependentUpon>ReportLineExport.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\MyStatus\ResizeReport.ascx.cs">
+      <DependentUpon>ResizeReport.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\MyStatus\Sections.ascx.cs">
+      <DependentUpon>Sections.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\MyStatus\Timeline.ascx.cs">
+      <DependentUpon>Timeline.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\MyTasks\Timeline.ascx.cs">
+      <DependentUpon>Timeline.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\NewTask\ComplexTask.ascx.cs">
+      <DependentUpon>ComplexTask.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Priorities\AvailableTasks.ascx.cs">
+      <DependentUpon>AvailableTasks.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Priorities\AvailableUsers.ascx.cs">
+      <DependentUpon>AvailableUsers.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Priorities\Comments.ascx.cs">
+      <DependentUpon>Comments.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Priorities\DeletePriorityList.ascx.cs">
+      <DependentUpon>DeletePriorityList.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Priorities\EmailConfirmation.ascx.cs">
+      <DependentUpon>EmailConfirmation.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Priorities\EmailPriorityList.ascx.cs">
+      <DependentUpon>EmailPriorityList.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Priorities\Fonts.ascx.cs">
+      <DependentUpon>Fonts.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Priorities\Message.ascx.cs">
+      <DependentUpon>Message.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Priorities\PriorityLines.ascx.cs">
+      <DependentUpon>PriorityLines.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Priorities\PriorityLinesEmail.ascx.cs">
+      <DependentUpon>PriorityLinesEmail.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Priorities\PriorityList.ascx.cs">
+      <DependentUpon>PriorityList.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Priorities\SwitchPriorityList.ascx.cs">
+      <DependentUpon>SwitchPriorityList.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Reports\History.ascx.cs">
+      <DependentUpon>History.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Reports\Overdue.ascx.cs">
+      <DependentUpon>Overdue.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Reports\OverdueMessage.ascx.cs">
+      <DependentUpon>OverdueMessage.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Reports\ReportsOverview.ascx.cs">
+      <DependentUpon>ReportsOverview.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Reports\SortBy.ascx.cs">
+      <DependentUpon>SortBy.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Reports\TasksByPerson.ascx.cs">
+      <DependentUpon>TasksByPerson.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Reports\ThreeDayOverdue.ascx.cs">
+      <DependentUpon>ThreeDayOverdue.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\AddGroup.ascx.cs">
+      <DependentUpon>AddGroup.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\AlertsRemindersPanel.ascx.cs">
+      <DependentUpon>AlertsRemindersPanel.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\AssignedToPanel.ascx.cs">
+      <DependentUpon>AssignedToPanel.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\AssigneesMultiSelect.ascx.cs">
+      <DependentUpon>AssigneesMultiSelect.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\Checklist.ascx.cs">
+      <DependentUpon>Checklist.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\ChecklistExport.ascx.cs">
+      <DependentUpon>ChecklistExport.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\ChecklistHeader.ascx.cs">
+      <DependentUpon>ChecklistHeader.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\ChecklistItemsPanel.ascx.cs">
+      <DependentUpon>ChecklistItemsPanel.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\ChecklistPreview.ascx.cs">
+      <DependentUpon>ChecklistPreview.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\CommentList.ascx.cs">
+      <DependentUpon>CommentList.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\Controllers.ascx.cs">
+      <DependentUpon>Controllers.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\ControllersPanel.ascx.cs">
+      <DependentUpon>ControllersPanel.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\EditGroup.ascx.cs">
+      <DependentUpon>EditGroup.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\Filters.ascx.cs">
+      <DependentUpon>Filters.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\ItemBase.ascx.cs">
+      <DependentUpon>ItemBase.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\ItemBaseExport.cs">
+      <DependentUpon>ItemBaseExport.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\ModalFramework.ascx.cs">
+      <DependentUpon>ModalFramework.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\NewTask.ascx.cs">
+      <DependentUpon>NewTask.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\RelatedComments.ascx.cs">
+      <DependentUpon>RelatedComments.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\ReportToolbar.ascx.cs">
+      <DependentUpon>ReportToolbar.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\SchedulingPanel.ascx.cs">
+      <DependentUpon>SchedulingPanel.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\StatusReport.ascx.cs">
+      <DependentUpon>StatusReport.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\StatusReportsPanel.ascx.cs">
+      <DependentUpon>StatusReportsPanel.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\Supervisors.ascx.cs">
+      <DependentUpon>Supervisors.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\Throbber.ascx.cs">
+      <DependentUpon>Throbber.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\Shared\ViewAlerts.ascx.cs">
+      <DependentUpon>ViewAlerts.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\TaskSummary\SetStatus.ascx.cs">
+      <DependentUpon>SetStatus.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\TaskSummary\StatusTaskLine.ascx.cs">
+      <DependentUpon>StatusTaskLine.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\TaskSummary\StatusTasks.ascx.cs">
+      <DependentUpon>StatusTasks.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Controls\TaskSummary\TasksPanel.ascx.cs">
+      <DependentUpon>TasksPanel.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="DepartmentTasks.aspx.cs">
+      <DependentUpon>DepartmentTasks.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ExcuseOverdueTasks.aspx.cs">
+      <DependentUpon>ExcuseOverdueTasks.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ExcusePriorities.aspx.cs">
+      <DependentUpon>ExcusePriorities.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="FromEmail\Complete.aspx.cs">
+      <DependentUpon>Complete.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="FromEmail\CompleteChecklist.aspx.cs">
+      <DependentUpon>CompleteChecklist.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="FromEmail\ExtensionRequest.aspx.cs">
+      <DependentUpon>ExtensionRequest.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="FromEmail\na.aspx.cs">
+      <DependentUpon>na.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GlobalSearch.aspx.cs">
+      <DependentUpon>GlobalSearch.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Grading.aspx.cs">
+      <DependentUpon>Grading.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GradingAdmin.aspx.cs">
+      <DependentUpon>GradingAdmin.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GradingApprovals.aspx.cs">
+      <DependentUpon>GradingApprovals.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Groups.aspx.cs">
+      <DependentUpon>Groups.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Help.aspx.cs">
+      <DependentUpon>Help.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Inprocess.aspx.cs">
+      <DependentUpon>Inprocess.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="LateReport.aspx.cs">
+      <DependentUpon>LateReport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ManageSingleChecklist.aspx.cs">
+      <DependentUpon>ManageSingleChecklist.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ManageTasks.aspx.cs">
+      <DependentUpon>ManageTasks.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MessageToUser.ascx.cs">
+      <DependentUpon>MessageToUser.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MyGroups.aspx.cs">
+      <DependentUpon>MyGroups.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MyInbox.aspx.cs">
+      <DependentUpon>MyInbox.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ChatBot.aspx.cs">
+      <DependentUpon>ChatBot.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MyStatus.aspx.cs">
+      <DependentUpon>MyStatus.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MyStatusEmailForm.aspx.cs">
+      <DependentUpon>MyStatusEmailForm.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MyStatusExport.aspx.cs">
+      <DependentUpon>MyStatusExport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MyStatusPrint.aspx.cs">
+      <DependentUpon>MyStatusPrint.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MyTasks.aspx.cs">
+      <DependentUpon>MyTasks.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MyTasksExport.aspx.cs">
+      <DependentUpon>MyTasksExport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="NewTask.aspx.cs">
+      <DependentUpon>NewTask.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="OverdueTaskCharges.aspx.cs">
+      <DependentUpon>OverdueTaskCharges.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="OverdueTaskReport.aspx.cs">
+      <DependentUpon>OverdueTaskReport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="OverdueTasksChargeMonitor.master.cs">
+      <DependentUpon>OverdueTasksChargeMonitor.master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Print.aspx.cs">
+      <DependentUpon>Print.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PrintMaster.master.cs">
+      <DependentUpon>PrintMaster.master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PrintStatusPage.aspx.cs">
+      <DependentUpon>PrintStatusPage.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PrintTasks.aspx.cs">
+      <DependentUpon>PrintTasks.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Priorities.aspx.cs">
+      <DependentUpon>Priorities.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PrioritiesEmailForm.aspx.cs">
+      <DependentUpon>PrioritiesEmailForm.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PrioritiesScheduleReport.aspx.cs">
+      <DependentUpon>PrioritiesScheduleReport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PrioritiesScheduling.master.cs">
+      <DependentUpon>PrioritiesScheduling.master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QProcess_AJAX.aspx.cs">
+      <DependentUpon>QProcess_AJAX.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="QuickDeadlineExtensions.aspx.cs">
+      <DependentUpon>QuickDeadlineExtensions.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Reassign.aspx.cs">
+      <DependentUpon>reassign.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ReassignControllers.aspx.cs">
+      <DependentUpon>ReassignControllers.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ReAssignTasksFromEmail.aspx.cs">
+      <DependentUpon>ReAssignTasksFromEmail.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Reassign\Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ReportLoadTimes.aspx.cs">
+      <DependentUpon>ReportLoadTimes.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ReportLoadTimesExport.aspx.cs">
+      <DependentUpon>ReportLoadTimesExport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Reports.aspx.cs">
+      <DependentUpon>Reports.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="RunChecklistNow.aspx.cs">
+      <DependentUpon>RunChecklistNow.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="SchedulePriorities.aspx.cs">
+      <DependentUpon>SchedulePriorities.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ScheduleReports.aspx.cs">
+      <DependentUpon>ScheduleReports.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Site.master.cs">
+      <DependentUpon>Site.master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Suggestion.aspx.cs">
+      <DependentUpon>Suggestion.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="SupervisorsAdmin.aspx.cs">
+      <DependentUpon>SupervisorsAdmin.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="SupervisorsPrioritySchedule.aspx.cs">
+      <DependentUpon>SupervisorsPrioritySchedule.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TaskSearch.aspx.cs">
+      <DependentUpon>TaskSearch.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="TaskSummary.aspx.cs">
+      <DependentUpon>TaskSummary.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PrintTasksTEB.aspx.cs">
+      <DependentUpon>PrintTasksTEB.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="warmup\UnityConfig.cs" />
+    <Compile Include="warmup\Warmup.aspx.cs">
+      <DependentUpon>Warmup.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="warmup\Warmup.aspx.designer.cs">
+      <DependentUpon>Warmup.aspx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="BlankMaster.master" />
+    <Content Include="ChatBot.aspx">
+      <SubType>ASPX</SubType>
+    </Content>
+    <Content Include="Content\jstree\Thumbs.db" />
+    <Content Include="EmailHandler.ashx" />
+    <Content Include="fonts\context-menu-icons.eot" />
+    <Content Include="fonts\context-menu-icons.ttf" />
+    <Content Include="fonts\context-menu-icons.woff" />
+    <Content Include="fonts\context-menu-icons.woff2" />
+    <Content Include="fonts\fontawesome-webfont.eot" />
+    <Content Include="fonts\fontawesome-webfont.ttf" />
+    <Content Include="fonts\fontawesome-webfont.woff" />
+    <Content Include="fonts\fontawesome-webfont.woff2" />
+    <Content Include="fonts\FontAwesome.otf" />
+    <Content Include="Images\Help\Thumbs.db" />
+    <Content Include="Images\Thumbs.db" />
+    <Content Include="OfficeExportHandler.ashx" />
+    <Content Include="OverdueTasksChargeMonitor.master" />
+    <Content Include="Scripts\jquery.min.map" />
+    <Content Include="Site.master" />
+    <Content Include="Treeview.ashx" />
+    <Content Include="SQL\_Archived\PFS.zip" />
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="SQL\_Archived\6.13.25 Scripts\" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>52866</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>https://localhost:44399/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

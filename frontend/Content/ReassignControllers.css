@@ -1,0 +1,84 @@
+.highlight {
+	background-color: yellow;
+}
+
+.form-control {
+    width: 400px !important;
+}
+.reassign-panel h2
+{
+  width:500px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  font-weight:bold;
+  text-decoration: underline;
+  font-size: 14pt;
+}
+.bold{
+    font-weight:bold;
+}
+.leftLabel{
+    float:left;
+    width:250px;
+    margin-left:10px;
+}
+.wideLabel{
+    float:left;
+    margin-left:10px;
+    margin-bottom:20px;
+}
+.wideIndent{
+    float:left;
+    margin-left:10px;
+    margin-bottom:20px;
+    display:block;
+    min-width:60%;
+}
+.leftHighlights{
+    margin-left:100px;
+}
+.reassigntable > thead > tr > th, .reassigntable > tbody > tr > td{
+    padding:4px;
+}
+
+.reassigntable > thead > tr > th.tablesorter-header{
+    cursor:pointer; 
+    background-image: url(../Images/bg.gif); 
+    background-repeat: no-repeat; 
+    background-position: center right; 
+    margin-left: -1px; 
+}
+
+.reassigntable > thead > tr > th.tablesorter-headerDesc { 
+    background-image: url(../Images/desc.gif); 
+} 
+
+.reassigntable > thead > tr > th.tablesorter-headerAsc { 
+    background-image: url(../Images/asc.gif); 
+} 
+
+.reassigntable > thead > tr > th {
+    border: solid 1px #000000;
+    vertical-align: top;
+    background-color: #ece9d8;
+    max-width: 500px;
+}
+
+.reassigntable > thead > tr > th:not(:first-child){
+    padding-left:10px;
+}
+
+.reassigntable > tbody > tr > td:not(:first-child){
+    max-width:500px;
+    padding-left:8px;
+}
+
+td{
+    border:solid 1px #000000;
+}
+table{
+    border-collapse:collapse;
+}
+/* Copyright © 2024 Renegade Swish, LLC */
+

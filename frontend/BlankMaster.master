@@ -1,0 +1,38 @@
+<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="BlankMaster.master.cs" Inherits="QProcess.BlankMaster" %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head id="Head1" runat="server">
+    <title><%=QProcess.Configuration.AppSettings.AppName %></title>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+    <asp:PlaceHolder ID="PlaceHolder1" runat="server">      
+        <script src="Scripts/modernizr-2.5.3.js?v=<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/modernizr-2.5.3.js")).Ticks.ToString() %>"></script>
+    </asp:PlaceHolder>
+	<link href="Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="Content/Site.css?v=<%= System.IO.File.GetLastWriteTime(Server.MapPath($"Content/Site.css")).Ticks.ToString() %>" rel="stylesheet" />
+	<link href="Content/datepicker.css" rel="stylesheet" />
+	<link href="Content/font-awesome.css" rel="stylesheet" />
+	<script src="Scripts/jquery-1.9.1.min.js?v=<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/jquery-1.9.1.min.js")).Ticks.ToString() %>"></script>
+	<script src="Scripts/bootstrap.min.js?v=<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/bootstrap.min.js")).Ticks.ToString() %>"></script>
+    <script src="Scripts/jquery-impromptu.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/jquery-impromptu.js")).Ticks.ToString() %>"></script>
+    <link rel="stylesheet" href="Content/jquery-impromptu.css" />
+    <asp:ContentPlaceHolder runat="server" ID="HeadContent" />
+</head>
+<body>
+	<div class="site-main">
+		<section class="container">
+			<asp:ContentPlaceHolder runat="server" ID="MainContent" />
+		</section>
+	</div>
+	<script src="Scripts/jquery.lw-datepicker.js?v=<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/jquery.lw-datepicker.js")).Ticks.ToString() %>"></script>
+	<script src="Scripts/jquery.contextMenu.js?v=<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/jquery.contextMenu.js")).Ticks.ToString() %>"></script>
+	<script src="Scripts/main.js?v=<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/main.js")).Ticks.ToString() %>"></script>
+	<script src="Scripts/utils.js?v=<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/utils.js")).Ticks.ToString() %>"></script>
+	<script src="Scripts/dragndrop.js?v=<%= System.IO.File.GetLastWriteTime(Server.MapPath("Scripts/dragndrop.js")).Ticks.ToString() %>"></script>
+	<asp:ContentPlaceHolder runat="server" ID="ScriptContent">
+	</asp:ContentPlaceHolder>
+</body>
+</html>
+<!-- Copyright © 2024 Renegade Swish, LLC -->
+

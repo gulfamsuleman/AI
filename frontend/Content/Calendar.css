@@ -1,0 +1,230 @@
+.selected-day {
+	background-color: #f4faff;
+}
+
+.today .day-of-week {
+	background-color: #006666;
+	border-bottom: 1px solid #BBBBBB;
+}
+
+.today {
+	background-color: #e9ffff;
+}
+
+.normal .day-of-week {
+	color: #000000;
+	background-color: #ECE9D8;
+	border-bottom: 1px solid #BBBBBB;
+}
+
+.normal {
+	background-color: #ffffd5;
+}
+
+#date-selection-calendar {
+	margin-top: -5px; /* for some reason lw-datepicker add top:5px to the control, this is to offset that */
+	margin-bottom: 25px;
+}
+
+	#date-selection-calendar .lw-dp {
+		border-color: #000000;
+		border-radius: 0;
+		z-index: 8000;
+	}
+
+#legend {
+	border: 1px solid #000000;
+	margin-bottom: 20px;
+	padding: 10px;
+}
+
+.blue, .blue:active, blue:hover, blue:visited, blue:focus {
+	color: #003366;
+}
+
+.white {
+	color: white;
+}
+/* Colors directly from the legacy vb */
+.grey, .grey:active, .grey:hover, .grey:visited, .grey:focus {
+	color: #aaaaaa !important;
+}
+
+.green, .green:active, .green:hover, .green:focus {
+	color: #00AA00;
+	font-weight: bold;
+}
+
+.red, .red:active, .red:hover, .red:focus {
+	color: red;
+}
+
+.lightblue, .lightblue:active, .lightblue:hover, .lightblue:focus {
+	color: #00a0ff;
+}
+
+#overdue-panel .alert {
+	display: none !important;
+}
+
+.bold {
+	font-weight: bold;
+}
+
+.italic {
+	font-style: italic;
+}
+
+.strikethrough, .strikethrough:active, .strikethrough:focus {
+	text-decoration: line-through !important;
+}
+
+	.strikethrough:hover {
+		text-decoration: underline !important;
+	}
+
+.hidecompletedtasks, .hideControl {
+	display: none !important;
+}
+
+.week-row {
+	border-top: 1px solid #cccccc;
+}
+
+.dow-container {
+	border-left: 1px solid #000000;
+	border-bottom: 1px solid #000000;
+	float: none;
+	display: table-cell;
+	vertical-align: top;
+}
+
+	.dow-container.even {
+		border-right: 1px solid #000000;
+	}
+
+.day-of-week-panel {
+	position: relative;
+	height: 100%;
+	margin-bottom: 2px;
+}
+
+.dayofweekDiv {
+	margin: 2px;
+}
+
+.checklist-list {
+	padding: 3px;
+	min-height: 200px;
+}
+
+.day-of-week-panel > .day-of-week {
+	padding: 0 5px;
+}
+
+.day-of-week-panel a {
+	font-size: 8pt;
+	font-family: Verdana;
+	display: block;
+	padding: 5px 0px;
+}
+
+.day-of-week {
+	font-size: 8pt;
+	text-align: right;
+	cursor: default;
+}
+
+.dow-row {
+	display: table;
+	width: 100%;
+	min-height: 200px;
+}
+
+.dow-half {
+	min-height: 100px;
+}
+
+.col-xs-3 {
+	width: 306px;
+	z-index: 0;
+}
+
+.dow-row:first-of-type .dow-container {
+	border-top: 1px solid #000000;
+}
+
+table.standard {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+	table.standard td {
+		vertical-align: top;
+	}
+
+table.calendarBlock {
+}
+
+	table.calendarBlock td {
+		min-height: 200px;
+	}
+
+td.pad5 {
+	padding: 5px;
+}
+
+#overdue-panel .day-of-week-panel {
+	border: 1px solid #000000;
+	margin-top: 5px;
+}
+
+.fa-forward {
+	color: #3399FF;
+}
+
+.dayofweekDiv {
+	display: block;
+	line-height: 1.1;
+}
+
+.blue .fa-male,
+#legend .fa-male,
+.context-menu-icon.fa-male::before {
+	color: green;
+}
+
+.blue .fa-users,
+#legend .fa-users {
+	color: brown;
+}
+
+.blue .fa-envelope,
+.lightblue .fa-envelope,
+#legend .fa-envelope,
+.context-menu-icon.fa-envelope::before {
+	color: #ffc800;
+}
+
+.blue .fa-window-close,
+.lightblue .fa-window-close,
+#legend .fa-window-close,
+.context-menu-icon.fa-window-close::before {
+	color: #a00000;
+}
+
+.IsNA {
+	font-weight: bold;
+	color: #660000;
+}
+
+span.checkSpacer {
+	display: inline-block;
+	width: 13px;
+}
+
+li i.fa {
+	width: 18px;
+}
+/* Copyright © 2024 Renegade Swish, LLC */
+

@@ -1,0 +1,286 @@
+/* Modified for use in Calendar.aspx by Frogslayer */
+
+/* line 89, ../scss/_lw-datepicker.scss */
+.lw-dp {
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+    width: 100%;
+    background: #cccccc;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #000000;
+    padding: 4px;
+    margin: 5.5px;
+    font-family: tahoma, verdana;
+    box-shadow: none;
+    user-select: none;
+    min-width: 276px;
+}
+
+/* line 107, ../scss/_lw-datepicker.scss */
+.lw-dp-hidden {
+    display: none;
+    box-shadow: none;
+}
+
+/* line 112, ../scss/_lw-datepicker.scss */
+.lw-dp-toolbar {
+    text-align: center;
+    overflow: hidden;
+    font-size: 14px;
+    line-height: 25px;
+    color: #000000;
+    font-weight: bold;
+    padding: 0 0 2.2px;
+    border-bottom: 1px solid #000000;
+}
+
+/* line 121, ../scss/_lw-datepicker.scss */
+.lw-dp-month, .lw-dp-year {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    /*text-overflow: ellipsis;*/
+    margin: 0px 16px;
+}
+
+.lw-dp-month {
+    width: 100px; /*Full Name*/
+    /*width: 76px;*/ /*Abbr*/
+}
+
+.lw-dp-year {
+    width: 64px;
+}
+
+/* line 129, ../scss/_lw-datepicker.scss */
+.lw-dp-previous, .lw-dp-next {
+    position: absolute;
+    overflow: hidden;
+    top: 4px;
+    width: 0;
+    height: 0;
+    color: #b9b9b9;
+    cursor: pointer;
+    border-top: 5.938px solid transparent;
+    border-bottom: 5.938px solid transparent;
+}
+
+/* line 141, ../scss/_lw-datepicker.scss */
+.lw-dp-previous, .lw-dp-previous-year {
+	left: 0px;
+	border-right: 11.875px solid #333333;
+	margin-top: 3px;
+}
+
+/* line 146, ../scss/_lw-datepicker.scss */
+.lw-dp-next, .lw-dp-next-year {
+	right: 0px;
+	border-left: 11.875px solid #333333;
+	margin-top: 3px;
+}
+
+/* line 151, ../scss/_lw-datepicker.scss */
+.lw-dp-previous:hover, .lw-dp-previous-year:hover {
+    border-right-color: #797979;
+}
+
+/* line 155, ../scss/_lw-datepicker.scss */
+.lw-dp-next:hover, .lw-dp-next-year:hover {
+    border-left-color: #797979;
+}
+
+/* line 159, ../scss/_lw-datepicker.scss */
+.lw-dp-previous:active, .lw-dp-previous-year:active {
+    border-right-color: #acacac;
+}
+
+/* line 163, ../scss/_lw-datepicker.scss */
+.lw-dp-next:active, .lw-dp-next-year:active {
+    border-left-color: #acacac;
+}
+
+/* line 167, ../scss/_lw-datepicker.scss */
+.lw-dp-dows {
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+    /* line 173, ../scss/_lw-datepicker.scss */
+    .lw-dp-dows li, .lw-dp-week li {
+        display: block;
+        float: left;
+        padding: 0;
+        margin: 0;
+        text-align: center;
+        color: #000000;
+    }
+
+    /* line 182, ../scss/_lw-datepicker.scss */
+    .lw-dp-dows li {
+        font-size: 12px;
+        font-weight: bold;
+        line-height: 18px;
+        width: 14.2857%;
+        height: 18px;
+        background: #f9f9f9;
+        border-width: 0;
+        border-left-width: 1px;
+        border-style: solid;
+        border-color: #f9f9f9;
+        padding: 0;
+        margin: 0;
+    }
+
+/* line 196, ../scss/_lw-datepicker.scss */
+.lw-dp-week {
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+    /* line 202, ../scss/_lw-datepicker.scss */
+    .lw-dp-week li {
+        padding: 0;
+        margin: 0;
+        border-width: 0;
+        font-size: 14px;
+        width: 14.2857%;
+        height: 35px;
+        line-height: 35px;
+        background: #ffffff;
+        border-left-width: 1px;
+        border-top-width: 1px;
+        border-style: solid;
+        border-color: #ffffff;
+        cursor: pointer;
+    }
+
+/* line 218, ../scss/_lw-datepicker.scss */
+.lw-dp-dows-last-column, .lw-dp-week-last-column {
+    border-right-width: 1px;
+}
+
+/* line 222, ../scss/_lw-datepicker.scss */
+.lw-dp-lastweek li {
+    padding: 0;
+    margin: 0;
+    border-bottom-width: 1px;
+}
+
+/* line 229, ../scss/_lw-datepicker.scss */
+.lw-dp-firstweek li:first-child {
+}
+
+/* line 233, ../scss/_lw-datepicker.scss */
+.lw-dp-firstweek li:last-child {
+}
+
+/* line 237, ../scss/_lw-datepicker.scss */
+.lw-dp-lastweek li:first-child {
+}
+
+/* line 241, ../scss/_lw-datepicker.scss */
+.lw-dp-lastweek li:last-child {
+}
+
+/* line 245, ../scss/_lw-datepicker.scss */
+
+
+#date-selection-calendar li:hover {
+    text-decoration: underline;
+}
+
+/* line 249, ../scss/_lw-datepicker.scss */
+li.lw-dp-weekend {
+    background: #ffffff;
+}
+
+/* line 253, ../scss/_lw-datepicker.scss */
+li.lw-dp-today, li.lw-dp-today:hover {
+    background-color: #006666;
+}
+
+    /* line 257, ../scss/_lw-datepicker.scss */
+    li.lw-dp-today span, li.lw-dp-today span:hover {
+        display: block;
+        width: 100%;
+        height: 35px;
+        line-height: 35px;
+        color: white;
+    }
+
+
+/* line 270, ../scss/_lw-datepicker.scss */
+li.lw-dp-active-day, li.lw-dp-active-day:hover {
+	position: relative;
+	color: white;
+}
+
+    /* line 278, ../scss/_lw-datepicker.scss */
+    li.lw-dp-active-day::before, li.lw-dp-active-day:hover::before {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        background: #003366;
+        z-index: -1;
+    }
+
+/* line 291, ../scss/_lw-datepicker.scss */
+	li.lw-dp-active-day:hover span {
+		color: #003366;
+	}
+
+/* line 295, ../scss/_lw-datepicker.scss */
+li.lw-dp-neighbour-month-day {
+    color: #b9b9b9;
+}
+
+/* line 299, ../scss/_lw-datepicker.scss */
+li.lw-dp-out-of-interval, li.lw-dp-out-of-interval:hover {
+    background: #ececec;
+    cursor: default;
+}
+
+/* Frogslayer edit*/
+.lw-dp-today-button {
+    text-align: center;
+    border-top: 1px solid #000000;
+}
+
+.lw-dp-monthbar {
+	display: inline-block;
+	float: left;
+	position: relative;
+	font-size: 13pt;
+	color: #005;
+	width: 54%;
+}
+
+.lw-dp-yearbar {
+	display: inline-block;
+	float: right;
+	position: relative;
+	font-size: 13pt;
+	color: #005;
+	width: 35%;
+}
+
+.lw-dp-previous-year, .lw-dp-next-year {
+    position: absolute;
+    overflow: hidden;
+    top: 4px;
+    width: 0;
+    height: 0;
+    color: #b9b9b9;
+    cursor: pointer;
+    border-top: 5.938px solid transparent;
+    border-bottom: 5.938px solid transparent;
+    display: inline-block;
+}
+/* Copyright © 2024 Renegade Swish, LLC */
+

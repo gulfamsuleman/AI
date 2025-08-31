@@ -1,0 +1,52 @@
+.top {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    flex-direction: row;
+    /*position: -webkit-sticky;
+    position: sticky;
+    z-index: 10000;*/
+}
+}
+.top-buttons {
+    display: flex;
+    flex-direction: column;
+    margin: 5px;
+}
+
+.top-dropdowns {
+    display: flex;
+    margin: 5px;
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+#progressBar {
+    height: 50px;
+    width: 50%;
+}
+
+.conversion-btn {
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.common-value {
+    font-weight: bold;
+}
+
+#progressTitle {
+    text-align: center;
+    margin-top: 10px;
+}
+
+#progressBar {
+    width: 100%;
+    height: 25px;
+}
+
+.ui-dialog-titlebar-close {
+    display: none !important;
+}
+/* Copyright © 2024 Renegade Swish, LLC */
+

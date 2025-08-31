@@ -1,0 +1,624 @@
+*:focus {
+    outline: none;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+}
+
+#site-main {
+    background-color: #ffffff;
+    clear: both;
+    margin: 0px 4px;
+    margin-top: 40px;
+    overflow: auto;
+    border: 2px solid #003366;
+    height: calc(100% - 85px);
+}
+
+h4 {
+    color: #003366;
+    font-weight: bold;
+}
+
+.copyright {
+    font-size: 8pt;
+    font-style: italic;
+}
+
+table {
+    border-spacing: 0px;
+    border-collapse: separate !important;
+    margin-bottom: 5px;
+    width: 100%;
+    white-space: normal;
+}
+
+table table {
+    width: auto;
+}
+
+
+/*table td:first-child {
+    white-space: nowrap;
+}*/
+
+#NagsIControl thead th:first-child {
+    width: 250px; 
+    min-width: 50px; 
+    max-width: 245px;
+}
+
+#NagsIReceive thead th:first-child {
+    width: 280px;
+    min-width: 50px;
+    max-width: 2780px;
+}
+
+table.bordered tbody td {
+    border-top: 1px solid #003366;
+    border-bottom: 1px solid #003366;
+}
+
+table.bordered tbody td:first-child {
+    border-left: 1px solid #003366;
+}
+
+table.bordered tbody td:last-child {
+    border-right: 1px solid #003366;
+}
+
+/*td:last-child {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+td:first-child {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}*/
+
+td, th {
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+    /*width: auto !important;*/
+}
+
+td ul {
+    margin-top: 1px !important;
+    margin-bottom: 1px !important;
+}
+
+th.align-top {
+    vertical-align: top;
+}
+
+td button {
+    margin-top: 2px;
+    margin-bottom: 2px;
+    white-space: nowrap;
+}
+
+td ul button {
+    margin-top: 0;    
+}
+
+td span {
+    display: inline-block;
+    /*margin-top: 6px;*/
+}
+
+#MasterFooter {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    text-align: center;
+    margin: 5px;
+    margin-left: 0px;
+    margin-bottom: 0;
+    padding-bottom: 5px;
+    width: 100%;
+    background: white;
+}
+
+#MasterContent {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+@media screen and (max-width:990px) {
+    #MasterContent {
+        overflow-x: auto;
+        overflow-y: auto;
+    }
+}
+
+.rowTemplate {
+    display: none;
+}
+
+div.scrollable-y,
+span.scrollable-y {
+    display: inline-block;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 155px;
+}
+
+div.centerBlock,
+span.centerBlock {
+    display: block;
+    margin: auto;
+}
+
+.dialogContent {
+    display: none;
+}
+
+.dialogContent .answerTemplate {
+    display: none;
+}
+
+.dialogContent.ui-dialog {
+    display: inline-block;
+}
+
+.dialogContent h5 {
+    font-weight: bold;
+    font-size: 12pt;
+}
+
+button {
+    border-radius: 6px;
+    transition: background-color .25s ease-in-out;
+    vertical-align: middle;
+    min-height: 25px;
+    min-width: 25px;
+    background-repeat: no-repeat;
+    background-position: 5% 55%;
+    background-size: 18px;
+    margin-left: 5px !important;
+    border-top-color: #f0f0f0;
+    border-left-color: #f0f0f0;
+}
+
+
+
+button:not(.ui-dialog-titlebar-close):not(.noicon) {
+    text-align: right;
+    padding-left: 23px;
+    padding-right: 3px;
+    padding-top: 1px;
+}
+
+button.disabled {
+    animation: none;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+button.add {
+    background-image: url("/images/Nags/plus.svg");
+    background-color: #80ff80;
+}
+
+button.new {
+    background-image: url("/images/Nags/new.svg");
+    background-color: #80ff80;
+}
+
+button.edit {
+    background-image: url("/images/Nags/edit.svg");
+    background-color: #ffff80;
+}
+
+button.showAll {
+    background-image: url("/images/Nags/showall.svg");
+    background-color: #ffff80;
+}
+
+button.delete {
+    background-image: url("/images/Nags/delete.svg");
+    background-color: #ff8080;
+}
+
+button.remove {
+    background-image: url("/images/Nags/minus.svg");
+    background-color: #ff8080;
+}
+
+button.save {
+    background-image: url("/images/Nags/ok.svg");
+    background-color: #80ff80;
+}
+
+.button.cancel {
+    background-image: url("/images/Nags/cancel.svg");
+    background-color: #ff8080;
+}
+
+button.collapse {
+    background-image: url("/images/Nags/up.png");
+    background-color: #80ffff;
+}
+
+button.expand {
+    background-image: url("/images/Nags/down.png");
+    background-color: #80ffff;
+}
+
+button.login {
+    background-image: url("/images/Nags/play_white.svg");
+    color: white;
+    background-color: #5050ff;
+}
+
+button.playpause.play {
+    background-image: url("/images/Nags/play.svg");
+    background-color: #80ff80;
+}
+
+button.playpause.pause {
+    background-image: url("/images/Nags/pause.svg");
+    background-color: #ffd080;
+}
+
+button.snooze {
+    background-image: url("/images/Nags/snooze.svg");
+    background-color: #a0a0ff;
+}
+
+button:hover {
+    background-color: #ffffff !important;
+}
+
+ul.nobullet {
+    padding-left: 0;
+}
+
+td ul li {
+    border-radius: 4px;
+    padding: 2px;
+    padding-right: 5px;
+}
+
+ul.nobullet li {
+    list-style: none;
+}
+
+.orange {
+    background-color: #ffd080;
+}
+
+.red {
+    background-color: #ff8080;
+}
+
+.green {
+    background-color: #80ff80;
+}
+
+.blue {
+    background-color: #a0a0ff;
+}
+
+.gray {
+    background-color: #c0c0c0 !important;
+}
+
+.faded {
+    opacity: .1;
+}
+
+li button {
+    margin-right: 10px;
+    margin-left: 0 !important;
+}
+
+.collapsible,.collapsible * {
+    /*TODO: figure out a good way to transition expansion/collapse*/
+}
+
+.collapsible.collapsed,.collapsible.collapsed * {
+    display: none;
+}
+
+input.readOnly,
+input.alwaysReadOnly,
+select.readOnly,
+select.alwaysReadOnly {
+    background-color: transparent;
+    pointer-events: none !important;
+    border: 1px;
+}
+
+input[readonly='readonly'] {
+    background-color: transparent;
+    border: 1px;
+    width: 100%;
+    max-width: 600px;
+}
+
+.ui-tooltip {
+    background-color: white;
+    opacity: .9;
+    border: 1px solid black;
+    border-radius: 4px;
+    width: auto !important;
+    display: inline-block;
+}
+
+.ui-tooltip-content {
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+.ui-dialog {
+    transition: opacity .25s ease-in-out;
+    border-radius: 6px;
+    border: 1px black solid;
+    padding: 5px;
+    background-color: white;
+    display: inline-block;
+    position: absolute;
+    z-index: 10000;
+}
+
+.ui-dialog.ui-dialog-dragging {
+    opacity: .5 !important;
+}
+
+.ui-dialog h3 {
+    font-size: 12pt;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.ui-dialog .ui-dialog-title {
+    font-size: 16pt;
+    font-weight: bold;
+}
+
+.ui-dialog .dialogNav a.btn {
+    background-color: #d0d0d0;
+    color: black;
+    border-radius: 6px 6px 0 0;
+}
+
+.ui-dialog .dialogNav a.btn.active {
+    background-color: #e0e0e0;
+}
+
+.ui-dialog .dialogNav a.btn:hover {
+    background-color: #f0f0f0;
+}
+
+.ui-dialog .dialogSections {
+    border: 1px solid #808080;
+    border-radius: 2px;
+    padding: 3px;
+    margin-bottom: 5px;
+}
+
+.ui-dialog table {
+    /*width: 100%;*/
+}
+
+.ui-dialog textarea {
+    width: 270px;
+    max-width: 270px;
+    max-height: 140px;
+}
+
+.ui-datepicker, .ui-timepicker {
+    z-index: 10000;
+}
+
+input,
+select,
+td {
+    padding: 2px;
+    margin-bottom: 3px;
+    min-height: 30px;
+}
+
+
+.ui-dialog input[type=number]{
+    width: 50px;
+}
+
+.ui-dialog input[type=date]{
+    width: 135px;
+}
+.ui-dialog input[type=time]{
+    width: 110px;
+}
+
+.ui-dialog input[type=text],
+.ui-dialog select{
+    width: 270px;
+}
+
+.dateField {
+    display: inline-block;
+    max-width: 100px !important;
+    vertical-align: central;
+    padding: 2px;
+    padding-bottom: 3px;
+    margin-bottom: 3px;
+}
+
+.ui-dialog .ui-dialog-titlebar {
+    width: 100%;
+    height: 30px;
+}
+
+.ui-dialog .ui-dialog-titlebar-close {
+    position: relative;
+    right: 5px;
+    float: right;
+    border-radius: 12px;
+    background-image: url("/images/Nags/cancel.svg");
+    background-position: 50% 50%;
+    background-size: 80%;
+}
+
+.ui-dialog .ui-dialog-titlebar::after {
+    clear: both;
+}
+
+.ui-dialog .ui-dialog-titlebar-close .ui-button-text {
+    display: none;
+}
+
+.ui-icon {
+    color: transparent;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    background-size: 100% 97%;
+    cursor: pointer;
+    min-height: 30px;
+    min-width: 30px;
+}
+
+.ui-datepicker {
+    background-color: #ffffff;
+    border: 1px solid black;
+    border-radius: 6px;
+}
+
+.ui-datepicker-title {
+    font-weight: bold;
+    font-size: 14pt;
+}
+
+.ui-datepicker-today {
+    background-color: #d0d0d0;
+    border-radius: 4px;
+}
+
+.ui-datepicker-next span {
+    margin-left: -20px !important;
+}
+
+.ui-timepicker {
+    background-color: #ffffff;
+    border: 1px solid black;
+    border-radius: 6px;
+}
+
+.ui-timepicker-title {
+    font-weight: bold;
+    font-size: 14pt;
+}
+
+.ui-timepicker-today {
+    background-color: #d0d0d0;
+    border-radius: 4px;
+}
+
+.ui-timepicker-next span {
+    margin-left: -20px !important;
+}
+
+.ui-icon-circle-triangle-e {
+    background-image: url("../images/Nags/Nags/arrow_right_circle.png");
+}
+.ui-icon-circle-triangle-w {
+    background-image: url("../images/Nags/arrow_left_circle.png");
+}
+
+.dialogFieldTable th {
+    min-width: 150px;
+    text-align: right;
+}
+
+.centerText {
+    text-align: center;
+}
+
+.ui-icon-gripsmall-diagonal-se {
+    width: 30px;
+    float: right;
+    position: absolute;
+    bottom: 3px;
+    right: 3px;
+    background-image: url("../images/Nags/resize.png");
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    background-size: 90%;
+    transition: opacity .25s ease-in-out;
+    opacity: 0;
+    
+}
+
+.ui-icon-gripsmall-diagonal-se:hover {
+    opacity: .5;
+}
+
+.right {
+    float: right;
+}
+
+.reminderSettings li {
+    display: block;
+    list-style: none;
+}
+
+input[type='checkbox'],
+input[type='radio'] {
+    min-height: 20px;
+    min-width: 20px;
+    vertical-align: text-bottom;
+    /*margin-top: 0 !important;*/
+}
+
+.inline-textbox {
+    max-width: 40px;
+    max-height: 25px;
+    height: auto !important;
+    vertical-align: text-bottom !important;
+}
+
+.note {
+    font-style: italic;
+}
+
+.ui-timepicker-table td a,
+.ui-datepicker-calendar tbody tr td a{
+    padding: 0;
+    width: 1.7em;
+    text-align: center;
+    color: black;
+}    
+
+a.ui-state-active {
+    color: black;
+    font-weight: bold;
+}
+
+a.ui-state-hover, a:hover {
+    text-decoration: underline !important;
+}
+
+#NagSchedTable tbody tr td select {
+    width: auto;
+}
+
+span[name='DaysOfMonth'] {
+    display: inline-block;
+    min-width: 200px;
+}
+
+span.linkSpan {
+    color: #337ab7;
+    text-decoration: none;
+}
+
+span.linkSpan:hover {
+    color: #23527c;
+    text-decoration: underline;
+    cursor: pointer;
+}
+/* Copyright © 2024 Renegade Swish, LLC */
+

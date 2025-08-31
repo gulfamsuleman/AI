@@ -1,0 +1,75 @@
+.bulk-update-area {
+	width: 100%;
+	height: 200px;
+}
+
+#deleted-sections-table .strikethrough {
+	text-decoration: line-through;
+}
+
+.report-navbar-default {
+    min-height: 0px !important;
+}
+
+.report-name {
+	padding-top: 8px;
+	padding-bottom: 8px;
+	padding-right: 15px;
+	font-weight: bold;
+	font-style: italic;
+	font-size: 24px;
+	margin: auto;
+}
+
+.todays-date {
+    color: #FFF;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-right: 24px;
+	font-weight: bold;
+}
+
+.nav.navbar-nav.reportmenu {
+    background-color: white;
+    display: block;
+    float: left;
+    font-family: Tahoma, Arial, Verdana;
+    font-size: 17px;
+    list-style-image: none;
+    list-style-position: outside;
+    list-style-type: none;
+    padding: 3px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    margin-left: 140px;
+}
+
+.nav.navbar-nav.reportmenu > li {
+    display: inline;
+}
+
+.nav.navbar-nav.reportmenu li a {
+    font-family: Tahoma,Arial,Verdana;
+    font-size: 17px;
+    color: #000;
+    font-weight: bold;
+    padding: 2px 10px 2px 10px;
+    vertical-align: middle;
+}
+
+.nav.navbar-nav.reportmenu li:hover {
+    background-color: #eee;
+    text-decoration: none;
+}
+
+.nav.navbar-nav.reportmenu li a:hover {
+    background-color: #eee;
+    text-decoration: none;
+}
+
+.nav.navbar-nav.reportmenu > li > a > img {
+    vertical-align: top;
+    margin-top: 2px;
+}
+/* Copyright © 2024 Renegade Swish, LLC */
+

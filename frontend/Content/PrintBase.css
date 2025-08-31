@@ -1,0 +1,53 @@
+@page {
+	margin: 1cm 0.5cm 1cm 0.5cm;
+}
+
+html, body, #site-main {
+    overflow: visible !important;
+    height: 100% !important;
+    border: none !important;
+}
+
+#site-header,
+.navbar,
+#expand-collapse,
+.fa,
+.report-line-subheader-expand-area,
+#site-footer {
+	display: none !important;
+}
+#priorities-toolbar,
+#prioritySchedule {
+	display: none !important;
+}
+table {
+	border-collapse: collapse;
+}
+
+#priority-lists-header {
+	display: flex;
+	font-size: 20px;
+	font-weight: bold;
+	text-align: center;
+	width: 100%;
+	border: 1px solid black;
+	justify-content: center;
+	padding: 10px;
+	margin-bottom: 5px;
+}
+
+td, th, p {
+	page-break-before: avoid;
+	page-break-after: avoid;
+	page-break-inside: avoid;
+	white-space: normal;
+	-ms-word-wrap: normal;
+	word-wrap: normal;
+    font-size: 10pt;
+}
+
+a {
+    text-decoration: none;
+}
+/* Copyright © 2024 Renegade Swish, LLC */
+

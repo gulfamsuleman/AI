@@ -1,0 +1,23 @@
+.parent-container {
+    display: flex;
+    gap: 20px;
+}
+.select-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+ select-container label {
+     margin-bottom: 10px;
+ }
+
+ select-container button {
+     margin: 10px;
+ }
+.select-container .max-content {
+    width: max-content;
+    height: auto;
+}
+/* Copyright © 2024 Renegade Swish, LLC */
+

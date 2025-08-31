@@ -1,0 +1,125 @@
+.highlight {
+	background-color: #ffff11;
+}
+.title-bar {
+	color: #333333;
+	background: #ebebeb;
+	font-size: 17px;
+	font-style: normal;
+	padding: 2px 10px;
+	border: 1px solid #ADADAD;
+}
+
+.expanded {
+	margin-top: 10px;
+}
+
+#expand-collapse,
+.task-table-wrapper {
+	margin-bottom: 5px;
+}
+
+.table-viewport {
+	overflow-x: auto;
+	overflow-y: hidden;
+}
+
+.expanded-table {
+	min-width: 1600px;
+}
+
+#summary-tasks-table th,
+.report-line-header,
+.multiple-collapse-member,
+#managed-tasks-table th {
+	background: #ECE9D8;
+}
+
+#summary-tasks-table th,
+#summary-tasks-table td,
+.report-line-border,
+#managed-tasks-table th,
+#managed-tasks-table td {
+	border: 1px solid #000;
+	padding: 5px;
+}
+
+#summary-tasks-table th,
+.multiple-collapse-member th,
+#managed-tasks-table th {
+	padding: 2px 4px;
+}
+
+.report-line-header td {
+	font-size: 16px;
+	font-weight: bold;
+	text-align: center;
+	width: 100%;
+}
+
+.report-line-subheader {
+	padding-top: 10px;
+	font-weight: bold;
+	text-decoration: underline;
+}
+
+#summary-tasks-table tbody td,
+.report-line-content td,
+#managed-tasks-table tbody td {
+    font-size: 10pt;
+	background-color: #FFFFED;
+}
+
+#summary-tasks-table tbody td:nth-child(3),
+.report-line-content td:nth-child(3),
+#managed-tasks-table tbody td:nth-child(3),
+#summary-tasks-table tbody td:nth-child(7),
+.report-line-content td:nth-child(7),
+#managed-tasks-table tbody td:nth-child(7),
+#summary-tasks-table tbody td:nth-child(8),
+.report-line-content td:nth-child(8),
+#managed-tasks-table tbody td:nth-child(8) {
+    white-space: nowrap;
+}
+
+.report-line-spacer td {
+	padding-top: 10px;
+	border-bottom: 1px solid #a0a0a0;
+}
+
+.report-line-ender {
+	border-bottom: 1px solid #000;
+}
+
+.fa-arrows {
+    cursor: pointer;
+}
+
+.filters-controls .form-group input[type=text] {
+	width: 80px;
+	border: 1px solid black;
+	padding: 1px 2px;
+}
+
+.filters-controls button.btn {
+	padding: 2px 8px;
+	color: black;
+	font-weight: bold;
+	border: 1px solid black;
+}
+
+/*th {
+	background-color: lightgray;
+}*/
+
+th, td {
+	padding-left: 10px;
+	padding-right: 10px;
+	border: solid 1px #808080;
+}
+
+.hiddenbutton {
+	display: none;
+}
+/* Copyright © 2024 Renegade Swish, LLC */
+

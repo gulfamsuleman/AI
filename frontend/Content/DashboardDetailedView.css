@@ -1,0 +1,201 @@
+﻿#detailContainer {
+    display: grid;
+    grid-auto-flow: row;
+    gap: 20px;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    width: 100%;
+}
+
+.dataTables_wrapper {
+    overflow-y: auto;
+}
+
+.table-container {
+    align-items: stretch;
+    padding: 2%;
+    width: 100%;
+    border-top: 1px solid grey;
+    border-right: 1px solid black;
+    border-radius: 15px;
+    box-shadow: -10px 5px 5px grey;
+    overflow-y: auto;
+}
+
+#assignmentsProgress {
+    margin-bottom: 10px;
+}
+
+/* Ensure that tables take full width and have no margin */
+#assignmentsTable, #statusReports, #groupsTable {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.table-container > div {
+    margin-bottom: 20px;
+}
+
+.graph-container {
+    border-top: 1px solid black;
+    border-right: 1px solid black;
+    border-radius: 15px;
+}
+
+table {
+}
+
+    table thead tr:nth-child(odd) {
+        background: midnightblue;
+        color: #FFF;
+    }
+
+    table td {
+    }
+
+.gold-star {
+    color: gold;
+}
+
+#reassignTasks {
+    background: midnightblue;
+    color: #FFF;
+}
+
+#reassignTasks:hover {
+    background-color: #6FAA99;
+    color: #FFFFFF;
+}
+
+#kpiContainer {
+    display: flex;
+    flex-direction: column;
+    box-shadow: -10px 5px 5px grey;
+}
+
+#graphsContainer {
+    display: grid;
+    grid-auto-flow: row;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+}
+
+.base-graph {
+    height: 100% !important;
+    width: 100% !important;
+    /*border: 1px inset black;*/
+}
+
+    
+
+/* Apply ellipsis effect to all table cells within .table-container */
+.table-container table td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+    text-align: left;
+    position: relative;
+}
+
+    /* Optional: add a pointer cursor for better UX when hovering */
+    .table-container table td[title] {
+        cursor: pointer;
+    }
+
+.dt-column-order {
+    margin-top: 9px;
+}
+
+.modal-dialog {
+    min-width: 950px !important;
+}
+
+.dt-buttons {
+    margin-bottom: 20px;
+    text-align: left; 
+}
+
+.dt-button {
+    margin-right: 10px;
+    font-size: 14px; 
+    padding: 8px 16px; 
+}
+
+.date-actions {
+    margin-bottom: 20px;
+}
+
+.graph-tooltip {
+    justify-content: center;
+    align-content: center;
+    display: flex;
+    bottom: 80%;
+    left: 80%;
+    width: 20px;
+    cursor: pointer;
+    position: relative;
+    border: 2px solid midnightblue;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: bold;
+    color: midnightblue;
+}
+
+.graph-tooltip::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    background-color: #333;
+    z-index: 9001;
+    color: #fff;
+    padding: 5px;
+    border-radius: 5px;
+    top: 25px;
+    left: -50px;
+    white-space: nowrap;
+    display: none;
+}
+
+.graph-tooltip:hover::after {
+    display: block;
+}
+
+.b-top {
+    display:block;
+    width: 50%;
+    left: 25%;
+    border-top: 1px solid black;
+    padding-top: 15px;
+    position:relative;
+}
+
+.b-bottom {
+    display: block;
+    width: 50%;
+    left: 25%;
+    border-bottom: 1px solid black;
+    padding-bottom: 15px;
+    position: relative;
+}
+
+.b-right {
+    display: block;
+    height: 50%;
+    top: 25%;
+    border-right: 1px solid black;
+    padding-right: 15px;
+    position: relative;
+}
+
+.b-left {
+    display: block;
+    height: 50%;
+    top: 25%;
+    border-left: 1px solid black;
+    padding-left: 15px;
+    position: relative;
+}
+
+
+

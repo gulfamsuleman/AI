@@ -1,0 +1,24 @@
+.table {
+	width: auto;
+}
+
+.fa-plus, .fa-arrow-right {
+    color: green;
+}
+
+.panel-default > .panel-heading{
+    font-weight: bold;
+    background-color:#ffffff;
+    border: none;
+}
+
+td{
+    border: solid 1px #ddd;
+}
+
+th {
+    background-color:#003366;
+    color: #ffffff;
+}
+/* Copyright © 2024 Renegade Swish, LLC */
+

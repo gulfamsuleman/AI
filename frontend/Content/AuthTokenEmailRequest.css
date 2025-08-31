@@ -1,0 +1,34 @@
+
+#auth-container {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+}
+
+#form-container {
+    height: 600px;
+    width: 400px;
+}
+
+#infoNotice-container {
+    height: 400px;
+    width: 600px;
+    overflow-wrap: break-word;
+}
+
+#signingKey-container {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+#signingKeys {
+    height: 400px;
+    width: 400px;
+}
+
+#signingKeyNotice {
+    height: 400px;
+    width: 400px;
+}
+/* Copyright © 2024 Renegade Swish, LLC */
+

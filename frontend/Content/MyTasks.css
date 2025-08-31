@@ -1,0 +1,308 @@
+
+
+.active-checklist {
+	margin-bottom: 5px;
+}
+
+/*Slim checklists nest inside their parent, doubling the bottom margin*/
+.active-checklist > .active-checklist {
+    margin-bottom: 0px;
+}
+
+.active-checklist .title-bar {
+	color: #333333;
+	font-size: 17px;
+	font-style: normal;
+	padding: 2px 10px;
+	border: 1px solid #ADADAD;
+    font-weight: bold;
+}
+.title-bar{
+    cursor: pointer;
+}
+.active-checklist .title-bar a {
+	color: #333;
+}
+
+.active-checklist .title-bar * {
+	display: inline-block;
+}
+
+.checklist-title {
+    width:500px;
+}
+
+.active-checklist .title-bar .checklist-title {
+	margin-left: 10px;
+}
+
+.active-checklist[data-status='completed'] .title-bar{
+	color: #acacac;
+}
+.checklist-group{
+    width:100px;
+    text-align:right;
+}
+.checklist-status
+{
+    width:250px;
+}
+.active-checklist[data-status='overdue'] .title-bar .checklist-group {
+	color: #ff2451;
+}
+
+.active-checklist[data-status='completed'] .title-bar .checklist-group {
+	color: #336600;
+}
+
+.active-checklist[data-status='future'] .title-bar {
+	color: #aaaaaa;
+}
+
+.active-checklist .title-bar .manage-tasks {
+	float: right;
+}
+
+.active-checklist .checklist-summary {
+	background: #ffffff;
+	border-left: 1px solid #ADADAD;
+	border-right: 1px solid #ADADAD;
+    font-weight: normal;
+}
+
+.active-checklist .checklist-summary div {
+	float: left;
+	padding: 5px 5px 0 0;
+}
+
+.checklist-header {
+    font-size: 0.9em;
+    margin-left: 10px;
+}
+
+.checklist-subheader {
+    padding: 5px;
+    font-size: 0.9em;
+}
+
+.checklist-subheader th {
+    font-weight: normal;
+    padding-right: 5px;
+    padding-left: 5px;
+}
+
+.active-checklist .checklist-summary .management-actions {
+    float: none;
+    font-weight: bold;
+    font-size: 11px;
+    margin-bottom: 5px;
+}
+
+.active-checklist .checklist-summary .management-actions a{
+	margin-right: 15px;
+    border-radius: 0;
+}
+
+.active-checklist .checklist-summary div ul {
+	list-style-type: none;
+}
+
+.checklist-items table thead th {
+    font-weight: normal;
+    font-size: 0.9em;
+    text-decoration: underline;
+    white-space: nowrap;
+}
+
+.checklist-items table thead 
+{
+    border-left: 1px solid #ADADAD;
+    border-right: 1px solid #ADADAD;
+}
+
+.checklist-items table tbody {
+    background: #f3efdf;
+	border: 1px solid #ADADAD;
+    font-size: 0.9em;
+}
+
+    .checklist-items table tbody textarea {
+        display: inline-block;
+        vertical-align: text-top;
+        height: 25px;
+        width: 250px;
+        background-color: #ffffff;
+        color: #000000;
+        padding: 0px;
+        font-size: 10pt;
+        SCROLLBAR-FACE-COLOR: #DCDCDC;
+        SCROLLBAR-HIGHLIGHT-COLOR: #CECECE;
+        SCROLLBAR-SHADOW-COLOR: #D4D4D4;
+        SCROLLBAR-3DLIGHT-COLOR: #EDEDED;
+        SCROLLBAR-ARROW-COLOR: #BBBBBB;
+        SCROLLBAR-TRACK-COLOR: #AAAAAA;
+        SCROLLBAR-DARKSHADOW-COLOR: #999999;
+    }
+
+.active-checklist .checklist-items {
+	margin-bottom: 10px;
+}
+
+.active-checklist .checklist-items .table {
+	width: 100%;
+	margin-bottom: 0;
+}
+
+.active-checklist .checklist-items table td {
+	width: 2%;
+}
+.active-checklist .checklist-items table td+td {
+	width: 40%;
+}
+.active-checklist .checklist-items table td+td+td {
+	width: 28%;
+}
+.active-checklist .checklist-items table td+td+td+td {
+	width: 15%;
+}
+.active-checklist .checklist-items table td+td+td+td+td {
+	width: 15%;
+}
+
+.active-checklist .checklist-items .table>thead>tr>th,
+.active-checklist .checklist-items .table>tbody>tr>th,
+.active-checklist .checklist-items .table>tfoot>tr>th,
+.active-checklist .checklist-items .table>thead>tr>td,
+.active-checklist .checklist-items .table>tbody>tr>td,
+.active-checklist .checklist-items .table>tfoot>tr>td {
+	border: none;
+}
+
+.active-checklist .checklist-items .table .submission-row {
+	text-align: center;
+}
+
+.active-checklist .checklist-items .table .submission-row .btn{
+	border-radius: 0;
+	font-size: 11px;
+	padding: 4px;
+}
+
+.active-checklist .checklist-items .table .na-row {
+	text-align: center;
+    display:none;
+}
+
+.active-checklist .checklist-items .table .na-row .btn{
+	border-radius: 0;
+	font-size: 11px;
+	line-height: 15px;
+	padding: 4px;
+}
+
+.checklist-items table tbody .na-row textarea {
+    height: 150px;
+    width: 400px;
+    background-color: #ffffff;
+    color: #000000;
+    padding: 0px;
+    font-size: 10pt;
+    SCROLLBAR-FACE-COLOR: #DCDCDC; 
+    SCROLLBAR-HIGHLIGHT-COLOR: #CECECE; 
+    SCROLLBAR-SHADOW-COLOR: #D4D4D4; 
+    SCROLLBAR-3DLIGHT-COLOR: #EDEDED; 
+    SCROLLBAR-ARROW-COLOR: #BBBBBB; 
+    SCROLLBAR-TRACK-COLOR: #AAAAAA; 
+    SCROLLBAR-DARKSHADOW-COLOR: #999999;
+}
+
+/*.btn{
+	border-radius: 0;
+	font-size: 12px;
+	line-height: 15px;
+	padding: 4px;
+}*/
+
+.active-checklist .checklist-items textarea {
+	resize: vertical;
+}
+
+.due-date-controls {
+	margin-bottom: 3px;
+}
+
+.due-date-controls > div {
+	border: 1px solid #cccccc;
+	padding: 3px;
+	text-align: center;
+}
+
+.due-date-controls .form-inline .form-group {
+	display: block;
+	margin-bottom: 3px;
+}
+
+.due-date-controls label {
+    font-weight: bold;
+}
+
+.alerts-table
+{
+    border: 1px solid #000000;
+}
+.alerts-table th
+{
+    background-color: #ECE9D8;
+}
+.alerts-table th, .alerts-table td
+{
+    padding:5px;
+}
+.manage-tasks-selector {
+    margin-top: 5px;
+    margin-left: 5px;
+    border: solid 1px #cccccc;
+    padding: 5px;
+    background-color: #ebebeb;
+}
+
+/* Collapsible Section */
+.fa h2 {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.collapsible i.fa {
+    cursor: pointer;
+}
+
+.collapsible {
+    margin: 0 0 5px 0;
+    padding: 2px 9px 2px 9px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #ebebeb;
+    border: 1px solid #ADADAD;
+}
+
+/* CSS MAGIC STARTS HERE */
+.collapsible {
+    transition: grid-template-rows 500ms;
+}
+
+.collapse-grid {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows 500ms ease-in-out;
+}
+
+.collapse-content {
+    overflow: hidden;
+}
+
+.collapsible.collapsed .collapse-grid {
+    grid-template-rows: 0fr;
+}
+/* Copyright © 2024 Renegade Swish, LLC */
+

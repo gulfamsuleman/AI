@@ -1,0 +1,353 @@
+﻿div.filter-hide, tr.filter-hide {
+    display: none !important;
+}
+
+#dlgSearch {
+    left: 8px;
+    width: 99%;
+    display: none;
+    position: fixed;
+    z-index: 9000;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.4);
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    box-shadow: 0 1px 6px 0 rgba(32, 33, 36, 0.28);
+}
+
+.task-dialog {
+    top: 40px;
+}
+
+.status-dialog {
+    top: 75px;
+}
+
+#dlgSearch .modal-content {
+    width: 100%;
+    border-radius: 0;
+    border: 1px solid #888;
+}
+
+    #dlgSearch .modal-content > .modal-body {
+        padding: 10px;
+    }
+
+#dlgSearch .bar-wrap {
+    left: 9px;
+    z-index: 1;
+    position: fixed;
+    padding: 0 10px;
+    width: 99%;
+    display: none;
+}
+
+.task-bar-wrap {
+    top: 50px;
+}
+
+.status-bar-wrap {
+    top: 85px;
+}
+
+#dlgSearch .bar {
+    padding: 15px;
+    background: #fff;
+    border-radius: 25px;
+    box-shadow: 0 9px 8px -3px rgba(64, 60, 67, .24), 8px 0 8px -7px rgba(64, 60, 67, .24), -8px 0 8px -7px rgba(64, 60, 67, .24);
+}
+
+#dlgSearch .bar-inactive {
+    padding: 15px;
+    background: #FFFFFF;
+    border-radius: 25px;
+}
+
+#dlgSearch ul {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+#dlgSearch li {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    max-height: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+    #dlgSearch li.active {
+        background-color: #eee;
+    }
+
+#txtSearchInput {
+    background-color: white !important;
+    outline: none !important;
+}
+    #txtSearchInput:focus {
+        background-color: white !important;
+        outline: none !important;
+        height: 50px;
+        box-shadow: 5px 5px 5px grey;
+    }
+    #txtSearchInput:active {
+        background-color: white !important;
+        outline: none !important;
+        height: 50px;
+        box-shadow: 5px 5px 5px grey;
+    }
+
+#dlgSearch input:focus {
+
+    outline: none;
+}
+
+/* Hide the default checkbox */
+#dlgSearch input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+}
+
+    /* Add a checkmark when checked */
+    #dlgSearch input[type="checkbox"]:checked::after {
+        content: "✔";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 14px;
+        color: white;
+    }
+
+#dlgSearch .search-bar {
+    display: flex;
+}
+
+#dlgSearch .recent-list {
+    display: flex;
+    border-top: 1px solid #ccc;
+    padding-top: 10px;
+    margin-top: 10px;
+    display: none;
+}
+
+#dlgSearch .modal-head {
+    padding: 10px;
+    background: #EBEBEB;
+}
+
+#dlgSearch .search-criteria {
+    margin-left: 15px;
+    margin-top: 10px;
+}
+
+    #dlgSearch .search-criteria input[type=checkbox] {
+        margin-left: 10px;
+        vertical-align: top;
+    }
+
+#dlgSearch .inline {
+    display: inline-block;
+}
+
+#dlgSearch .date {
+    width: 90px;
+    border: 0;
+    border-bottom: 1px solid #ccc;
+    border-radius: 15px;
+}
+
+#dlgSearch table, #dlgSearch th, #dlgSearch td {
+    border: 1px solid #c3bfb4;
+}
+
+#dlgSearch table {
+    border-collapse: collapse;
+    overflow-y: auto;
+}
+
+#dlgSearch th, #dlgSearch td {
+    padding: 5px;
+}
+
+#dlgSearch th {
+    background-color: #ece9d8;
+    position: sticky;
+    top: 0;
+}
+
+    #dlgSearch th::before {
+        position: absolute;
+        content: '';
+        top: -1px;
+        left: -2px;
+        width: calc( 100% + 2px);
+        height: 1px;
+        background-color: #c3bfb4;
+    }
+
+    #dlgSearch th::after {
+        position: absolute;
+        content: '';
+        bottom: -1px;
+        left: -2px;
+        width: calc( 100% + 2px);
+        height: 1px;
+        background-color: #c3bfb4;
+    }
+
+#dlgSearch td {
+    background-color: #ffffed;
+}
+
+#dlgSearch b, #divSearchComment b {
+    color: Red;
+}
+
+#dlgSearch a {
+    color: blue;
+    text-decoration: underline;
+}
+
+#divSearchComment {
+    z-index: 10001;
+    position: absolute;
+    display: none;
+    border: 1px solid #b2b2b2;
+    background-color: #ffffed;
+    width: 800px;
+    -webkit-box-shadow: 4px 4px 5px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 4px 4px 5px 0px rgba(0,0,0,0.75);
+    box-shadow: 4px 4px 5px 0px rgba(0,0,0,0.75);
+}
+
+    #divSearchComment > div {
+        height: 600px;
+        overflow-y: auto;
+        padding: 10px;
+    }
+
+#searchOverlay {
+    visibility: hidden;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    z-index: 10000;
+    background-color: #eeeeee;
+    opacity: 0.7;
+}
+
+#divSearchComment h5 {
+    border-bottom: 1px solid #b2b2b2;
+    padding: 3px 8px;
+    margin: 0;
+    background-color: #ece9d8;
+}
+
+    #divSearchComment h5 > span {
+        border: 1px solid #b2b2b2;
+        float: right;
+        padding: 0px 6px;
+        margin-top: -3px;
+        margin-right: -8px;
+        cursor: pointer;
+    }
+
+#divSearchComment div.level0 {
+    margin-bottom: 8px;
+    font-size: 11pt;
+}
+
+#divSearchComment div.level1 {
+    margin-bottom: 8px;
+    padding-left: 15px;
+    font-size: 11pt;
+}
+
+#divSearchComment div.level2 {
+    margin-bottom: 8px;
+    padding-left: 30px;
+    font-size: 11pt;
+}
+
+#divSearchComment div.level3 {
+    margin-bottom: 8px;
+    padding-left: 45px;
+    font-size: 11pt;
+}
+
+#divSearchComment div.level4 {
+    margin-bottom: 8px;
+    padding-left: 60px;
+    font-size: 11pt;
+}
+
+#divSearchComment div.level5 {
+    margin-bottom: 8px;
+    padding-left: 75px;
+    font-size: 11pt;
+}
+
+#dlgSearch input[type='checkbox']:disabled {
+    background-color: gray;
+    color: white;
+    cursor: not-allowed;
+}
+
+.dlg-font {
+    font-size: 11px;
+}
+
+.task-search {
+    top: 7.5%;
+}
+
+.status-search {
+    top: 12.5%;
+}
+
+input:-webkit-autofill {
+    background-color: white !important;
+}
+
+.matched-result {
+    background-color: darkviolet;
+    font-weight: bold;
+    color: white;
+}
+
+@media (max-width: 1286px) {
+    .dlg-font {
+        font-size: 9px;
+    }
+}
+
+@media (max-width: 950px) {
+    .search-size {
+        left: 60% !important;
+    }
+}
+
+@media (max-width: 500px) {
+    .search-size {
+        left: 48% !important;
+    }
+}
+
+

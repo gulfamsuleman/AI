@@ -1,0 +1,20 @@
+#report-load-times-panel th,
+#report-load-times-panel td {
+	border: 1px solid #CDCDCD;
+	color: #050578;
+}
+
+#report-load-times-panel th {
+	background-color: #069;
+	text-align: center;
+}
+
+#report-load-times-panel th a {
+	color: #FFF;
+}
+
+#report-load-times-panel tr.alternate {
+	background-color: #D2DEE0;
+}
+/* Copyright © 2024 Renegade Swish, LLC */
+

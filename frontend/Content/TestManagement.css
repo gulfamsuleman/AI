@@ -1,0 +1,56 @@
+.leftLabel {
+    display: inline-block;
+    width: 150px;
+}
+
+.test-panel {
+    padding-left: 20px;
+}
+
+.test-panel > div {
+    margin-top: 20px;
+}
+
+.test-panel .btn {
+    margin-right: 50px;
+}
+
+/*Graded Score classes*/
+
+.score-container {
+    height: 500px;
+    width: 100%;
+}
+
+.score-container h3 {
+    background-color: darkgray;
+    border-radius: 10px;
+    padding: 10px;
+    width: 100%;
+}
+
+.score-container label {
+    background-color: lightgray;
+    border-radius: 10px;
+    padding: 10px;
+    width: 100%;
+}
+
+.dt-layout-cell div {
+    display: inline-block;
+}
+
+.dt-layout-cell div:not(:last-child) {
+    margin-right: 10px;
+}
+
+table.dataTable > tbody > tr > th, 
+table.dataTable > tbody > tr > td {
+    padding: 2px 10px !important;
+}
+
+table.dataTable > tbody > tr:nth-of-type(2n+1) {background-color: #eee;}
+
+.dt-length > label {margin-left: 3px;}
+/* Copyright © 2024 Renegade Swish, LLC */
+

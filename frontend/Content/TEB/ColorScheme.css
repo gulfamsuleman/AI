@@ -1,0 +1,143 @@
+/*
+    This file is intended to hold all CSS styles for deployment-specific color schemes across all pages. 
+    Layout styles *should* be platform-independent, but environment-specific tweaks to
+    element size/positioning (i.e. logos) is acceptable here.
+
+*/
+
+/* General */
+a {
+    color: #003366;
+}
+
+/* Calendar */
+.ui-accordion-header.ui-state-active {
+    background-color: #003366;
+}
+
+.selected-day .day-of-week {
+    background-color: #003366;
+    border-bottom: 1px solid #BBBBBB;
+}
+
+/* Change Request */
+h4 {
+    color: #000000;
+}
+
+/* line 275, ../scss/_lw-datepicker.scss */
+li.lw-dp-active-day:nth-child(n), li.lw-dp-active-day:hover:nth-child(n) {
+    background: none;
+}
+
+/* Mobile */
+.task-line {
+    width: 93%;
+}
+
+@media (max-width: 1580.98px) {
+    .navbar {
+        flex-wrap: wrap;
+    }
+}
+
+/* Priorities */
+#priorities-toolbar {
+    background: #003366;
+}
+
+/* Report Toolbar */
+.report-navbar-default {
+    background-color: #036;
+}
+
+/* Reports */
+a.list-group-item:hover {
+    background-color: #003366;
+    color: #FFFFFF;
+}
+
+/* Other Differences */
+.navbar > .container .navbar-brand,
+.navbar > .container-fluid .navbar-brand {
+    margin-left: 10px;
+}
+
+/* Groups */
+#user-groups-table groups-panel th {
+    background-color: #000000;
+}
+
+#user-groups-table thead tr {
+    background-color: #003366;
+}
+
+/* Help */
+.back-to-top-container .back-to-top {
+    background-color: #003366;
+}
+
+.conversion-btn {
+    background-color: rgb(73, 106, 132);
+    color: #FFFFFF;
+}
+
+    .conversion-btn:hover {
+        background-color: #605f5f;
+        color: #FFFFFF;
+    }
+
+.modal-head {
+    background: #EBEBEB;
+}
+
+.close-search {
+    background-color: rgb(73, 106, 132);
+    color: #ffffff;
+}
+
+    .close-search:hover {
+        background-color: #605f5f;
+        color: #FFFFFF;
+    }
+
+#dlgSearch input[type="checkbox"]:checked {
+    background-color: rgb(73, 106, 132);
+    border-color: rgb(73, 106, 132);
+}
+
+#dlgSearch input[type="radio"]:checked {
+    background-color: rgb(73, 106, 132);
+    border-color: rgb(73, 106, 132);
+}
+
+.env-specific-btn {
+    background-color: rgb(73, 106, 132);
+    color: #ffffff !important;
+}
+
+    .env-specific-btn:hover {
+        background-color: #605f5f;
+        color: #FFFFFF;
+    }
+
+.env-specific-alt {
+    background-color: #605f5f;
+    color: #FFFFFF;
+}
+
+.env-specific-banner {
+    color: rgb(73, 106, 132) !important;
+}
+
+/*******************************************************************
+    
+    Conflicts - Everything below must stay there to have precendent 
+
+********************************************************************/
+
+.active-checklist .title-bar {
+    background: #ebebeb;
+}
+/* Copyright © 2024 Renegade Swish, LLC */
+

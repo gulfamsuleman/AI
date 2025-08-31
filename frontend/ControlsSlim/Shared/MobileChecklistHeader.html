@@ -1,0 +1,50 @@
+﻿<div class="my-2 rounded box-shadow task-group">
+    <div class="p-2 task-summary">
+        <i class="fa btn-toggle fa-plus-square-o"></i>
+        <div style="margin-left:18px">
+            <h5 class="pb-2 mb-0 task-title"></h5>
+            <h6 class="pb-2 mb-0 task-due-date"></h6>
+        </div>
+    </div>
+    <div class="p-2 bg-white task-header">
+        <div class="mb-2">
+            <span class="link-task btn-view-alert">View Alerts</span>
+            <span class="link-task btn-manage-task">Manage Task</span>
+            <span class="link-task btn-add-priority">Add To Priorities</span>
+            <span class="link-task btn-change-deadline">Change Deadline</span>
+            <!--<span class="link-task btn-manage-nag">Manage Nag</span>-->
+        </div>
+
+        <div>
+            <span class="task-label">Controllers:</span><span class="task-controller"></span>
+        </div>
+        <div>
+            <span class="task-label">Assigned To:</span><span class="task-assigned"></span>
+        </div>
+        <div class="mb-2">
+            <span class="task-label">Created:</span><span class="task-created"></span>
+        </div>
+    </div>
+    <div class="p-2 task-item">
+        <div>
+            <input type="checkbox" />
+            <div class="task-line">
+                <span class="task-item-text"></span>
+                <textarea style="width:100%"></textarea>
+                <div>
+                    <span class="task-label">Completed By:</span><span class="task-completed-by"></span>
+                </div>
+                <div>
+                    <span class="task-label">Completed On:</span><span class="task-completed-on"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="p-2 text-center task-button">
+        <span>
+            <a class="btn-task close-save"><img src="../Images/save_sm.gif"> Save</a>
+            <a class="btn-task close-complete btn btn-default"><i class="fa fa-check-square-o"></i> Complete</a>
+            <a class="btn-task close-na"><i class="fa fa-ban"></i> N/A - Close Task</a>
+        </span>
+    </div>
+</div>

@@ -1,0 +1,28 @@
+.filters-controls .form-group input[type=text] {
+    width: 80px;
+    border: 1px solid black;
+    padding: 1px 2px;
+}
+
+.filters-controls button.btn {
+    padding: 2px 8px;
+    color: black;
+    font-weight: bold;
+    border: 1px solid black;
+}
+
+table.tasklist {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table.tasklist th, td {
+    text-align: left;
+    padding: 8px;
+}
+
+table.tasklist tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+/* Copyright © 2024 Renegade Swish, LLC */
+

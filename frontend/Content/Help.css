@@ -1,0 +1,97 @@
+h2 {
+	font-family: "Tahoma", "sans-serif";
+	font-weight: bold;
+}
+
+h3 {
+	background: white;
+	font-family: "Tahoma", "sans-serif";
+	font-weight: bold;
+}
+
+p {
+	margin-top: .75em;
+	margin-bottom: .75em;
+	background: white;
+	font-size:16.0pt;
+	line-height:107%;
+	font-family:"Tahoma","sans-serif";
+}
+
+.title {
+	font-size:18.0pt;
+	font-family:"Tahoma","sans-serif";
+	color: #003366;
+	line-height: normal;
+}
+
+.glossary-header {
+	font-size:1.5em;
+	font-family:"Tahoma","sans-serif";
+	color: #003366;
+	line-height: normal;
+}
+
+.glossary p b{
+	line-height: normal;
+	font-size:13.5pt;
+	font-family:"Tahoma","sans-serif";
+	color: #003366;
+}
+
+.glossary p {
+	margin-bottom:0;
+	margin-bottom:.0001pt;
+	line-height: normal;
+	font-family:"Tahoma","sans-serif";
+	color: black;
+}
+
+.glossary .glossary header {
+	font-size:18.0pt;
+	font-family:"Tahoma","sans-serif";
+	color: #003366;
+}
+
+li {
+	line-height: normal;
+	font-size:16.0pt;
+	font-family: "Tahoma", "sans-serif";
+}
+
+.table-of-contents {
+	width: 500px;
+	padding: 1em;
+	border: solid thin;
+	margin: 1em 0;
+	background: #dddddd;
+	font-size: 15pt;
+}
+
+img{
+	max-width: calc(100vw - 30px);
+}
+
+/* These three were removed in every*/
+/*#navHeader {
+	top: 0;
+	left: 0;
+}
+
+#main {
+	position: fixed !important;
+	top: 60px;
+	left: 0;
+	width: 100%;
+	height: calc(100% - 60px);
+	overflow: scroll;
+}
+
+p.to-top {
+	margin-bottom: 10px;
+	margin-top: 10px;
+}
+
+*/
+/* Copyright © 2024 Renegade Swish, LLC */
+

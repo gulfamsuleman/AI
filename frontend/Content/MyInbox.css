@@ -1,0 +1,71 @@
+#site-main nav.navbar {
+    position: absolute;
+    margin-top: 41px;
+    margin-left: 6px;
+    top: 0px;
+    left: 0px;
+    width: -moz-calc(100% - 31px);
+    width: -webkit-calc(100% - 31px);
+    width: calc(100% - 31px);
+    border-radius: 0px;
+}
+
+.reminderspan {
+    color: green;
+}
+
+i[data-role=expand-indicator] {
+    cursor: pointer;
+}
+
+
+#site-main {
+    padding-top: 10px !important;
+    font-size:10pt;
+}
+.report-listing-table{
+    font-size: 14pt;
+}
+.report-listing-table th{
+    text-align:center;
+}
+.report-list-head{
+    font-weight:bold;
+    width:100%;
+    background-color: #ECE9D8;
+    border: solid 1px #000000;
+    padding:10px;
+}
+.fa-star-o{
+    color:#666666;
+ }
+.fa-star{
+    color:#F6B400;
+}
+.report-listing{
+    cursor:pointer;
+}
+
+.na-row {
+    display:none;
+}
+
+#comments-date{
+    width:180px;
+}
+
+#comments-time{
+    height: 31px;
+}
+
+.emailControl, .emailControl .btn {
+    width: 100%;
+}
+
+    .emailControl .btn {
+        margin: 0 auto 8px;
+        display: block;
+        max-width: 400px;
+    }
+/* Copyright © 2024 Renegade Swish, LLC */
+

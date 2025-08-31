@@ -1,0 +1,55 @@
+body {
+}
+
+.text-header {
+    height: 10px;
+}
+
+.panel-content {
+    margin: 0;
+    height:fit-content;
+}
+
+.task-panel {
+    overflow-y: auto;
+    margin-top: 10px;
+}
+
+div.lw-dp {
+    min-width: 270px;
+    max-width: 425px;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+.dayofweekDiv {
+    margin-bottom: 8px;    
+}
+
+.day-of-week {
+    font-size: 10pt;
+}
+
+.day-of-week-panel a {
+    font-size: 10pt;
+}
+
+
+.ui-widget {
+    font-family: Tahoma, Verdana !important;
+}
+
+.ui-accordion .ui-accordion-content {
+    padding: 3px 2px !important;
+}
+
+
+.hideFilter {
+    display: none !important;
+}
+
+#date-selection-calendar .lw-dp {    
+    z-index: 0;
+}
+/* Copyright © 2024 Renegade Swish, LLC */
+

@@ -980,6 +980,17 @@ class DatabaseService:
             status_report_name = status_report_params.get('_status_report_name', '')
             task_name = status_report_params.get('TaskName', '')
             
+            # Handle main_controller placeholder for general status report requests
+            if status_report_group == 'main_controller':
+                # Get the main controller from the task parameters
+                main_controller = status_report_params.get('MainController', '')
+                if main_controller:
+                    status_report_group = main_controller
+                    logger.info(f"Replaced main_controller placeholder with actual controller: {main_controller}")
+                else:
+                    logger.warning("Status report requested but no main controller available")
+                    return False
+            
             # Get group ID for the status report group (with fuzzy matching and context)
             # Extract assignee groups for context
             assignee_groups = []
@@ -1006,13 +1017,17 @@ class DatabaseService:
             logger.info("STATUS REPORT STORED PROCEDURE PARAMETERS:")
             logger.info(f"  @GroupID = {group_id}")
             logger.info(f"  @ReportName = '{report_name}'")
+            logger.info(f"  @IsConfidential = {is_confidential}")
             logger.info(f"  Group: '{status_report_group}'")
             
             # Execute the stored procedure
             with DatabaseService.get_cursor() as cursor:
+                # Default IsConfidential to 0 if not explicitly specified
+                is_confidential = status_report_params.get('_is_confidential', 0)
                 cursor.execute(ADD_STATUS_REPORT_PROCEDURE, [
                     group_id,
-                    report_name
+                    report_name,
+                    is_confidential
                 ])
                 
                 logger.info(f"Successfully created status report for task {instance_id} to {status_report_group}")

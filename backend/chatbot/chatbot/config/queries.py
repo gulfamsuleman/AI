@@ -143,7 +143,8 @@ ADD_ALERT_PROCEDURE = """
 ADD_STATUS_REPORT_PROCEDURE = """
     EXEC dbo.QStatus_AddReport
         @GroupID = %s,
-        @ReportName = %s
+        @ReportName = %s,
+        @IsConfidential = %s
 """
 
 # Get group ID by name for alert recipients

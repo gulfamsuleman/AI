@@ -1,32 +1,45 @@
 """
 Parameter Extractor Module
 
-This module provides centralized parameter extraction functionality for the chatbot application,
-handling all pattern recognition and parameter extraction from user messages.
+This module provides intelligent parameter extraction using both traditional regex patterns
+and advanced MCP (Model Context Protocol) service with vector similarity.
 """
 
-import datetime
 import re
 import logging
+import datetime
 from typing import Dict, Any, List, Optional
+from .mcp_service import MCPService
 
 logger = logging.getLogger(__name__)
 
-
 class ParameterExtractor:
     """
-    Service class for extracting parameters from user messages.
-    Handles all pattern recognition and parameter extraction patterns.
+    Enhanced Parameter Extractor that combines traditional regex patterns with
+    advanced MCP service using vector similarity and cosine similarity.
     """
     
     def __init__(self, schedule_parser=None):
-        """
-        Initialize the parameter extractor.
+        # Initialize the MCP service for intelligent intent detection
+        try:
+            self.mcp_service = MCPService()
+            logger.info("MCP Service initialized successfully with vector similarity")
+        except Exception as e:
+            logger.warning(f"MCP Service initialization failed: {e}. Falling back to regex patterns.")
+            self.mcp_service = None
         
-        Args:
-            schedule_parser: Schedule parser instance for recurring patterns
-        """
-        self.schedule_parser = schedule_parser
+        # Initialize schedule parser (either passed in or create new one)
+        if schedule_parser:
+            self.schedule_parser = schedule_parser
+            logger.debug("Schedule parser provided externally")
+        else:
+            try:
+                from schedule_parser import ScheduleParser
+                self.schedule_parser = ScheduleParser()
+                logger.debug("Schedule parser initialized")
+            except ImportError:
+                logger.debug("Schedule parser not available")
+                self.schedule_parser = None
         
     def pre_extract_parameters(self, user_message: str, main_controller: str, current_date: datetime.date) -> Dict[str, Any]:
         """
@@ -77,6 +90,22 @@ class ParameterExtractor:
         # UC10: Confidential task detection
         if 'confidential' in msg_lower:
             pre_extracted['_is_confidential'] = True
+        
+        # UC13: Force non-recurring for "next [weekday]" patterns (including "next week Monday" and "Monday next week")
+        next_weekday_patterns = [
+            r'next\s+(?:week\s+)?(monday|tuesday|wednesday|thursday|friday|saturday|sunday)',
+            r'(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s+next\s+week'
+        ]
+        
+        for pattern in next_weekday_patterns:
+            match = re.search(pattern, msg_lower)
+            if match:
+                pre_extracted['IsRecurring'] = 0
+                pre_extracted['FreqType'] = 0
+                pre_extracted['FreqRecurrance'] = 0
+                pre_extracted['FreqInterval'] = 0
+                logger.info(f"UC13: Detected 'next [weekday]' pattern '{match.group(0)}' - forcing non-recurring task")
+                break
         
         # UC12: Team assignment parsing
         team_assignment = self.extract_team_assignments(user_message)
@@ -132,8 +161,14 @@ class ParameterExtractor:
         if notification_info:
             pre_extracted.update(notification_info)
 
-        # UC31: Alert requirements extraction
-        alert_info = self.extract_alert_requirements(user_message)
+        # UC31: Alert requirements extraction using MCP service (vector similarity)
+        if self.mcp_service:
+            logger.debug("Using MCP service for intelligent alert detection")
+            alert_info = self.extract_alert_requirements_mcp(user_message)
+        else:
+            logger.debug("Using regex patterns for alert detection (MCP not available)")
+            alert_info = self.extract_alert_requirements(user_message)
+        
         if alert_info:
             pre_extracted.update(alert_info)
 
@@ -392,6 +427,56 @@ class ParameterExtractor:
             logger.info(f"  Alert type: email")
             return alert_data
 
+        # Pattern 1b: "add alert if [CONDITION]" - uses task assignee as recipient
+        # Make this pattern more specific to avoid conflicts with "add alert if overdue to [RECIPIENT]"
+        conditional_alert_match = re.search(r'add\s+alert\s+if\s+(?!overdue\s+to\s+)([A-Za-z\s]+?)(?:\s+with\s+alert\s+message|$)', user_message, re.IGNORECASE)
+        if conditional_alert_match:
+            condition = conditional_alert_match.group(1).strip()
+            # Use task assignee as recipient (will be resolved later)
+            alert_data.update({
+                '_alert_required': True,
+                '_alert_recipient': 'task_assignee',  # Special marker to use task assignee
+                '_alert_condition': condition,
+                '_alert_type': 'email'
+            })
+            
+            # Check for custom alert message
+            custom_message_match = re.search(r'with\s+alert\s+message\s+["\']([^"\']+)["\']', user_message, re.IGNORECASE)
+            if custom_message_match:
+                alert_data['_alert_custom_message'] = custom_message_match.group(1).strip()
+                logger.info(f"  Custom alert message: {alert_data['_alert_custom_message']}")
+            
+            logger.info("ALERT REQUIREMENTS DETECTED:")
+            logger.info(f"  Alert required: True")
+            logger.info(f"  Alert recipient: task_assignee (will use task assignee)")
+            logger.info(f"  Alert condition: {condition}")
+            logger.info(f"  Alert type: email")
+            return alert_data
+
+        # Pattern 1c: "add alert for [NAME]" - specific pattern for "for" format
+        for_alert_match = re.search(r'add\s+alert\s+for\s+([A-Z][A-Za-z\s]+?)(?:\s+with\s+alert\s+message|$)', user_message, re.IGNORECASE)
+        if for_alert_match:
+            recipient = for_alert_match.group(1).strip()
+            alert_data.update({
+                '_alert_required': True,
+                '_alert_recipient': recipient,
+                '_alert_condition': 'overdue',
+                '_alert_type': 'email'
+            })
+            
+            # Check for custom alert message
+            custom_message_match = re.search(r'with\s+alert\s+message\s+["\']([^"\']+)["\']', user_message, re.IGNORECASE)
+            if custom_message_match:
+                alert_data['_alert_custom_message'] = custom_message_match.group(1).strip()
+                logger.info(f"  Custom alert message: {alert_data['_alert_custom_message']}")
+            
+            logger.info("ALERT REQUIREMENTS DETECTED:")
+            logger.info(f"  Alert required: True")
+            logger.info(f"  Alert recipient: {recipient}")
+            logger.info(f"  Alert condition: overdue")
+            logger.info(f"  Alert type: email")
+            return alert_data
+
         # Pattern 2: "alert me"
         if 'alert me' in msg_lower:
             alert_data['IsAlert'] = 1
@@ -407,7 +492,8 @@ class ParameterExtractor:
             logger.debug(f"Detected alert task with offset: {amount} {unit} before")
 
         # Pattern 4: "add alert" with recipient - handles both groups and individuals
-        add_alert_match = re.search(r'add\s+alert\s+(?:if\s+)?(?:overdue\s+)?(?:to\s+)?([A-Z][A-Za-z\s]+?)(?:\s+with\s+alert\s+message|$)', user_message, re.IGNORECASE)
+        # Handle various formats: "add alert for Ken", "add alert to Ken", "add alert Ken"
+        add_alert_match = re.search(r'add\s+alert\s+(?:if\s+)?(?:overdue\s+)?(?:for\s+|to\s+)?([A-Z][A-Za-z\s]+?)(?:\s+with\s+alert\s+message|\s+in\s+case\s+|\s*$)', user_message, re.IGNORECASE)
         if add_alert_match:
             recipient = add_alert_match.group(1).strip()
             alert_data.update({
@@ -430,6 +516,58 @@ class ParameterExtractor:
             logger.info(f"  Alert type: email")
 
         return alert_data
+    
+    def extract_alert_requirements_mcp(self, user_message: str) -> Dict[str, Any]:
+        """
+        Extract alert requirements using MCP service with vector similarity.
+        This is more intelligent than regex patterns and can understand semantic variations.
+        """
+        if not self.mcp_service:
+            logger.debug("MCP service not available, falling back to regex patterns")
+            return self.extract_alert_requirements(user_message)
+        
+        try:
+            # Use MCP service to detect intent and extract parameters
+            execution_plan = self.mcp_service.get_execution_plan(user_message)
+            
+            if execution_plan['success'] and execution_plan['detected_intent'] == 'alert_creation':
+                logger.info("MCP Service detected alert creation intent")
+                logger.info(f"   Confidence score: {execution_plan['confidence_score']:.3f}")
+                logger.info(f"   Stored procedure: {execution_plan['stored_procedure']}")
+                
+                # Extract parameters using MCP service
+                mcp_params = self.mcp_service.extract_parameters_for_intent(
+                    user_message, 
+                    'alert_creation'
+                )
+                
+                # Convert MCP parameters to our format
+                alert_data = {}
+                if mcp_params.get('alert_recipient'):
+                    alert_data.update({
+                        '_alert_required': True,
+                        '_alert_recipient': mcp_params['alert_recipient'],
+                        '_alert_condition': mcp_params.get('alert_condition', 'overdue'),
+                        '_alert_type': 'email'
+                    })
+                    
+                    logger.info("ALERT REQUIREMENTS DETECTED (MCP):")
+                    logger.info(f"  Alert required: True")
+                    logger.info(f"  Alert recipient: {mcp_params['alert_recipient']}")
+                    logger.info(f"  Alert condition: {mcp_params.get('alert_condition', 'overdue')}")
+                    logger.info(f"  Alert type: email")
+                    logger.info(f"  MCP confidence: {execution_plan['confidence_score']:.3f}")
+                    
+                    return alert_data
+            
+            # If MCP didn't detect alert creation, try regex as fallback
+            logger.debug("MCP service didn't detect alert creation, trying regex fallback")
+            return self.extract_alert_requirements(user_message)
+            
+        except Exception as e:
+            logger.error(f"Error in MCP alert detection: {e}")
+            logger.debug("Falling back to regex patterns")
+            return self.extract_alert_requirements(user_message)
     
     def extract_status_report_requirements(self, user_message: str) -> Dict[str, Any]:
         """Extract status report requirements from user messages."""
@@ -458,19 +596,41 @@ class ParameterExtractor:
                 logger.info(f"  Status report name: {status_report_data['_status_report_name']}")
             return status_report_data
 
-        # Pattern 2: "status report" with group
-        status_report_match = re.search(r'status\s+report\s+(?:for\s+)?([A-Z][A-Za-z\s]+?)(?:\s|$)', user_message, re.IGNORECASE)
-        if status_report_match:
-            group_name = status_report_match.group(1).strip()
+        # Pattern 5: "provide status report named 'X' to [GROUP]"
+        provide_named_pattern = re.search(r'provide\s+status\s+report\s+named\s+[\'"]([^\'"]+)[\'"]\s+to\s+([A-Z][A-Za-z\s]+?)(?:\s|$)', user_message, re.IGNORECASE)
+        if provide_named_pattern:
+            report_name = provide_named_pattern.group(1).strip()
+            group_name = provide_named_pattern.group(2).strip()
             status_report_data.update({
                 '_status_report_required': True,
-                '_status_report_group': group_name
+                '_status_report_group': group_name,
+                '_status_report_name': report_name
             })
             
             logger.info("STATUS REPORT REQUIREMENTS DETECTED:")
             logger.info(f"  Status report required: True")
             logger.info(f"  Status report group: {group_name}")
+            logger.info(f"  Status report name: {report_name}")
             return status_report_data
+
+        # Pattern 6: "add status report name 'X' for [GROUP]"
+        add_named_for_pattern = re.search(r'add\s+status\s+report\s+name\s+[\'"]([^\'"]+)[\'"]\s+for\s+([A-Z][A-Za-z\s]+?)(?:\s|$)', user_message, re.IGNORECASE)
+        if add_named_for_pattern:
+            report_name = add_named_for_pattern.group(1).strip()
+            group_name = add_named_for_pattern.group(2).strip()
+            status_report_data.update({
+                '_status_report_required': True,
+                '_status_report_group': group_name,
+                '_status_report_name': report_name
+            })
+            
+            logger.info("STATUS REPORT REQUIREMENTS DETECTED:")
+            logger.info(f"  Status report required: True")
+            logger.info(f"  Status report group: {group_name}")
+            logger.info(f"  Status report name: {report_name}")
+            return status_report_data
+
+
 
         # Pattern 3: "report to [GROUP]"
         report_to_match = re.search(r'report\s+to\s+([A-Z][A-Za-z\s]+?)(?:\s|$)', user_message, re.IGNORECASE)
@@ -486,7 +646,162 @@ class ParameterExtractor:
             logger.info(f"  Status report group: {group_name}")
             return status_report_data
 
+        # Pattern 2: "status report for [GROUP]" (moved after more specific patterns)
+        # Pattern 1: "status report for this to [GROUP]" - specific pattern for your use case
+        status_report_for_this_to_match = re.search(r'status\s+report\s+for\s+this\s+to\s+([A-Z][A-Za-z\s]+?)(?:\s|$|,|\.)', user_message, re.IGNORECASE)
+        if status_report_for_this_to_match:
+            group_name = status_report_for_this_to_match.group(1).strip()
+            status_report_data.update({
+                '_status_report_required': True,
+                '_status_report_group': group_name
+            })
+            
+            logger.info("STATUS REPORT REQUIREMENTS DETECTED (for this to pattern):")
+            logger.info(f"  Status report required: True")
+            logger.info(f"  Status report group: {group_name}")
+            return status_report_data
+
+        # Pattern 2: "status report for [GROUP]" - general pattern
+        status_report_match = re.search(r'status\s+report\s+for\s+([A-Z][A-Za-z\s]+?)(?:\s|$|,|\.)', user_message, re.IGNORECASE)
+        if status_report_match:
+            group_name = status_report_match.group(1).strip()
+            status_report_data.update({
+                '_status_report_required': True,
+                '_status_report_group': group_name
+            })
+            
+            logger.info("STATUS REPORT REQUIREMENTS DETECTED (for pattern):")
+            logger.info(f"  Status report required: True")
+            logger.info(f"  Status report group: {group_name}")
+            return status_report_data
+
+        # Pattern 4: "add status report" (general request) - including variations
+        add_status_patterns = [
+            r'add\s+status\s+report',
+            r'add\s+status\s+report\s+on\s+this',
+            r'also\s+add\s+status\s+report',
+            r'also\s+add\s+status\s+report\s+on\s+this'
+        ]
+        
+        for pattern in add_status_patterns:
+            if re.search(pattern, user_message, re.IGNORECASE):
+                # For general status report requests, we'll let the MCP service or AI service handle the group
+                # Just mark that a status report is required
+                status_report_data.update({
+                    '_status_report_required': True,
+                    '_status_report_group': '',  # Empty - will be filled by MCP service or AI service
+                    '_status_report_name': ''  # No custom name specified
+                })
+                
+                logger.info("STATUS REPORT REQUIREMENTS DETECTED:")
+                logger.info(f"  Status report required: True")
+                logger.info(f"  Status report group: (to be determined)")
+                logger.info(f"  Pattern matched: '{pattern}'")
+                return status_report_data
+
         return status_report_data
+    
+    def extract_status_report_group_with_ai(self, user_message: str) -> str:
+        """
+        Use Claude API to extract status report group when regex patterns fail.
+        
+        Args:
+            user_message: The user's message
+            
+        Returns:
+            The extracted status report group name
+        """
+        try:
+            # Simple prompt to extract status report group
+            prompt = f"""
+            Extract the status report group name from this message. 
+            Look for patterns like "status report for this to [GROUP]", "add status report for [GROUP]", etc.
+            
+            Message: "{user_message}"
+            
+            Return only the group name, nothing else. If no group is specified, return "General".
+            """
+            
+            # For now, we'll use a simple heuristic approach
+            # In a full implementation, you'd call the Claude API here
+            
+            # Look for "to [GROUP]" pattern specifically
+            to_group_match = re.search(r'to\s+([A-Z][A-Za-z\s]+?)(?:\s|$|,|\.)', user_message, re.IGNORECASE)
+            if to_group_match:
+                group_name = to_group_match.group(1).strip()
+                logger.info(f"AI extraction found group: {group_name}")
+                return group_name
+            
+            # Look for "for [GROUP]" pattern
+            for_group_match = re.search(r'for\s+([A-Z][A-Za-z\s]+?)(?:\s|$|,|\.)', user_message, re.IGNORECASE)
+            if for_group_match:
+                group_name = for_group_match.group(1).strip()
+                logger.info(f"AI extraction found group: {group_name}")
+                return group_name
+            
+            logger.info("AI extraction found no specific group, using default")
+            return "General"
+            
+        except Exception as e:
+            logger.error(f"Error in AI extraction: {e}")
+            return "General"
+    
+    def determine_status_report_group(self, user_message: str, context: Dict[str, Any] = None) -> str:
+        """
+        Intelligently determine the status report group when not explicitly specified.
+        
+        Args:
+            user_message: The user's message
+            context: Context containing task parameters
+            
+        Returns:
+            The determined group name for the status report
+        """
+        # If we have context with task parameters, use intelligent defaults
+        if context:
+            # Priority 1: Use the task assignee's group if available
+            if context.get('Assignees'):
+                return context['Assignees']
+            
+            # Priority 2: Use the main controller if available
+            if context.get('MainController'):
+                return context['MainController']
+            
+            # Priority 3: Use the controllers if available
+            if context.get('Controllers'):
+                return context['Controllers']
+        
+        # If no context, try to extract from the message
+        msg_lower = user_message.lower()
+        
+        # Look for any group names mentioned in the message
+        group_patterns = [
+            r'status\s+report\s+for\s+this\s+to\s+([A-Z][A-Za-z\s]+?)(?:\s|$|,|\.)',  # "status report for this to CLO"
+            r'for\s+this\s+to\s+([A-Z][A-Za-z\s]+?)(?:\s|$|,|\.)',  # "for this to CLO"
+            r'to\s+([A-Z][A-Za-z\s]+?)(?:\s+Team\s+|\s+Group\s+|\s+Department\s+|\s|$|,|\.)',  # "to CLO"
+            r'for\s+([A-Z][A-Za-z\s]+?)(?:\s+to\s+|\s+Team\s+|\s+Group\s+|\s+Department\s+|\s|$|,|\.)',  # "for CLO"
+            r'assigned\s+to\s+([A-Z][A-Za-z\s]+?)(?:\s|$|,|\.)',  # "assigned to CLO"
+            r'assign\s+to\s+([A-Z][A-Za-z\s]+?)(?:\s|$|,|\.)'   # "assign to CLO"
+        ]
+        
+        for pattern in group_patterns:
+            match = re.search(pattern, user_message, re.IGNORECASE)
+            if match:
+                group_name = match.group(1).strip()
+                logger.info(f"Extracted status report group from message: {group_name}")
+                return group_name
+        
+        # If no group found with regex patterns, try AI extraction
+        logger.info("No group found with regex patterns, trying AI extraction...")
+        ai_extracted_group = self.extract_status_report_group_with_ai(user_message)
+        if ai_extracted_group and ai_extracted_group != "General":
+            logger.info(f"AI extraction successful: {ai_extracted_group}")
+            return ai_extracted_group
+        
+        # Default fallback - use a common group that should exist
+        default_group = 'General'
+        logger.info(f"No status report group determined, using default: {default_group}")
+        return default_group
     
     def is_reminder_task(self, user_message: str) -> bool:
         """Check if the message indicates a reminder task."""

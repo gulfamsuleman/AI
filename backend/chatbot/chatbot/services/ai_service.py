@@ -384,16 +384,24 @@ class AIService:
             merged['IsRecurring'] = 0
             logger.debug("Set IsRecurring to 0 (default for non-recurring tasks)")
         
-        # Force non-recurring for "next [weekday]" patterns
+        # Force non-recurring for "next [weekday]" patterns (including "next week Monday" and "Monday next week")
         msg_lower = pre_extracted.get('_original_message', '').lower()
-        if 'next' in msg_lower and any(day in msg_lower for day in ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']):
-            if merged.get('IsRecurring') == 1:
-                logger.warning(f"LLM incorrectly set IsRecurring=1 for 'next [weekday]' pattern. Forcing to 0.")
-            merged['IsRecurring'] = 0
-            merged['FreqType'] = 0
-            merged['FreqRecurrance'] = 0
-            merged['FreqInterval'] = 0
-            logger.debug("Forced IsRecurring=0 for 'next [weekday]' pattern")
+        next_weekday_patterns = [
+            r'next\s+(?:week\s+)?(monday|tuesday|wednesday|thursday|friday|saturday|sunday)',
+            r'(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s+next\s+week'
+        ]
+        
+        for pattern in next_weekday_patterns:
+            match = re.search(pattern, msg_lower)
+            if match:
+                if merged.get('IsRecurring') == 1:
+                    logger.warning(f"LLM incorrectly set IsRecurring=1 for 'next [weekday]' pattern '{match.group(0)}'. Forcing to 0.")
+                merged['IsRecurring'] = 0
+                merged['FreqType'] = 0
+                merged['FreqRecurrance'] = 0
+                merged['FreqInterval'] = 0
+                logger.debug(f"Forced IsRecurring=0 for 'next [weekday]' pattern '{match.group(0)}'")
+                break
         
         return merged
     

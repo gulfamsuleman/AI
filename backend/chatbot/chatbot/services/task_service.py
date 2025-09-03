@@ -585,7 +585,20 @@ class TaskService:
                         '_alert_type': params.get('_alert_type', 'email'),
                         'TaskName': params.get('TaskName', ''),
                         '_alert_custom_message': params.get('_alert_custom_message', ''),
+                        'Assignees': params.get('Assignees', ''),  # Add assignees for task_assignee resolution
                     }
+                    
+                    # Handle task_assignee marker - resolve to actual assignee
+                    if alert_params['_alert_recipient'] == 'task_assignee':
+                        assignees = params.get('Assignees', '')
+                        if assignees:
+                            # Use the first assignee as the alert recipient
+                            first_assignee = assignees.split(',')[0].strip()
+                            alert_params['_alert_recipient'] = first_assignee
+                            logger.info(f"Resolved task_assignee to actual assignee: {first_assignee}")
+                        else:
+                            logger.warning("Alert requested with task_assignee but no assignees found")
+                            alert_params['_alert_recipient'] = ''
                     
                     # Add due time for alert if available
                     if params.get('DueTime'):
@@ -620,7 +633,20 @@ class TaskService:
                         '_status_report_name': params.get('_status_report_name', ''),
                         'TaskName': params.get('TaskName', ''),
                         'Assignees': params.get('Assignees', ''),  # Add assignees for context
+                        'MainController': params.get('MainController', ''),  # Add main controller for status report group resolution
                     }
+                    
+                    # If status report group is empty, determine it intelligently
+                    if not status_report_params['_status_report_group']:
+                        # Use the parameter extractor to determine the group
+                        from .parameter_extractor import ParameterExtractor
+                        extractor = ParameterExtractor()
+                        determined_group = extractor.determine_status_report_group(
+                            user_message="",  # We don't have the original message here
+                            context=status_report_params
+                        )
+                        status_report_params['_status_report_group'] = determined_group
+                        logger.info(f"Intelligently determined status report group: {determined_group}")
                     
                     logger.info(f"Status report parameters from task service: {params.get('_status_report_required')}, {status_report_params['_status_report_group']}")
                     

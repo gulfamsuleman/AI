@@ -171,9 +171,12 @@ class ScheduleParser:
         return result
     
     def _is_next_weekday_pattern(self, msg):
-        """Check if message contains 'next [weekday]' (non-recurring)"""
-        next_day_pattern = r'next\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)'
-        return bool(re.search(next_day_pattern, msg))
+        """Check if message contains 'next [weekday]', 'next week [weekday]', or '[weekday] next week' (non-recurring)"""
+        next_day_patterns = [
+            r'next\s+(?:week\s+)?(monday|tuesday|wednesday|thursday|friday|saturday|sunday)',
+            r'(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s+next\s+week'
+        ]
+        return any(re.search(pattern, msg) for pattern in next_day_patterns)
     
     def _is_quarterly_pattern(self, msg):
         """Check if message contains quarterly pattern"""

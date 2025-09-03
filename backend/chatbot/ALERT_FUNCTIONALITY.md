@@ -42,7 +42,7 @@ This document describes the implementation of the QCheck_AddAlert and QStatus_Ad
 - **Result**: Alert recipients now support partial names like "Ken" automatically matching "Ken Croft", and multiple matches prompt for clarification
 
 ### 8. **Status Report Functionality** (NEW) ⭐ **NEW FEATURE**
-- **Feature**: Added complete status report functionality using `QStatus_AddReport` stored procedure
+- **Feature**: Added complete status report functionality using `QStatus_AddReport` stored procedure with optional `@IsConfidential` parameter
 - **Implementation**: Added status report extraction, validation, and creation with fuzzy matching
 - **Result**: Users can now include tasks in status reports with patterns like "include in IT status report under maintenance"
 
@@ -86,7 +86,7 @@ The system extracts the following status report parameters:
 
 ### 5. Database Integration
 - **Alert Stored Procedure**: `QCheck_AddAlert`
-- **Status Report Stored Procedure**: `QStatus_AddReport`
+- **Status Report Stored Procedure**: `QStatus_AddReport` (supports `@GroupID`, `@ReportName`, and `@IsConfidential` parameters)
 - **Group ID Lookup**: Automatic resolution of group names to IDs with fuzzy matching
 - **Console Logging**: Comprehensive logging of all operations
 
@@ -165,7 +165,8 @@ EXEC dbo.QCheck_AddAlert
 -- Status Report
 EXEC dbo.QStatus_AddReport
     @GroupID = 5,               -- group ID for IT
-    @ReportName = 'maintenance'; -- custom report name
+    @ReportName = 'maintenance', -- custom report name
+    @IsConfidential = 1;        -- mark as confidential (0 = not confidential, 1 = confidential)
 ```
 
 ## Console Logging
@@ -206,6 +207,7 @@ The system provides comprehensive logging for debugging and monitoring:
 [INFO] STATUS REPORT STORED PROCEDURE PARAMETERS:
 [INFO]   @GroupID = 1234
 [INFO]   @ReportName = 'maintenance'
+[INFO]   @IsConfidential = 0
 [INFO]   Group: 'IT'
 [INFO] Successfully created status report for task 2074134 to IT
 ```
@@ -214,16 +216,22 @@ The system provides comprehensive logging for debugging and monitoring:
 
 ### Alert Patterns
 1. **Overdue Alerts**: `"add alert if overdue to [RECIPIENT]"`
-2. **Due Date Alerts**: `"add alert" with recipient`
-3. **Time-based Alerts**: `"alert [amount] [unit] before"`
-4. **Simple Alerts**: `"alert me"`
-5. **Custom Alert Messages**: `"with alert message 'custom text'"`
+2. **Conditional Alerts**: `"add alert if [CONDITION]"` (automatically uses task assignee as recipient)
+3. **For/To Alerts**: `"add alert for [RECIPIENT]"` or `"add alert to [RECIPIENT]"`
+4. **Direct Alerts**: `"add alert [RECIPIENT]"`
+5. **Due Date Alerts**: `"add alert" with recipient`
+6. **Time-based Alerts**: `"alert [amount] [unit] before"`
+7. **Simple Alerts**: `"alert me"`
+8. **Custom Alert Messages**: `"with alert message 'custom text'"`
 
 ### Status Report Patterns
 1. **Include in Group**: `"include in [GROUP] status report"`
 2. **Status Report for Group**: `"status report for [GROUP]"`
 3. **Report to Group**: `"report to [GROUP]"`
 4. **Custom Report Name**: `"status report under [CUSTOM_NAME]"`
+5. **Confidential Reports**: `"confidential status report for [GROUP]"` or `"status report for [GROUP] marked as confidential"`
+6. **General Request**: `"add status report"`, `"add status report on this"`, `"also add status report"` (uses main controller as default group)
+7. **Named Report to Group**: `"provide status report named 'X' to [GROUP]"` (extracts both report name and group)
 
 ## Group ID Resolution with Fuzzy Matching
 
@@ -313,3 +321,29 @@ The alert and status report functionality is now fully implemented and tested. I
 - Create alerts using the `QCheck_AddAlert` stored procedure with custom messages
 - Create status reports using the `QStatus_AddReport` stored procedure with custom names
 - Provide comprehensive logging for monitoring
+
+## Recent Updates (UC13-UC14)
+
+### UC13: Force Non-Recurring for "Next [Weekday]" Patterns
+- **Issue**: Tasks with "next Monday", "next week Wednesday", or "Monday next week" were incorrectly being set to repeat weekly
+- **Solution**: Added explicit detection and forcing of `IsRecurring=0` for all variations: "next [weekday]", "next week [weekday]", and "[weekday] next week"
+- **Implementation**: Enhanced regex patterns in `schedule_parser.py`, pre-extraction logic in `parameter_extractor.py`, and merge logic in `ai_service.py`
+- **Result**: All "next [weekday]" variations are now correctly created as one-time tasks
+
+### UC14: Enhanced Status Report Pattern Detection
+- **Issue**: "add status report", "add status report on this", "provide status report named 'X' to Y", and "add status report name 'X' for Y" patterns weren't being detected
+- **Solution**: Added comprehensive pattern detection for general status report requests including variations and named reports with specific groups
+- **Implementation**: Enhanced regex patterns in `parameter_extractor.py` and main controller resolution in `database_service.py`
+- **Result**: Users can now say "add status report", "add status report on this", "also add status report", "provide status report named 'law' to Ken", "add status report name 'Roger Back' for Ken", etc. and it will work correctly
+
+### UC15: Smart Alert Recipient Resolution
+- **Issue**: "add alert if work is overdue" was incorrectly parsing "work is overdue" as the alert recipient instead of using the task assignee
+- **Solution**: Added new pattern detection for "add alert if [CONDITION]" that automatically uses the task assignee as the alert recipient
+- **Implementation**: New regex pattern in `parameter_extractor.py` and task assignee resolution in `task_service.py`
+- **Result**: Users can now say "add alert if work is overdue" and it will automatically send the alert to the task assignee (Hayden) instead of trying to find a group called "work is overdue"
+
+### UC16: Alert Recipient Preposition Handling
+- **Issue**: "add alert for Ken" was incorrectly parsing "for Ken" as the alert recipient instead of just "Ken"
+- **Solution**: Added specific regex pattern for "add alert for [NAME]" and improved general pattern to handle prepositions correctly
+- **Implementation**: New Pattern 1c in `extract_alert_requirements()` and improved Pattern 4 regex
+- **Result**: Users can now say "add alert for Ken", "add alert to Ken", or "add alert Ken" and the recipient will be correctly extracted as "Ken" without including prepositions

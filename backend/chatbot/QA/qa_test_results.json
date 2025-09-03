@@ -1,0 +1,65 @@
+[
+  {
+    "case_id": 1,
+    "success": true,
+    "response_time": 8.99337887763977,
+    "response_text": "{\n  \"reply\": \"\\u2713 I've created 'Review code' for Wednesday, Sep 03, assigned to Cory Cherry.\",\n  \"instance_id\": 2077188\n}",
+    "error": null
+  },
+  {
+    "case_id": 2,
+    "success": true,
+    "response_time": 8.576213359832764,
+    "response_text": "{\n  \"reply\": \"I'm having trouble connecting to the database right now. Please try again in a moment.\"\n}",
+    "error": null
+  },
+  {
+    "case_id": 3,
+    "success": true,
+    "response_time": 8.010650157928467,
+    "response_text": "{\n  \"reply\": \"\\u2713 I've created 'Backup server' for Monday, Sep 08, assigned to IT. This will repeat weekly.\",\n  \"instance_id\": 2077190\n}",
+    "error": null
+  },
+  {
+    "case_id": 4,
+    "success": true,
+    "response_time": 8.385741472244263,
+    "response_text": "{\n  \"reply\": \"\\u2713 I've created 'Quarterly audit' for Tuesday, Sep 30, assigned to Carter Plaster. This will repeat every 3 months.\",\n  \"instance_id\": 2077191\n}",
+    "error": null
+  },
+  {
+    "case_id": 5,
+    "success": true,
+    "response_time": 7.899526834487915,
+    "response_text": "{\n  \"reply\": \"\\u2713 I've created '[CONFIDENTIAL] Check legal docs' for Monday, Jun 15, assigned to Taylor Kuhlman.\",\n  \"instance_id\": 2077192\n}",
+    "error": null
+  },
+  {
+    "case_id": 6,
+    "success": true,
+    "response_time": 8.69411325454712,
+    "response_text": "{\n  \"reply\": \"I'm having trouble connecting to the database right now. Please try again in a moment.\"\n}",
+    "error": null
+  },
+  {
+    "case_id": 7,
+    "success": true,
+    "response_time": 9.912235260009766,
+    "response_text": "{\n  \"reply\": \"I'm having trouble connecting to the database right now. Please try again in a moment.\"\n}",
+    "error": null
+  },
+  {
+    "case_id": 8,
+    "success": true,
+    "response_time": 8.409470081329346,
+    "response_text": "{\n  \"reply\": \"Could not find any users matching the controller names: CLO\"\n}",
+    "error": null
+  },
+  {
+    "case_id": 9,
+    "success": true,
+    "response_time": 7.802226305007935,
+    "response_text": "{\n  \"reply\": \"Could not find any users matching the controller names: VPM Support\"\n}",
+    "error": null
+  }
+]

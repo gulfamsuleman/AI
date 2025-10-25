@@ -32,7 +32,7 @@ STORED_PROCEDURE_MAPPING = {
         'lookup': 'GET_GROUP_ID_BY_NAME'
     },
     'alert_creation': {
-        'primary': 'QCheck_AddAlert',
+        'primary': 'QCheck2_AddAlert',
         'validation': 'CHECK_GROUP_EXISTS',
         'lookup': 'GET_GROUP_ID_BY_NAME'
     },

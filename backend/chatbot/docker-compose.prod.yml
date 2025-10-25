@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  # SQL Server Database
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: qprocess_sqlserver_prod
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SA_PASSWORD}
+      - MSSQL_SA_PASSWORD=${SA_PASSWORD}
+      - MSSQL_PID=Developer
+      - MSSQL_TCP_PORT=1433
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+      - ./database/init:/docker-entrypoint-initdb.d
+      - ./database/init-db.sh:/usr/local/bin/init-db.sh
+      - ./database/backups:/var/opt/mssql/backups
+    networks:
+      - qprocess_network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $${SA_PASSWORD} -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: always
+    command: >
+      bash -c "
+      /opt/mssql/bin/sqlservr & 
+      sleep 30 && 
+      /bin/bash /usr/local/bin/init-db.sh &&
+      wait"
+
+  # Django Backend
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: qprocess_chatbot_backend_prod
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=chatbot.settings_docker
+      - PYTHONUNBUFFERED=1
+      # Database configuration
+      - DB_ENGINE=mssql
+      - DB_NAME=${DB_NAME:-QTasks}
+      - DB_USER=${DB_USER:-sa}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=sqlserver
+      - DB_PORT=1433
+      # Django configuration
+      - DEBUG=False
+      - SECRET_KEY=${SECRET_KEY}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS}
+      # API Keys
+      - CLAUDE_API_KEY=${CLAUDE_API_KEY}
+    volumes:
+      - ./logs:/app/logs
+      - ./sessions:/app/sessions
+      - staticfiles:/app/staticfiles
+    restart: always
+    networks:
+      - qprocess_network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/', timeout=2)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Nginx reverse proxy
+  nginx:
+    image: nginx:alpine
+    container_name: qprocess_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - staticfiles:/var/www/static:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - backend
+    restart: always
+    networks:
+      - qprocess_network
+
+volumes:
+  sqlserver_data:
+    driver: local
+  staticfiles:
+
+networks:
+  qprocess_network:
+    driver: bridge

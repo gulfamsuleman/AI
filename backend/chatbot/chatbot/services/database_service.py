@@ -72,6 +72,173 @@ class DatabaseService:
         if not similar_groups:
             return None
         
+        # If only one match, return it
+        if len(similar_groups) == 1:
+            return similar_groups[0]
+        
+        # Score each group based on various criteria
+        scored_groups = []
+        
+        for group in similar_groups:
+            score = 0
+            group_lower = group.lower()
+            
+            # 1. Exact match gets highest score
+            if group_lower == input_name:
+                score += 100
+            
+            # 2. Starts with input name gets high score
+            elif group_lower.startswith(input_name):
+                score += 80
+            
+            # 3. Contains input name as a complete word gets medium score
+            elif f" {input_name} " in f" {group_lower} " or group_lower.startswith(f"{input_name} ") or group_lower.endswith(f" {input_name}"):
+                score += 60
+            
+            # 4. First word starts with input gets medium score
+            elif group_lower.split()[0].startswith(input_name):
+                score += 50
+            
+            # 5. Any word starts with input gets lower score
+            elif any(word.startswith(input_name) for word in group_lower.split()):
+                score += 30
+            
+            # 6. Context groups get bonus points if they match
+            if context_groups and group in context_groups:
+                score += 20
+            
+            # 7. Shorter names are preferred (more specific)
+            score += max(0, 20 - len(group))
+            
+            # 8. Avoid groups with "Test" in the name unless input specifically mentions it
+            if "test" in group_lower and "test" not in input_name:
+                score -= 10
+            
+            scored_groups.append((group, score))
+        
+        # Sort by score (highest first)
+        scored_groups.sort(key=lambda x: x[1], reverse=True)
+        
+        # If the top score is significantly higher than the second, choose it
+        if len(scored_groups) >= 2:
+            top_score = scored_groups[0][1]
+            second_score = scored_groups[1][1]
+            
+            # If top score is at least 20 points higher, it's a clear winner
+            if top_score - second_score >= 20:
+                logger.info(f"Clear winner selected: '{scored_groups[0][0]}' (score: {top_score}) over '{scored_groups[1][0]}' (score: {second_score})")
+                return scored_groups[0][0]
+        
+        # If scores are too close, we can't determine a clear winner
+        logger.info(f"No clear winner found for '{input_name}' among {similar_groups}. Scores: {scored_groups}")
+        return None
+
+    @staticmethod
+    def search_status_reports_by_name(partial_name: str) -> List[Dict[str, Any]]:
+        """
+        Search for status reports by partial name.
+        
+        Args:
+            partial_name: Partial name to search for
+            
+        Returns:
+            List of matching status reports with ID and Name
+        """
+        try:
+            # Add wildcards for LIKE search
+            search_pattern = f"%{partial_name}%"
+            
+            with DatabaseService.get_cursor() as cursor:
+                cursor.execute(FIND_STATUS_REPORTS_BY_NAME, [search_pattern])
+                results = cursor.fetchall()
+                
+                reports = []
+                for row in results:
+                    reports.append({
+                        'id': row[0],
+                        'name': row[1]
+                    })
+                
+                logger.info(f"Found {len(reports)} status reports matching '{partial_name}'")
+                return reports
+                
+        except Exception as e:
+            logger.error(f"Error searching status reports: {e}")
+            return []
+
+    @staticmethod
+    def get_task_types_for_status_report(report_id: int) -> List[Dict[str, Any]]:
+        """
+        Get available task types for a specific status report.
+        
+        Args:
+            report_id: ID of the status report
+            
+        Returns:
+            List of task types with ID and Description
+        """
+        try:
+            with DatabaseService.get_cursor() as cursor:
+                cursor.execute(GET_TASK_TYPES_FOR_REPORT, [report_id])
+                results = cursor.fetchall()
+                
+                task_types = []
+                for row in results:
+                    task_types.append({
+                        'id': row[0],
+                        'description': row[1]
+                    })
+                
+                logger.info(f"Found {len(task_types)} task types for report ID {report_id}")
+                return task_types
+                
+        except Exception as e:
+            logger.error(f"Error getting task types for report {report_id}: {e}")
+            return []
+
+    @staticmethod
+    def link_task_instance_to_task_type(instance_id: int, task_type_id: int, priority: int = 1) -> Optional[int]:
+        """
+        Link a task instance to a specific task type.
+        
+        Args:
+            instance_id: ID of the task instance
+            task_type_id: ID of the task type
+            priority: Priority level (default: 1)
+            
+        Returns:
+            Return ID from the stored procedure, or None if failed
+        """
+        try:
+            with DatabaseService.get_cursor() as cursor:
+                logger.info(f"Executing stored procedure to link instance {instance_id} to task type {task_type_id}")
+                cursor.execute(ADD_INSTANCE_TASK_TYPE_PROCEDURE, [
+                    instance_id,
+                    task_type_id,
+                    priority
+                ])
+                logger.info("Stored procedure executed successfully")
+                
+                # The stored procedure should return a result, but if it doesn't, we'll assume success
+                try:
+                    if cursor.description is not None:
+                        result = cursor.fetchone()
+                        if result and result[0] is not None:
+                            return_id = result[0]
+                            logger.info(f"Successfully linked instance {instance_id} to task type {task_type_id}, Return ID: {return_id}")
+                            return return_id
+                    else:
+                        logger.info(f"Stored procedure executed successfully for instance {instance_id} and task type {task_type_id} (no result set)")
+                        return 1  # Return a success indicator
+                except Exception as fetch_error:
+                    logger.warning(f"Could not fetch result from stored procedure: {fetch_error}")
+                    logger.info(f"Assuming success for instance {instance_id} and task type {task_type_id}")
+                    return 1  # Return a success indicator
+                    
+        except Exception as e:
+            logger.error(f"Error linking instance {instance_id} to task type {task_type_id}: {e}")
+            return None
+        
         if len(similar_groups) == 1:
             return similar_groups[0]
         
@@ -208,16 +375,16 @@ class DatabaseService:
                         any(word.startswith(group_input_normalized) for word in group_words)):  # Any word starts with input
                         partial_matches.append(group)
                 
-                # 3. Fuzzy matching with different thresholds for spelling mistakes
-                # Lower threshold for better spelling mistake tolerance
+                # 3. Fuzzy matching with stricter thresholds to reduce false positives
+                # Higher threshold for better precision
                 high_confidence = get_close_matches(group_input_normalized, 
                                                  [g.lower() for g in all_groups], 
-                                                 n=10, cutoff=0.7)  # Lowered from 0.8
+                                                 n=5, cutoff=0.8)  # Increased from 0.7
                 
-                # Even lower threshold for more flexible matching
+                # Medium threshold for reasonable matches
                 medium_confidence = get_close_matches(group_input_normalized, 
                                                    [g.lower() for g in all_groups], 
-                                                   n=10, cutoff=0.5)  # Lowered from 0.6
+                                                   n=5, cutoff=0.6)  # Increased from 0.5
                 
                 # Convert back to original case
                 high_confidence_original = [group for group in all_groups if group.lower() in high_confidence]
@@ -239,8 +406,8 @@ class DatabaseService:
                         all_matches.append(group)
                         seen.add(group)
                 
-                # Limit to top 5 matches
-                similar_groups = all_matches[:5]
+                # Limit to top 3 matches to reduce false positives
+                similar_groups = all_matches[:3]
                 
                 if len(similar_groups) == 1:
                     # Single match found - automatically resolve
@@ -468,8 +635,224 @@ class DatabaseService:
                 return None
                 
         except Exception as e:
+            logger.error(f"Error finding task by name '{task_name}': {e}")
+            return None
+
+    @staticmethod
+    def search_status_reports_by_name(partial_name: str) -> List[Dict[str, Any]]:
+        """
+        Search for status reports by partial name.
+        
+        Args:
+            partial_name: Partial name to search for
+            
+        Returns:
+            List of matching status reports with ID and Name
+        """
+        try:
+            # Add wildcards for LIKE search
+            search_pattern = f"%{partial_name}%"
+            
+            with DatabaseService.get_cursor() as cursor:
+                cursor.execute(FIND_STATUS_REPORTS_BY_NAME, [search_pattern])
+                results = cursor.fetchall()
+                
+                reports = []
+                for row in results:
+                    reports.append({
+                        'id': row[0],
+                        'name': row[1]
+                    })
+                
+                logger.info(f"Found {len(reports)} status reports matching '{partial_name}'")
+                return reports
+                
+        except Exception as e:
+            logger.error(f"Error searching status reports: {e}")
+            return []
+
+    @staticmethod
+    def get_task_types_for_status_report(report_id: int) -> List[Dict[str, Any]]:
+        """
+        Get available task types for a specific status report.
+        
+        Args:
+            report_id: ID of the status report
+            
+        Returns:
+            List of task types with ID and Description
+        """
+        try:
+            with DatabaseService.get_cursor() as cursor:
+                cursor.execute(GET_TASK_TYPES_FOR_REPORT, [report_id])
+                results = cursor.fetchall()
+                
+                task_types = []
+                for row in results:
+                    task_types.append({
+                        'id': row[0],
+                        'description': row[1]
+                    })
+                
+                logger.info(f"Found {len(task_types)} task types for report ID {report_id}")
+                return task_types
+                
+        except Exception as e:
+            logger.error(f"Error getting task types for report {report_id}: {e}")
+            return []
+
+    @staticmethod
+    def link_task_instance_to_task_type(instance_id: int, task_type_id: int, priority: int = 1) -> Optional[int]:
+        """
+        Link a task instance to a specific task type.
+        
+        Args:
+            instance_id: ID of the task instance
+            task_type_id: ID of the task type
+            priority: Priority level (default: 1)
+            
+        Returns:
+            Return ID from the stored procedure, or None if failed
+        """
+        try:
+            with DatabaseService.get_cursor() as cursor:
+                logger.info(f"Executing stored procedure to link instance {instance_id} to task type {task_type_id}")
+                cursor.execute(ADD_INSTANCE_TASK_TYPE_PROCEDURE, [
+                    instance_id,
+                    task_type_id,
+                    priority
+                ])
+                logger.info("Stored procedure executed successfully")
+                
+                # The stored procedure should return a result, but if it doesn't, we'll assume success
+                try:
+                    if cursor.description is not None:
+                        result = cursor.fetchone()
+                        if result and result[0] is not None:
+                            return_id = result[0]
+                            logger.info(f"Successfully linked instance {instance_id} to task type {task_type_id}, Return ID: {return_id}")
+                            return return_id
+                    else:
+                        logger.info(f"Stored procedure executed successfully for instance {instance_id} and task type {task_type_id} (no result set)")
+                        return 1  # Return a success indicator
+                except Exception as fetch_error:
+                    logger.warning(f"Could not fetch result from stored procedure: {fetch_error}")
+                    logger.info(f"Assuming success for instance {instance_id} and task type {task_type_id}")
+                    return 1  # Return a success indicator
+                    
+        except Exception as e:
+            logger.error(f"Error linking instance {instance_id} to task type {task_type_id}: {e}")
+            return None
+                
+        except Exception as e:
             error_handler.log_error(e, {'task_name': task_name, 'operation': 'find_task_by_name'})
             logger.error(f"Error finding task '{task_name}': {e}")
+            return None
+
+    @staticmethod
+    def search_status_reports_by_name(partial_name: str) -> List[Dict[str, Any]]:
+        """
+        Search for status reports by partial name.
+        
+        Args:
+            partial_name: Partial name to search for
+            
+        Returns:
+            List of matching status reports with ID and Name
+        """
+        try:
+            # Add wildcards for LIKE search
+            search_pattern = f"%{partial_name}%"
+            
+            with DatabaseService.get_cursor() as cursor:
+                cursor.execute(FIND_STATUS_REPORTS_BY_NAME, [search_pattern])
+                results = cursor.fetchall()
+                
+                reports = []
+                for row in results:
+                    reports.append({
+                        'id': row[0],
+                        'name': row[1]
+                    })
+                
+                logger.info(f"Found {len(reports)} status reports matching '{partial_name}'")
+                return reports
+                
+        except Exception as e:
+            logger.error(f"Error searching status reports: {e}")
+            return []
+
+    @staticmethod
+    def get_task_types_for_status_report(report_id: int) -> List[Dict[str, Any]]:
+        """
+        Get available task types for a specific status report.
+        
+        Args:
+            report_id: ID of the status report
+            
+        Returns:
+            List of task types with ID and Description
+        """
+        try:
+            with DatabaseService.get_cursor() as cursor:
+                cursor.execute(GET_TASK_TYPES_FOR_REPORT, [report_id])
+                results = cursor.fetchall()
+                
+                task_types = []
+                for row in results:
+                    task_types.append({
+                        'id': row[0],
+                        'description': row[1]
+                    })
+                
+                logger.info(f"Found {len(task_types)} task types for report ID {report_id}")
+                return task_types
+                
+        except Exception as e:
+            logger.error(f"Error getting task types for report {report_id}: {e}")
+            return []
+
+    @staticmethod
+    def link_task_instance_to_task_type(instance_id: int, task_type_id: int, priority: int = 1) -> Optional[int]:
+        """
+        Link a task instance to a specific task type.
+        
+        Args:
+            instance_id: ID of the task instance
+            task_type_id: ID of the task type
+            priority: Priority level (default: 1)
+            
+        Returns:
+            Return ID from the stored procedure, or None if failed
+        """
+        try:
+            with DatabaseService.get_cursor() as cursor:
+                logger.info(f"Executing stored procedure to link instance {instance_id} to task type {task_type_id}")
+                cursor.execute(ADD_INSTANCE_TASK_TYPE_PROCEDURE, [
+                    instance_id,
+                    task_type_id,
+                    priority
+                ])
+                logger.info("Stored procedure executed successfully")
+                
+                # The stored procedure should return a result, but if it doesn't, we'll assume success
+                try:
+                    if cursor.description is not None:
+                        result = cursor.fetchone()
+                        if result and result[0] is not None:
+                            return_id = result[0]
+                            logger.info(f"Successfully linked instance {instance_id} to task type {task_type_id}, Return ID: {return_id}")
+                            return return_id
+                    else:
+                        logger.info(f"Stored procedure executed successfully for instance {instance_id} and task type {task_type_id} (no result set)")
+                        return 1  # Return a success indicator
+                except Exception as fetch_error:
+                    logger.warning(f"Could not fetch result from stored procedure: {fetch_error}")
+                    logger.info(f"Assuming success for instance {instance_id} and task type {task_type_id}")
+                    return 1  # Return a success indicator
+                    
+        except Exception as e:
+            logger.error(f"Error linking instance {instance_id} to task type {task_type_id}: {e}")
             return None
     
     @staticmethod
@@ -599,6 +982,117 @@ class DatabaseService:
                 return None
                 
         except Exception as e:
+            error_handler.log_error(e, {'operation': 'create_task_via_stored_procedure'})
+            logger.error(f"Error creating task via stored procedure: {e}")
+            raise DatabaseError(f"Task creation failed: {str(e)}", 'TASK_CREATION_FAILED')
+
+    @staticmethod
+    def search_status_reports_by_name(partial_name: str) -> List[Dict[str, Any]]:
+        """
+        Search for status reports by partial name.
+        
+        Args:
+            partial_name: Partial name to search for
+            
+        Returns:
+            List of matching status reports with ID and Name
+        """
+        try:
+            # Add wildcards for LIKE search
+            search_pattern = f"%{partial_name}%"
+            
+            with DatabaseService.get_cursor() as cursor:
+                cursor.execute(FIND_STATUS_REPORTS_BY_NAME, [search_pattern])
+                results = cursor.fetchall()
+                
+                reports = []
+                for row in results:
+                    reports.append({
+                        'id': row[0],
+                        'name': row[1]
+                    })
+                
+                logger.info(f"Found {len(reports)} status reports matching '{partial_name}'")
+                return reports
+                
+        except Exception as e:
+            logger.error(f"Error searching status reports: {e}")
+            return []
+
+    @staticmethod
+    def get_task_types_for_status_report(report_id: int) -> List[Dict[str, Any]]:
+        """
+        Get available task types for a specific status report.
+        
+        Args:
+            report_id: ID of the status report
+            
+        Returns:
+            List of task types with ID and Description
+        """
+        try:
+            with DatabaseService.get_cursor() as cursor:
+                cursor.execute(GET_TASK_TYPES_FOR_REPORT, [report_id])
+                results = cursor.fetchall()
+                
+                task_types = []
+                for row in results:
+                    task_types.append({
+                        'id': row[0],
+                        'description': row[1]
+                    })
+                
+                logger.info(f"Found {len(task_types)} task types for report ID {report_id}")
+                return task_types
+                
+        except Exception as e:
+            logger.error(f"Error getting task types for report {report_id}: {e}")
+            return []
+
+    @staticmethod
+    def link_task_instance_to_task_type(instance_id: int, task_type_id: int, priority: int = 1) -> Optional[int]:
+        """
+        Link a task instance to a specific task type.
+        
+        Args:
+            instance_id: ID of the task instance
+            task_type_id: ID of the task type
+            priority: Priority level (default: 1)
+            
+        Returns:
+            Return ID from the stored procedure, or None if failed
+        """
+        try:
+            with DatabaseService.get_cursor() as cursor:
+                logger.info(f"Executing stored procedure to link instance {instance_id} to task type {task_type_id}")
+                cursor.execute(ADD_INSTANCE_TASK_TYPE_PROCEDURE, [
+                    instance_id,
+                    task_type_id,
+                    priority
+                ])
+                logger.info("Stored procedure executed successfully")
+                
+                # The stored procedure should return a result, but if it doesn't, we'll assume success
+                try:
+                    if cursor.description is not None:
+                        result = cursor.fetchone()
+                        if result and result[0] is not None:
+                            return_id = result[0]
+                            logger.info(f"Successfully linked instance {instance_id} to task type {task_type_id}, Return ID: {return_id}")
+                            return return_id
+                    else:
+                        logger.info(f"Stored procedure executed successfully for instance {instance_id} and task type {task_type_id} (no result set)")
+                        return 1  # Return a success indicator
+                except Exception as fetch_error:
+                    logger.warning(f"Could not fetch result from stored procedure: {fetch_error}")
+                    logger.info(f"Assuming success for instance {instance_id} and task type {task_type_id}")
+                    return 1  # Return a success indicator
+                    
+        except Exception as e:
+            logger.error(f"Error linking instance {instance_id} to task type {task_type_id}: {e}")
+            return None
+                
+        except Exception as e:
             error_handler.log_error(e, {'task_name': params.get('TaskName'), 'operation': 'create_task_via_stored_procedure'})
             logger.error(f"Error creating task via stored procedure: {e}")
             logger.error(f"SQL Query that failed: {sql_query[:500]}...")
@@ -694,6 +1188,112 @@ class DatabaseService:
                     )
             
             raise DatabaseError(f"Parameterized task creation failed: {str(e)}", 'PARAMETERIZED_TASK_CREATION_FAILED')
+
+    @staticmethod
+    def search_status_reports_by_name(partial_name: str) -> List[Dict[str, Any]]:
+        """
+        Search for status reports by partial name.
+        
+        Args:
+            partial_name: Partial name to search for
+            
+        Returns:
+            List of matching status reports with ID and Name
+        """
+        try:
+            # Add wildcards for LIKE search
+            search_pattern = f"%{partial_name}%"
+            
+            with DatabaseService.get_cursor() as cursor:
+                cursor.execute(FIND_STATUS_REPORTS_BY_NAME, [search_pattern])
+                results = cursor.fetchall()
+                
+                reports = []
+                for row in results:
+                    reports.append({
+                        'id': row[0],
+                        'name': row[1]
+                    })
+                
+                logger.info(f"Found {len(reports)} status reports matching '{partial_name}'")
+                return reports
+                
+        except Exception as e:
+            logger.error(f"Error searching status reports: {e}")
+            return []
+
+    @staticmethod
+    def get_task_types_for_status_report(report_id: int) -> List[Dict[str, Any]]:
+        """
+        Get available task types for a specific status report.
+        
+        Args:
+            report_id: ID of the status report
+            
+        Returns:
+            List of task types with ID and Description
+        """
+        try:
+            with DatabaseService.get_cursor() as cursor:
+                cursor.execute(GET_TASK_TYPES_FOR_REPORT, [report_id])
+                results = cursor.fetchall()
+                
+                task_types = []
+                for row in results:
+                    task_types.append({
+                        'id': row[0],
+                        'description': row[1]
+                    })
+                
+                logger.info(f"Found {len(task_types)} task types for report ID {report_id}")
+                return task_types
+                
+        except Exception as e:
+            logger.error(f"Error getting task types for report {report_id}: {e}")
+            return []
+
+    @staticmethod
+    def link_task_instance_to_task_type(instance_id: int, task_type_id: int, priority: int = 1) -> Optional[int]:
+        """
+        Link a task instance to a specific task type.
+        
+        Args:
+            instance_id: ID of the task instance
+            task_type_id: ID of the task type
+            priority: Priority level (default: 1)
+            
+        Returns:
+            Return ID from the stored procedure, or None if failed
+        """
+        try:
+            with DatabaseService.get_cursor() as cursor:
+                logger.info(f"Executing stored procedure to link instance {instance_id} to task type {task_type_id}")
+                cursor.execute(ADD_INSTANCE_TASK_TYPE_PROCEDURE, [
+                    instance_id,
+                    task_type_id,
+                    priority
+                ])
+                logger.info("Stored procedure executed successfully")
+                
+                # The stored procedure should return a result, but if it doesn't, we'll assume success
+                try:
+                    if cursor.description is not None:
+                        result = cursor.fetchone()
+                        if result and result[0] is not None:
+                            return_id = result[0]
+                            logger.info(f"Successfully linked instance {instance_id} to task type {task_type_id}, Return ID: {return_id}")
+                            return return_id
+                    else:
+                        logger.info(f"Stored procedure executed successfully for instance {instance_id} and task type {task_type_id} (no result set)")
+                        return 1  # Return a success indicator
+                except Exception as fetch_error:
+                    logger.warning(f"Could not fetch result from stored procedure: {fetch_error}")
+                    logger.info(f"Assuming success for instance {instance_id} and task type {task_type_id}")
+                    return 1  # Return a success indicator
+                    
+        except Exception as e:
+            logger.error(f"Error linking instance {instance_id} to task type {task_type_id}: {e}")
+            return None
     
     @staticmethod
     def add_to_priority_list_workaround(instance_id: int, assignees_str: str) -> bool:
@@ -825,7 +1425,7 @@ class DatabaseService:
     @staticmethod
     def create_alert_for_task(instance_id: int, alert_params: Dict[str, Any]) -> bool:
         """
-        Create an alert for a task using the QCheck_AddAlert stored procedure.
+        Create an alert for a task using the QCheck2_AddAlert stored procedure.
         
         Args:
             instance_id: The task instance ID to attach alert to
@@ -866,13 +1466,44 @@ class DatabaseService:
                 else:
                     alert_text = f'Task is overdue: {alert_params.get("TaskName", "Task")}'
             elif alert_condition == 'at_due':
-                alert_type = 'Email'
+                alert_type = 'Reminder'
                 if custom_message:
                     alert_text = custom_message
                 else:
                     alert_text = f'Reminder: Your task is due.'
+            elif alert_condition == 'assignment':
+                alert_type = 'Assignment'
+                if custom_message:
+                    alert_text = custom_message
+                else:
+                    alert_text = f'New assignment: {alert_params.get("TaskName", "Task")}'
+            elif alert_condition == 'schedule':
+                alert_type = 'Schedule'
+                if custom_message:
+                    alert_text = custom_message
+                else:
+                    alert_text = f'Schedule alert: {alert_params.get("TaskName", "Task")}'
+            elif alert_condition == 'complete':
+                alert_type = 'Complete'
+                if custom_message:
+                    alert_text = custom_message
+                else:
+                    alert_text = f'Task completed: {alert_params.get("TaskName", "Task")}'
+            elif alert_condition == 'hours':
+                alert_type = 'Hours'
+                if custom_message:
+                    alert_text = custom_message
+                else:
+                    alert_text = f'Hours alert: {alert_params.get("TaskName", "Task")}'
+            elif alert_condition == 'custom':
+                alert_type = 'Custom'
+                if custom_message:
+                    alert_text = custom_message
+                else:
+                    alert_text = f'Custom alert: {alert_params.get("TaskName", "Task")}'
             else:
-                alert_type = 'Email'
+                # Default to Reminder for unknown conditions
+                alert_type = 'Reminder'
                 if custom_message:
                     alert_text = custom_message
                 else:
@@ -902,7 +1533,14 @@ class DatabaseService:
                     alert_text
                 ])
                 
-                logger.info(f"Successfully created alert for task {instance_id} to {alert_recipient}")
+                # Fetch the returned alert ID
+                result = cursor.fetchone()
+                if result and len(result) > 0:
+                    created_alert_id = result[0]
+                    logger.info(f"Successfully created alert ID {created_alert_id} for task {instance_id} to {alert_recipient}")
+                else:
+                    logger.warning(f"Alert created for task {instance_id} but no alert ID returned")
+                
                 return True
                 
         except Exception as e:
@@ -938,6 +1576,127 @@ class DatabaseService:
                 else:
                     logger.warning(f"Group name '{group_name}' not found in QCheck_Groups table")
                 return None
+
+            # Fetch the actual group ID using the resolved name
+            target_name = resolved_name or group_name
+            with DatabaseService.get_cursor() as cursor:
+                cursor.execute(GET_GROUP_ID_BY_NAME, [target_name])
+                row = cursor.fetchone()
+                if row and len(row) > 0:
+                    return int(row[0])
+                else:
+                    logger.error(f"Resolved group '{target_name}' has no ID in QCheck_Groups")
+                    return None
+                
+        except Exception as e:
+            logger.error(f"Error validating and getting group ID for '{group_name}': {e}")
+            return None
+
+    @staticmethod
+    def search_status_reports_by_name(partial_name: str) -> List[Dict[str, Any]]:
+        """
+        Search for status reports by partial name.
+        
+        Args:
+            partial_name: Partial name to search for
+            
+        Returns:
+            List of matching status reports with ID and Name
+        """
+        try:
+            # Add wildcards for LIKE search
+            search_pattern = f"%{partial_name}%"
+            
+            with DatabaseService.get_cursor() as cursor:
+                cursor.execute(FIND_STATUS_REPORTS_BY_NAME, [search_pattern])
+                results = cursor.fetchall()
+                
+                reports = []
+                for row in results:
+                    reports.append({
+                        'id': row[0],
+                        'name': row[1]
+                    })
+                
+                logger.info(f"Found {len(reports)} status reports matching '{partial_name}'")
+                return reports
+                
+        except Exception as e:
+            logger.error(f"Error searching status reports: {e}")
+            return []
+
+    @staticmethod
+    def get_task_types_for_status_report(report_id: int) -> List[Dict[str, Any]]:
+        """
+        Get available task types for a specific status report.
+        
+        Args:
+            report_id: ID of the status report
+            
+        Returns:
+            List of task types with ID and Description
+        """
+        try:
+            with DatabaseService.get_cursor() as cursor:
+                cursor.execute(GET_TASK_TYPES_FOR_REPORT, [report_id])
+                results = cursor.fetchall()
+                
+                task_types = []
+                for row in results:
+                    task_types.append({
+                        'id': row[0],
+                        'description': row[1]
+                    })
+                
+                logger.info(f"Found {len(task_types)} task types for report ID {report_id}")
+                return task_types
+                
+        except Exception as e:
+            logger.error(f"Error getting task types for report {report_id}: {e}")
+            return []
+
+    @staticmethod
+    def link_task_instance_to_task_type(instance_id: int, task_type_id: int, priority: int = 1) -> Optional[int]:
+        """
+        Link a task instance to a specific task type.
+        
+        Args:
+            instance_id: ID of the task instance
+            task_type_id: ID of the task type
+            priority: Priority level (default: 1)
+            
+        Returns:
+            Return ID from the stored procedure, or None if failed
+        """
+        try:
+            with DatabaseService.get_cursor() as cursor:
+                logger.info(f"Executing stored procedure to link instance {instance_id} to task type {task_type_id}")
+                cursor.execute(ADD_INSTANCE_TASK_TYPE_PROCEDURE, [
+                    instance_id,
+                    task_type_id,
+                    priority
+                ])
+                logger.info("Stored procedure executed successfully")
+                
+                # The stored procedure should return a result, but if it doesn't, we'll assume success
+                try:
+                    if cursor.description is not None:
+                        result = cursor.fetchone()
+                        if result and result[0] is not None:
+                            return_id = result[0]
+                            logger.info(f"Successfully linked instance {instance_id} to task type {task_type_id}, Return ID: {return_id}")
+                            return return_id
+                    else:
+                        logger.info(f"Stored procedure executed successfully for instance {instance_id} and task type {task_type_id} (no result set)")
+                        return 1  # Return a success indicator
+                except Exception as fetch_error:
+                    logger.warning(f"Could not fetch result from stored procedure: {fetch_error}")
+                    logger.info(f"Assuming success for instance {instance_id} and task type {task_type_id}")
+                    return 1  # Return a success indicator
+                    
+        except Exception as e:
+            logger.error(f"Error linking instance {instance_id} to task type {task_type_id}: {e}")
+            return None
             
             # If group exists, get its ID using the resolved name
             with DatabaseService.get_cursor() as cursor:
@@ -954,9 +1713,221 @@ class DatabaseService:
                 else:
                     logger.error(f"Group '{resolved_name}' exists in QCheck_Groups but could not retrieve ID")
                     return None
+
+    @staticmethod
+    def search_status_reports_by_name(partial_name: str) -> List[Dict[str, Any]]:
+        """
+        Search for status reports by partial name.
+        
+        Args:
+            partial_name: Partial name to search for
+            
+        Returns:
+            List of matching status reports with ID and Name
+        """
+        try:
+            # Add wildcards for LIKE search
+            search_pattern = f"%{partial_name}%"
+            
+            with DatabaseService.get_cursor() as cursor:
+                cursor.execute(FIND_STATUS_REPORTS_BY_NAME, [search_pattern])
+                results = cursor.fetchall()
+                
+                reports = []
+                for row in results:
+                    reports.append({
+                        'id': row[0],
+                        'name': row[1]
+                    })
+                
+                logger.info(f"Found {len(reports)} status reports matching '{partial_name}'")
+                return reports
+                
+        except Exception as e:
+            logger.error(f"Error searching status reports: {e}")
+            return []
+
+    @staticmethod
+    def get_task_types_for_status_report(report_id: int) -> List[Dict[str, Any]]:
+        """
+        Get available task types for a specific status report.
+        
+        Args:
+            report_id: ID of the status report
+            
+        Returns:
+            List of task types with ID and Description
+        """
+        try:
+            with DatabaseService.get_cursor() as cursor:
+                cursor.execute(GET_TASK_TYPES_FOR_REPORT, [report_id])
+                results = cursor.fetchall()
+                
+                task_types = []
+                for row in results:
+                    task_types.append({
+                        'id': row[0],
+                        'description': row[1]
+                    })
+                
+                logger.info(f"Found {len(task_types)} task types for report ID {report_id}")
+                return task_types
+                
+        except Exception as e:
+            logger.error(f"Error getting task types for report {report_id}: {e}")
+            return []
+
+    @staticmethod
+    def link_task_instance_to_task_type(instance_id: int, task_type_id: int, priority: int = 1) -> Optional[int]:
+        """
+        Link a task instance to a specific task type.
+        
+        Args:
+            instance_id: ID of the task instance
+            task_type_id: ID of the task type
+            priority: Priority level (default: 1)
+            
+        Returns:
+            Return ID from the stored procedure, or None if failed
+        """
+        try:
+            with DatabaseService.get_cursor() as cursor:
+                logger.info(f"Executing stored procedure to link instance {instance_id} to task type {task_type_id}")
+                cursor.execute(ADD_INSTANCE_TASK_TYPE_PROCEDURE, [
+                    instance_id,
+                    task_type_id,
+                    priority
+                ])
+                logger.info("Stored procedure executed successfully")
+                
+                # The stored procedure should return a result, but if it doesn't, we'll assume success
+                try:
+                    if cursor.description is not None:
+                        result = cursor.fetchone()
+                        if result and result[0] is not None:
+                            return_id = result[0]
+                            logger.info(f"Successfully linked instance {instance_id} to task type {task_type_id}, Return ID: {return_id}")
+                            return return_id
+                    else:
+                        logger.info(f"Stored procedure executed successfully for instance {instance_id} and task type {task_type_id} (no result set)")
+                        return 1  # Return a success indicator
+                except Exception as fetch_error:
+                    logger.warning(f"Could not fetch result from stored procedure: {fetch_error}")
+                    logger.info(f"Assuming success for instance {instance_id} and task type {task_type_id}")
+                    return 1  # Return a success indicator
+                    
+        except Exception as e:
+            logger.error(f"Error linking instance {instance_id} to task type {task_type_id}: {e}")
+            return None
                     
         except Exception as e:
             logger.error(f"Error validating and getting group ID for '{group_name}': {e}")
+            return None
+
+    @staticmethod
+    def search_status_reports_by_name(partial_name: str) -> List[Dict[str, Any]]:
+        """
+        Search for status reports by partial name.
+        
+        Args:
+            partial_name: Partial name to search for
+            
+        Returns:
+            List of matching status reports with ID and Name
+        """
+        try:
+            # Add wildcards for LIKE search
+            search_pattern = f"%{partial_name}%"
+            
+            with DatabaseService.get_cursor() as cursor:
+                cursor.execute(FIND_STATUS_REPORTS_BY_NAME, [search_pattern])
+                results = cursor.fetchall()
+                
+                reports = []
+                for row in results:
+                    reports.append({
+                        'id': row[0],
+                        'name': row[1]
+                    })
+                
+                logger.info(f"Found {len(reports)} status reports matching '{partial_name}'")
+                return reports
+                
+        except Exception as e:
+            logger.error(f"Error searching status reports: {e}")
+            return []
+
+    @staticmethod
+    def get_task_types_for_status_report(report_id: int) -> List[Dict[str, Any]]:
+        """
+        Get available task types for a specific status report.
+        
+        Args:
+            report_id: ID of the status report
+            
+        Returns:
+            List of task types with ID and Description
+        """
+        try:
+            with DatabaseService.get_cursor() as cursor:
+                cursor.execute(GET_TASK_TYPES_FOR_REPORT, [report_id])
+                results = cursor.fetchall()
+                
+                task_types = []
+                for row in results:
+                    task_types.append({
+                        'id': row[0],
+                        'description': row[1]
+                    })
+                
+                logger.info(f"Found {len(task_types)} task types for report ID {report_id}")
+                return task_types
+                
+        except Exception as e:
+            logger.error(f"Error getting task types for report {report_id}: {e}")
+            return []
+
+    @staticmethod
+    def link_task_instance_to_task_type(instance_id: int, task_type_id: int, priority: int = 1) -> Optional[int]:
+        """
+        Link a task instance to a specific task type.
+        
+        Args:
+            instance_id: ID of the task instance
+            task_type_id: ID of the task type
+            priority: Priority level (default: 1)
+            
+        Returns:
+            Return ID from the stored procedure, or None if failed
+        """
+        try:
+            with DatabaseService.get_cursor() as cursor:
+                logger.info(f"Executing stored procedure to link instance {instance_id} to task type {task_type_id}")
+                cursor.execute(ADD_INSTANCE_TASK_TYPE_PROCEDURE, [
+                    instance_id,
+                    task_type_id,
+                    priority
+                ])
+                logger.info("Stored procedure executed successfully")
+                
+                # The stored procedure should return a result, but if it doesn't, we'll assume success
+                try:
+                    if cursor.description is not None:
+                        result = cursor.fetchone()
+                        if result and result[0] is not None:
+                            return_id = result[0]
+                            logger.info(f"Successfully linked instance {instance_id} to task type {task_type_id}, Return ID: {return_id}")
+                            return return_id
+                    else:
+                        logger.info(f"Stored procedure executed successfully for instance {instance_id} and task type {task_type_id} (no result set)")
+                        return 1  # Return a success indicator
+                except Exception as fetch_error:
+                    logger.warning(f"Could not fetch result from stored procedure: {fetch_error}")
+                    logger.info(f"Assuming success for instance {instance_id} and task type {task_type_id}")
+                    return 1  # Return a success indicator
+                    
+        except Exception as e:
+            logger.error(f"Error linking instance {instance_id} to task type {task_type_id}: {e}")
             return None
 
     @staticmethod
@@ -1067,6 +2038,116 @@ class DatabaseService:
                 else:
                     logger.warning(f"Group name '{group_name}' not found in QCheck_Groups table")
                 return None
+                
+        except Exception as e:
+            logger.error(f"Error validating and getting group ID for '{group_name}': {e}")
+            return None
+
+    @staticmethod
+    def search_status_reports_by_name(partial_name: str) -> List[Dict[str, Any]]:
+        """
+        Search for status reports by partial name.
+        
+        Args:
+            partial_name: Partial name to search for
+            
+        Returns:
+            List of matching status reports with ID and Name
+        """
+        try:
+            # Add wildcards for LIKE search
+            search_pattern = f"%{partial_name}%"
+            
+            with DatabaseService.get_cursor() as cursor:
+                cursor.execute(FIND_STATUS_REPORTS_BY_NAME, [search_pattern])
+                results = cursor.fetchall()
+                
+                reports = []
+                for row in results:
+                    reports.append({
+                        'id': row[0],
+                        'name': row[1]
+                    })
+                
+                logger.info(f"Found {len(reports)} status reports matching '{partial_name}'")
+                return reports
+                
+        except Exception as e:
+            logger.error(f"Error searching status reports: {e}")
+            return []
+
+    @staticmethod
+    def get_task_types_for_status_report(report_id: int) -> List[Dict[str, Any]]:
+        """
+        Get available task types for a specific status report.
+        
+        Args:
+            report_id: ID of the status report
+            
+        Returns:
+            List of task types with ID and Description
+        """
+        try:
+            with DatabaseService.get_cursor() as cursor:
+                cursor.execute(GET_TASK_TYPES_FOR_REPORT, [report_id])
+                results = cursor.fetchall()
+                
+                task_types = []
+                for row in results:
+                    task_types.append({
+                        'id': row[0],
+                        'description': row[1]
+                    })
+                
+                logger.info(f"Found {len(task_types)} task types for report ID {report_id}")
+                return task_types
+                
+        except Exception as e:
+            logger.error(f"Error getting task types for report {report_id}: {e}")
+            return []
+
+    @staticmethod
+    def link_task_instance_to_task_type(instance_id: int, task_type_id: int, priority: int = 1) -> Optional[int]:
+        """
+        Link a task instance to a specific task type.
+        
+        Args:
+            instance_id: ID of the task instance
+            task_type_id: ID of the task type
+            priority: Priority level (default: 1)
+            
+        Returns:
+            Return ID from the stored procedure, or None if failed
+        """
+        try:
+            with DatabaseService.get_cursor() as cursor:
+                logger.info(f"Executing stored procedure to link instance {instance_id} to task type {task_type_id}")
+                cursor.execute(ADD_INSTANCE_TASK_TYPE_PROCEDURE, [
+                    instance_id,
+                    task_type_id,
+                    priority
+                ])
+                logger.info("Stored procedure executed successfully")
+                
+                # The stored procedure should return a result, but if it doesn't, we'll assume success
+                try:
+                    if cursor.description is not None:
+                        result = cursor.fetchone()
+                        if result and result[0] is not None:
+                            return_id = result[0]
+                            logger.info(f"Successfully linked instance {instance_id} to task type {task_type_id}, Return ID: {return_id}")
+                            return return_id
+                    else:
+                        logger.info(f"Stored procedure executed successfully for instance {instance_id} and task type {task_type_id} (no result set)")
+                        return 1  # Return a success indicator
+                except Exception as fetch_error:
+                    logger.warning(f"Could not fetch result from stored procedure: {fetch_error}")
+                    logger.info(f"Assuming success for instance {instance_id} and task type {task_type_id}")
+                    return 1  # Return a success indicator
+                    
+        except Exception as e:
+            logger.error(f"Error linking instance {instance_id} to task type {task_type_id}: {e}")
+            return None
             
             # If group exists, get its ID using the resolved name
             with DatabaseService.get_cursor() as cursor:
@@ -1083,7 +2164,219 @@ class DatabaseService:
                 else:
                     logger.error(f"Group '{resolved_name}' exists in QCheck_Groups but could not retrieve ID")
                     return None
+
+    @staticmethod
+    def search_status_reports_by_name(partial_name: str) -> List[Dict[str, Any]]:
+        """
+        Search for status reports by partial name.
+        
+        Args:
+            partial_name: Partial name to search for
+            
+        Returns:
+            List of matching status reports with ID and Name
+        """
+        try:
+            # Add wildcards for LIKE search
+            search_pattern = f"%{partial_name}%"
+            
+            with DatabaseService.get_cursor() as cursor:
+                cursor.execute(FIND_STATUS_REPORTS_BY_NAME, [search_pattern])
+                results = cursor.fetchall()
+                
+                reports = []
+                for row in results:
+                    reports.append({
+                        'id': row[0],
+                        'name': row[1]
+                    })
+                
+                logger.info(f"Found {len(reports)} status reports matching '{partial_name}'")
+                return reports
+                
+        except Exception as e:
+            logger.error(f"Error searching status reports: {e}")
+            return []
+
+    @staticmethod
+    def get_task_types_for_status_report(report_id: int) -> List[Dict[str, Any]]:
+        """
+        Get available task types for a specific status report.
+        
+        Args:
+            report_id: ID of the status report
+            
+        Returns:
+            List of task types with ID and Description
+        """
+        try:
+            with DatabaseService.get_cursor() as cursor:
+                cursor.execute(GET_TASK_TYPES_FOR_REPORT, [report_id])
+                results = cursor.fetchall()
+                
+                task_types = []
+                for row in results:
+                    task_types.append({
+                        'id': row[0],
+                        'description': row[1]
+                    })
+                
+                logger.info(f"Found {len(task_types)} task types for report ID {report_id}")
+                return task_types
+                
+        except Exception as e:
+            logger.error(f"Error getting task types for report {report_id}: {e}")
+            return []
+
+    @staticmethod
+    def link_task_instance_to_task_type(instance_id: int, task_type_id: int, priority: int = 1) -> Optional[int]:
+        """
+        Link a task instance to a specific task type.
+        
+        Args:
+            instance_id: ID of the task instance
+            task_type_id: ID of the task type
+            priority: Priority level (default: 1)
+            
+        Returns:
+            Return ID from the stored procedure, or None if failed
+        """
+        try:
+            with DatabaseService.get_cursor() as cursor:
+                logger.info(f"Executing stored procedure to link instance {instance_id} to task type {task_type_id}")
+                cursor.execute(ADD_INSTANCE_TASK_TYPE_PROCEDURE, [
+                    instance_id,
+                    task_type_id,
+                    priority
+                ])
+                logger.info("Stored procedure executed successfully")
+                
+                # The stored procedure should return a result, but if it doesn't, we'll assume success
+                try:
+                    if cursor.description is not None:
+                        result = cursor.fetchone()
+                        if result and result[0] is not None:
+                            return_id = result[0]
+                            logger.info(f"Successfully linked instance {instance_id} to task type {task_type_id}, Return ID: {return_id}")
+                            return return_id
+                    else:
+                        logger.info(f"Stored procedure executed successfully for instance {instance_id} and task type {task_type_id} (no result set)")
+                        return 1  # Return a success indicator
+                except Exception as fetch_error:
+                    logger.warning(f"Could not fetch result from stored procedure: {fetch_error}")
+                    logger.info(f"Assuming success for instance {instance_id} and task type {task_type_id}")
+                    return 1  # Return a success indicator
+                    
+        except Exception as e:
+            logger.error(f"Error linking instance {instance_id} to task type {task_type_id}: {e}")
+            return None
                     
         except Exception as e:
             logger.error(f"Error validating and getting group ID for '{group_name}': {e}")
+            return None
+
+    @staticmethod
+    def search_status_reports_by_name(partial_name: str) -> List[Dict[str, Any]]:
+        """
+        Search for status reports by partial name.
+        
+        Args:
+            partial_name: Partial name to search for
+            
+        Returns:
+            List of matching status reports with ID and Name
+        """
+        try:
+            # Add wildcards for LIKE search
+            search_pattern = f"%{partial_name}%"
+            
+            with DatabaseService.get_cursor() as cursor:
+                cursor.execute(FIND_STATUS_REPORTS_BY_NAME, [search_pattern])
+                results = cursor.fetchall()
+                
+                reports = []
+                for row in results:
+                    reports.append({
+                        'id': row[0],
+                        'name': row[1]
+                    })
+                
+                logger.info(f"Found {len(reports)} status reports matching '{partial_name}'")
+                return reports
+                
+        except Exception as e:
+            logger.error(f"Error searching status reports: {e}")
+            return []
+
+    @staticmethod
+    def get_task_types_for_status_report(report_id: int) -> List[Dict[str, Any]]:
+        """
+        Get available task types for a specific status report.
+        
+        Args:
+            report_id: ID of the status report
+            
+        Returns:
+            List of task types with ID and Description
+        """
+        try:
+            with DatabaseService.get_cursor() as cursor:
+                cursor.execute(GET_TASK_TYPES_FOR_REPORT, [report_id])
+                results = cursor.fetchall()
+                
+                task_types = []
+                for row in results:
+                    task_types.append({
+                        'id': row[0],
+                        'description': row[1]
+                    })
+                
+                logger.info(f"Found {len(task_types)} task types for report ID {report_id}")
+                return task_types
+                
+        except Exception as e:
+            logger.error(f"Error getting task types for report {report_id}: {e}")
+            return []
+
+    @staticmethod
+    def link_task_instance_to_task_type(instance_id: int, task_type_id: int, priority: int = 1) -> Optional[int]:
+        """
+        Link a task instance to a specific task type.
+        
+        Args:
+            instance_id: ID of the task instance
+            task_type_id: ID of the task type
+            priority: Priority level (default: 1)
+            
+        Returns:
+            Return ID from the stored procedure, or None if failed
+        """
+        try:
+            with DatabaseService.get_cursor() as cursor:
+                logger.info(f"Executing stored procedure to link instance {instance_id} to task type {task_type_id}")
+                cursor.execute(ADD_INSTANCE_TASK_TYPE_PROCEDURE, [
+                    instance_id,
+                    task_type_id,
+                    priority
+                ])
+                logger.info("Stored procedure executed successfully")
+                
+                # The stored procedure should return a result, but if it doesn't, we'll assume success
+                try:
+                    if cursor.description is not None:
+                        result = cursor.fetchone()
+                        if result and result[0] is not None:
+                            return_id = result[0]
+                            logger.info(f"Successfully linked instance {instance_id} to task type {task_type_id}, Return ID: {return_id}")
+                            return return_id
+                    else:
+                        logger.info(f"Stored procedure executed successfully for instance {instance_id} and task type {task_type_id} (no result set)")
+                        return 1  # Return a success indicator
+                except Exception as fetch_error:
+                    logger.warning(f"Could not fetch result from stored procedure: {fetch_error}")
+                    logger.info(f"Assuming success for instance {instance_id} and task type {task_type_id}")
+                    return 1  # Return a success indicator
+                    
+        except Exception as e:
+            logger.error(f"Error linking instance {instance_id} to task type {task_type_id}: {e}")
             return None

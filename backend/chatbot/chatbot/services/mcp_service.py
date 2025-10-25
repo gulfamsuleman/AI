@@ -20,6 +20,51 @@ class MCPService:
     MCP Service for intelligent stored procedure detection using vector similarity.
     """
     
+    @staticmethod
+    def _extract_individual_names_from_sentence(sentence: str) -> List[str]:
+        """
+        Extract individual names from a sentence, filtering out common words.
+        
+        Args:
+            sentence: Input sentence like "Sameer the controller being Ken"
+            
+        Returns:
+            List of potential names like ["Sameer", "Ken"]
+        """
+        if not sentence or not sentence.strip():
+            return []
+        
+        # Common words to filter out
+        filter_words = {
+            'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 
+            'of', 'with', 'by', 'from', 'up', 'about', 'into', 'through', 'during',
+            'before', 'after', 'above', 'below', 'between', 'among', 'under', 'over',
+            'controller', 'being', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
+            'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should',
+            'may', 'might', 'must', 'can', 'shall', 'this', 'that', 'these', 'those'
+        }
+        
+        # Split sentence into words and filter
+        words = sentence.split()
+        potential_names = []
+        
+        for word in words:
+            # Clean the word (remove punctuation)
+            clean_word = re.sub(r'[^\w]', '', word)
+            
+            # Skip if it's a common word or too short
+            if (clean_word.lower() in filter_words or 
+                len(clean_word) < 2 or 
+                clean_word.isdigit()):
+                continue
+                
+            # Check if it looks like a name (starts with capital letter)
+            if clean_word and clean_word[0].isupper():
+                potential_names.append(clean_word)
+        
+        logger.info(f"Extracted potential names from '{sentence}': {potential_names}")
+        return potential_names
+    
     def __init__(self):
         self.vectorizer = TfidfVectorizer(
             stop_words='english',
@@ -49,7 +94,7 @@ class MCPService:
                     'overdue alert to', 'alert to', 'alert for', 'send alert', 'notify',
                     'remind', 'reminder', 'warning', 'notification'
                 ],
-                'stored_procedure': 'QCheck_AddAlert',
+                'stored_procedure': 'QCheck2_AddAlert',
                 'required_params': ['InstanceID', 'alertType'],
                 'optional_params': ['nagBeforeDays', 'nagTime', 'alerteegroupid', 'alertText']
             },
@@ -266,7 +311,19 @@ class MCPService:
         for pattern in recipient_patterns:
             match = re.search(pattern, user_message, re.IGNORECASE)
             if match:
-                params['alert_recipient'] = match.group(1).strip()
+                raw_recipient = match.group(1).strip()
+                
+                # Extract individual names from the sentence
+                potential_names = self._extract_individual_names_from_sentence(raw_recipient)
+                
+                # Use the first extracted name as the recipient, or fall back to raw recipient
+                if potential_names:
+                    params['alert_recipient'] = potential_names[0]  # Use first name found
+                    logger.info(f"Extracted individual name '{params['alert_recipient']}' from sentence '{raw_recipient}'")
+                else:
+                    params['alert_recipient'] = raw_recipient
+                    logger.info(f"Could not extract individual names from '{raw_recipient}', using as-is")
+                
                 # If we found a recipient, set default condition
                 if 'overdue' in pattern.lower():
                     params['alert_condition'] = 'overdue'
@@ -438,7 +495,7 @@ class MCPService:
                 {
                     'step': 3,
                     'action': 'Create alert',
-                    'stored_procedure': 'QCheck_AddAlert',
+                    'stored_procedure': 'QCheck2_AddAlert',
                     'parameters': params
                 }
             ]

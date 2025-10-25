@@ -38,5 +38,5 @@ namespace QProcess.Repositories
 		public int TypeId { get; set; }
 	}
 }
-/* Copyright © 2024 Renegade Swish, LLC */
+/* Copyright ï¿½ 2024 Renegade Swish, LLC */
 

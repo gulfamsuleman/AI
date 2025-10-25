@@ -130,13 +130,16 @@ CREATE_TASK_PROCEDURE_PARAMETERIZED = """
 
 # Alert creation stored procedure
 ADD_ALERT_PROCEDURE = """
-    EXEC dbo.QCheck_AddAlert
+    DECLARE @NewAlertID INT;
+    EXEC dbo.QCheck2_AddAlert
         @InstanceID = %s,
         @nagBeforeDays = %s,
         @nagTime = %s,
         @alerteegroupid = %s,
         @alertType = %s,
-        @alertText = %s
+        @alertText = %s,
+        @ReturnID = @NewAlertID OUTPUT;
+    SELECT @NewAlertID AS CreatedAlertID;
 """
 
 # Status report stored procedure
@@ -150,4 +153,31 @@ ADD_STATUS_REPORT_PROCEDURE = """
 # Get group ID by name for alert recipients
 GET_GROUP_ID_BY_NAME = """
     SELECT ID FROM QCheck_Groups WHERE Name = %s
+"""
+
+# Status report connection queries
+FIND_STATUS_REPORTS_BY_NAME = """
+    SELECT TOP 10 ID, Name
+    FROM [QTasks].[dbo].[QStatus_Report]
+    WHERE Name LIKE %s
+    ORDER BY Name
+"""
+
+# Get task types associated to a specific status report (by ReportID)
+GET_TASK_TYPES_FOR_REPORT = """
+    SELECT ID, Description
+    FROM [QTasks].[dbo].[QStatus_TaskTypes]
+    WHERE ReportID = %s
+    ORDER BY Description
+"""
+
+# Link an instance to a task type (returns existing or new ID)
+ADD_INSTANCE_TASK_TYPE_PROCEDURE = """
+    DECLARE @ReturnID INT;
+    EXEC [QTasks].[dbo].[QCheck_AddInstanceTaskType]
+        @InstanceID = %s,
+        @TaskType   = %s,
+        @Priority   = %s,
+        @ID         = @ReturnID OUTPUT;
+    SELECT @ReturnID AS NewOrExistingID;
 """

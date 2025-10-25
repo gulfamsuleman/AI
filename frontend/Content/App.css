@@ -308,6 +308,12 @@ body {
     font-size: var(--font-size-sm);
 }
 
+.message-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
 .message-sender {
     font-weight: 600;
     color: var(--gray-700);
@@ -327,6 +333,20 @@ body {
     line-height: 1.6;
     word-wrap: break-word;
     white-space: pre-wrap;
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    cursor: text;
+}
+
+.selectable-text {
+    position: relative;
+}
+
+.selectable-text:hover {
+    background: var(--gray-50);
+    transition: background-color var(--transition-fast);
 }
 
 .user-msg .message-text {
@@ -343,6 +363,110 @@ body {
     border-color: var(--gray-200);
     box-shadow: 0 6px 14px rgb(0 0 0 / 0.06);
     border-top-left-radius: var(--radius-sm);
+}
+
+/* Copy and Select Button Styles */
+.copy-button,
+.select-button {
+    background: transparent;
+    border: none;
+    padding: var(--space-1);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    opacity: 0.6;
+    width: 24px;
+    height: 24px;
+}
+
+/* New copy button (from ai-chatbot.js) */
+.message-actions .copy-btn {
+    background: transparent;
+    border: none;
+    padding: var(--space-1);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity var(--transition-fast), transform var(--transition-fast), background var(--transition-fast);
+    opacity: 0;
+    visibility: hidden;
+}
+
+.message-actions .copy-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.message:hover .message-actions .copy-btn {
+    opacity: 0.8;
+    visibility: visible;
+}
+
+.message:hover .message-actions .copy-btn:hover {
+    opacity: 1;
+    background: var(--gray-100);
+    transform: scale(1.05);
+}
+
+.message-actions .copy-btn:active {
+    transform: scale(0.95);
+}
+
+.message-actions .copy-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.copy-button:hover,
+.select-button:hover {
+    background: var(--gray-100);
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.copy-button:active,
+.select-button:active {
+    transform: scale(0.95);
+}
+
+.copy-icon,
+.select-icon {
+    font-size: var(--font-size-sm);
+    line-height: 1;
+}
+
+.copy-button.copy-success {
+    background: var(--success-100);
+    color: var(--success-600);
+    opacity: 1;
+}
+
+.copy-button.copy-error {
+    background: var(--error-100);
+    color: var(--error-600);
+    opacity: 1;
+}
+
+.select-button.select-success {
+    background: var(--primary-100);
+    color: var(--primary-600);
+    opacity: 1;
+}
+
+/* Show buttons on message hover */
+.message:hover .copy-button,
+.message:hover .select-button {
+    opacity: 0.8;
+}
+
+.message:hover .copy-button:hover,
+.message:hover .select-button:hover {
+    opacity: 1;
 }
 
 /* Task List Parsing */
@@ -1002,6 +1126,17 @@ body {
         padding: var(--space-2) var(--space-3);
         font-size: var(--font-size-sm);
     }
+    
+    .copy-button,
+    .select-button {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .copy-icon,
+    .select-icon {
+        font-size: var(--font-size-xs);
+    }
 }
 
 /* Dark Mode Support */
@@ -1070,9 +1205,18 @@ body {
             color: var(--gray-500);
         }
 
-        .message-input::placeholder {
-            color: var(--gray-400);
-        }
+    .message-input::placeholder {
+        color: var(--gray-400);
+    }
+    
+    .copy-button:hover,
+    .select-button:hover {
+        background: var(--gray-200);
+    }
+    
+    .selectable-text:hover {
+        background: var(--gray-200);
+    }
 }
 
 /* Accessibility Improvements */

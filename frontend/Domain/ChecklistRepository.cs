@@ -3401,5 +3401,5 @@ namespace QProcess.Repositories
         public bool IsRecurring { get; set; }
     }
 }
-/* Copyright © 2024 Renegade Swish, LLC */
+/* Copyright ï¿½ 2024 Renegade Swish, LLC */
 

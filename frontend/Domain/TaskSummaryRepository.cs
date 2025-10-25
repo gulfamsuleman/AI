@@ -171,5 +171,5 @@ namespace QProcess.Repositories
 		public DateTime? NextDueDate { get; set; }
 	}
 }
-/* Copyright © 2024 Renegade Swish, LLC */
+/* Copyright ï¿½ 2024 Renegade Swish, LLC */
 

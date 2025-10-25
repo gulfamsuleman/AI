@@ -1,0 +1,97 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# Django
+*.log
+db.sqlite3
+db.sqlite3-journal
+/staticfiles/
+/media/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Documentation
+*.md
+README*
+CHANGES*
+SUMMARY*
+HISTORY*
+FIX_*
+TEST_*
+TASK_*
+TIME_*
+FREQTYPE*
+NEXT_*
+PLAIN_*
+QUARTERLY_*
+
+# Test files
+test_*.py
+tests/
+
+# Logs
+logs/
+*.log
+
+# CSV and data files
+*.csv
+token_usage.csv
+
+# Session files
+sessions/
+
+# Database backups (large files)
+database/backups/
+
+# Compiled files
+*.pyc
+*.pyo
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+

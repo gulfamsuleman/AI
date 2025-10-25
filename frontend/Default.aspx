@@ -13,7 +13,7 @@
                 <div class="avatar-status online"></div>
             </div>
             <div>
-                <h1>AI Assistant</h1>
+                <h1>Q Bot</h1>
                 <p class="status">Online</p>
                 <p class="timezone" id="widgetTimezone" style="margin-top: 2px; font-size: 12px; color: #6b7280; display: none;">
                     🌍 <span id="widgetTimezoneText"></span>
@@ -43,9 +43,9 @@
         <div class="input-wrapper">
             <input type="text" id="userInput" runat="server" placeholder="Type your message..." aria-label="Type your message" />
             <button type="button" id="sendBtn" runat="server" aria-label="Send message" onclick="return false;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-icon lucide-arrow-up">
+                 <path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>
                 </svg>
             </button>
         </div>

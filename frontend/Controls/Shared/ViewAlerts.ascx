@@ -28,5 +28,5 @@
 		<p>There are no alerts for this checklist.</p>
 	<% } %>
 </div>
-<!-- Copyright © 2024 Renegade Swish, LLC -->
+<!-- Copyright ï¿½ 2024 Renegade Swish, LLC -->
 

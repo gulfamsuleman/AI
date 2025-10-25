@@ -10,6 +10,12 @@ from django.urls import path
 
 # Import from the refactored API router (maintains backward compatibility)
 from .api import ChatView, UserListView, RunStoredProcedureView
+from .api.views.status_report_connection import (
+    StatusReportConnectionView, 
+    search_status_reports, 
+    get_task_types_for_report, 
+    link_task_to_status_report
+)
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -30,6 +36,12 @@ urlpatterns = [
     
     # Admin endpoints - using refactored RunStoredProcedureView
     path('run-stored-procedure/', RunStoredProcedureView.as_view(), name='run-procedure-api'),
+    
+    # Status report connection endpoints
+    path('api/status-report-connection/', StatusReportConnectionView.as_view(), name='status-report-connection-api'),
+    path('api/search-status-reports/', search_status_reports, name='search-status-reports-api'),
+    path('api/get-task-types/', get_task_types_for_report, name='get-task-types-api'),
+    path('api/link-task-to-status-report/', link_task_to_status_report, name='link-task-to-status-report-api'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

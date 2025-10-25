@@ -295,6 +295,11 @@ class ChatBotConnector {
         // Add system message
         this.addMessage(`Switched to user: ${user}`, 'system');
         
+        // Add a demo message to show copy/select functionality
+        setTimeout(() => {
+            this.addMessage('This is a demo message to show the copy and select functionality. You can click the 📋 button to copy this message or the 📝 button to select all the text.', 'bot');
+        }, 1000);
+        
         console.log('User selected:', user);
     }
     
@@ -478,21 +483,32 @@ class ChatBotConnector {
             senderLabel = 'Error'; 
         }
         
+        // Create a unique ID for this message
+        const messageId = `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        
         messageDiv.innerHTML = `
             <div class="message-avatar">${icon}</div>
             <div class="message-content">
                 <div class="message-header">
                     <span class="message-sender">${senderLabel}</span>
-                    <span class="message-time">${timeString}</span>
+                    <div class="message-actions">
+                        <button class="copy-button" onclick="chatbotConnector.copyMessage('${messageId}')" title="Copy message">
+                            <span class="copy-icon">📋</span>
+                        </button>
+                        <button class="select-button" onclick="chatbotConnector.selectMessage('${messageId}')" title="Select message text">
+                            <span class="select-icon">📝</span>
+                        </button>
+                        <span class="message-time">${timeString}</span>
+                    </div>
                 </div>
-                <div class="message-text">${text}</div>
+                <div class="message-text selectable-text" id="${messageId}">${text}</div>
             </div>
         `;
         
         this.elements.messagesContainer.appendChild(messageDiv);
         this.scrollToBottom();
         
-        console.log('Message added:', { text, type, time: timeString });
+        console.log('Message added:', { text, type, time: timeString, messageId });
     }
     
     /**
@@ -573,6 +589,135 @@ class ChatBotConnector {
                 this.elements.successMessage.style.display = 'none';
             }, 3000);
         }
+    }
+    
+    /**
+     * Copy message to clipboard
+     */
+    async copyMessage(messageId) {
+        try {
+            const messageElement = document.getElementById(messageId);
+            if (!messageElement) {
+                console.error('Message element not found:', messageId);
+                return;
+            }
+            
+            const messageText = messageElement.textContent || messageElement.innerText;
+            
+            // Use the modern Clipboard API if available
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(messageText);
+                this.showCopyFeedback(messageId, true);
+            } else {
+                // Fallback for older browsers or non-secure contexts
+                const textArea = document.createElement('textarea');
+                textArea.value = messageText;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
+                textArea.style.top = '-999999px';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        this.showCopyFeedback(messageId, true);
+                    } else {
+                        this.showCopyFeedback(messageId, false);
+                    }
+                } catch (err) {
+                    console.error('Fallback copy failed:', err);
+                    this.showCopyFeedback(messageId, false);
+                } finally {
+                    document.body.removeChild(textArea);
+                }
+            }
+        } catch (error) {
+            console.error('Copy failed:', error);
+            this.showCopyFeedback(messageId, false);
+        }
+    }
+    
+    /**
+     * Select message text
+     */
+    selectMessage(messageId) {
+        try {
+            const messageElement = document.getElementById(messageId);
+            if (!messageElement) {
+                console.error('Message element not found:', messageId);
+                return;
+            }
+            
+            // Create a range and select the text
+            const range = document.createRange();
+            range.selectNodeContents(messageElement);
+            
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            
+            // Show feedback
+            this.showSelectFeedback(messageId);
+            
+            // Focus the element to ensure selection is visible
+            messageElement.focus();
+            
+        } catch (error) {
+            console.error('Select failed:', error);
+        }
+    }
+    
+    /**
+     * Show copy feedback
+     */
+    showCopyFeedback(messageId, success) {
+        const messageElement = document.getElementById(messageId);
+        if (!messageElement) return;
+        
+        const copyButton = messageElement.closest('.message').querySelector('.copy-button');
+        if (!copyButton) return;
+        
+        const originalIcon = copyButton.querySelector('.copy-icon');
+        const originalText = originalIcon.textContent;
+        
+        if (success) {
+            originalIcon.textContent = '✅';
+            copyButton.classList.add('copy-success');
+            setTimeout(() => {
+                originalIcon.textContent = originalText;
+                copyButton.classList.remove('copy-success');
+            }, 2000);
+        } else {
+            originalIcon.textContent = '❌';
+            copyButton.classList.add('copy-error');
+            setTimeout(() => {
+                originalIcon.textContent = originalText;
+                copyButton.classList.remove('copy-error');
+            }, 2000);
+        }
+    }
+    
+    /**
+     * Show select feedback
+     */
+    showSelectFeedback(messageId) {
+        const messageElement = document.getElementById(messageId);
+        if (!messageElement) return;
+        
+        const selectButton = messageElement.closest('.message').querySelector('.select-button');
+        if (!selectButton) return;
+        
+        const originalIcon = selectButton.querySelector('.select-icon');
+        const originalText = originalIcon.textContent;
+        
+        originalIcon.textContent = '✓';
+        selectButton.classList.add('select-success');
+        setTimeout(() => {
+            originalIcon.textContent = originalText;
+            selectButton.classList.remove('select-success');
+        }, 1500);
     }
     
     /**

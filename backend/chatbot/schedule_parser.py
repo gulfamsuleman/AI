@@ -3,18 +3,18 @@ Schedule Parser for QProcess Chatbot
 Handles complex recurring patterns with bitmask calculations for FreqRecurrance field
 
 FreqType values:
-1 = Daily
-2 = Weekly 
-3 = Monthly
-4 = Yearly
-5 = Annual (similar to yearly but for specific date patterns)
-6 = Quarterly
+1 = One Time
+2 = Every (freqRecurrance) Days
+3 = Every (freqRecurrance) Weeks on (freqInterval)
+4 = Every (freqRecurrance) Months
+5 = Yearly in (freqInterval) Month
 
-FreqRecurrance bitmask encoding:
-- Weekly: Days of week (Sun=1, Mon=2, Tue=4, Wed=8, Thu=16, Fri=32, Sat=64)
-- Monthly: Days of month (1st=1, 2nd=2, 3rd=4, etc.) 
-- Yearly: Months (Jan=1, Feb=2, Mar=4, Apr=8, May=16, Jun=32, Jul=64, Aug=128, Sep=256, Oct=512, Nov=1024, Dec=2048)
-- Quarterly: Quarter number (Q1=1, Q2=2, Q3=4, Q4=8)
+FreqRecurrance and FreqInterval encoding:
+- FreqType 1 (One Time): FreqInterval = Day of week bitmask (Sun=1, Mon=2, Tue=4, Wed=8, Thu=16, Fri=32, Sat=64)
+- FreqType 2 (Days): FreqInterval = Day of week bitmask (Sun=1, Mon=2, Tue=4, Wed=8, Thu=16, Fri=32, Sat=64)
+- FreqType 3 (Weeks): FreqRecurrance = Weeks count (1=weekly, 2=biweekly), FreqInterval = Day of week bitmask (Sun=1, Mon=2, Tue=4, Wed=8, Thu=16, Fri=32, Sat=64)
+- FreqType 4 (Months): FreqRecurrance = Day of month (1-31), FreqInterval = Month bitmask (Jan=1, Feb=2, Mar=4, Apr=8, May=16, Jun=32, Jul=64, Aug=128, Sep=256, Oct=512, Nov=1024, Dec=2048)
+- FreqType 5 (Yearly): FreqRecurrance = Month bitmask (Jan=1, Feb=2, Mar=4, Apr=8, May=16, Jun=32, Jul=64, Aug=128, Sep=256, Oct=512, Nov=1024, Dec=2048)
 """
 
 import re
@@ -33,6 +33,8 @@ class ScheduleParser:
         'monday': 2, 'mon': 2,
         'tuesday': 4, 'tue': 4, 'tues': 4,
         'wednesday': 8, 'wed': 8,
+        # Common misspellings
+        'wedeneday': 8, 'wedneseday': 8,
         'thursday': 16, 'thu': 16, 'thur': 16, 'thurs': 16,
         'friday': 32, 'fri': 32,
         'saturday': 64, 'sat': 64
@@ -65,11 +67,57 @@ class ScheduleParser:
     def __init__(self):
         self.logger = logger
     
+    def _detect_business_day_behavior(self, msg):
+        """
+        Detect BusinessDayBehavior based on user prompt patterns.
+        
+        Returns:
+        0: This task can be due on a weekend/holiday
+        1: If it falls on a weekend or holiday, skip it
+        2: If it falls on a weekend or holiday, move it to the previous business day
+        3: If it falls on a weekend or holiday, move it to the next business day
+        """
+        msg_lower = msg.lower()
+        
+        # Pattern 1: Skip weekend/holiday
+        skip_patterns = [
+            'skip weekend', 'skip holidays', 'skip holiday',
+            'no weekend', 'no holidays', 'no holiday',
+            'weekdays only', 'business days only', 'business day only',
+            'weekday only', 'weekdays', 'business days',
+            'exclude weekend', 'exclude holidays', 'exclude holiday',
+            'avoid weekend', 'avoid holidays', 'avoid holiday'
+        ]
+        if any(pattern in msg_lower for pattern in skip_patterns):
+            return 1
+        
+        # Pattern 2: Move to previous business day
+        previous_patterns = [
+            'move to previous', 'previous business day', 'previous weekday',
+            'move back', 'move earlier', 'earlier business day',
+            'before weekend', 'before holiday', 'before holidays'
+        ]
+        if any(pattern in msg_lower for pattern in previous_patterns):
+            return 2
+        
+        # Pattern 3: Move to next business day
+        next_patterns = [
+            'move to next', 'next business day', 'next weekday',
+            'move forward', 'move later', 'later business day',
+            'after weekend', 'after holiday', 'after holidays',
+            'following business day', 'following weekday'
+        ]
+        if any(pattern in msg_lower for pattern in next_patterns):
+            return 3
+        
+        # Default: Allow weekend/holiday
+        return 0
+    
     def _has_explicit_recurrence(self, msg):
         """Check if message has explicit recurrence pattern and return the pattern type"""
         explicit_patterns = [
             (r'recurring\s+(daily|weekly|bi-?weekly|monthly|quarterly|yearly|annually)', 1),
-            (r'every\s+(day|week|month|quarter|year)', 1),
+            (r'every\s+(day(?!\s+of\s+the\s+week)|week|month|quarter|year)', 1),  # Exclude "every day of the week"
             (r'repeat\s+(daily|weekly|monthly|quarterly|yearly)', 1),
             (r'repeats?\s+(daily|weekly|monthly|quarterly|yearly)', 1)
         ]
@@ -103,7 +151,7 @@ class ScheduleParser:
         - FreqType: 1-6 
         - FreqRecurrance: Bitmask value
         - FreqInterval: Interval multiplier (e.g., 2 for "every other")
-        - BusinessDayBehavior: 0 or 1
+        - BusinessDayBehavior: 0, 1, 2, or 3
         """
         msg_lower = message.lower()
         result = {
@@ -111,7 +159,7 @@ class ScheduleParser:
             'FreqType': 0,
             'FreqRecurrance': 0,
             'FreqInterval': 1,
-            'BusinessDayBehavior': 0
+            'BusinessDayBehavior': self._detect_business_day_behavior(message)
         }
         
         # Check for non-recurring "next [weekday]" pattern first
@@ -119,6 +167,19 @@ class ScheduleParser:
             self.logger.debug("Detected 'next [weekday]' pattern - not recurring")
             return result
         
+        # Handle non-recurring quarter references before explicit recurrence
+        # e.g., "due next quarter", "by next quarter", "this quarter" should be treated as one-time
+        nonrecurring_quarter_patterns = [
+            r'\bnext\s+quarter\b',
+            r'\bthis\s+quarter\b',
+            r'\bend\s+of\s+next\s+quarter\b',
+            r'\bby\s+next\s+quarter\b',
+            r'\bdue\s+next\s+quarter\b',
+        ]
+        if any(re.search(p, msg_lower) for p in nonrecurring_quarter_patterns):
+            self.logger.debug("Detected non-recurring quarter reference (e.g., 'next quarter') - not recurring")
+            return result
+
         # NEW: Check for explicit recurrence patterns first
         explicit_pattern = self._has_explicit_recurrence(msg_lower)
         if explicit_pattern:
@@ -173,68 +234,71 @@ class ScheduleParser:
     def _is_next_weekday_pattern(self, msg):
         """Check if message contains 'next [weekday]', 'next week [weekday]', or '[weekday] next week' (non-recurring)"""
         next_day_patterns = [
-            r'next\s+(?:week\s+)?(monday|tuesday|wednesday|thursday|friday|saturday|sunday)',
+            r'next\s+(?:week\s+)?(?:on\s+)?(monday|tuesday|wednesday|thursday|friday|saturday|sunday)',
             r'(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s+next\s+week'
         ]
         return any(re.search(pattern, msg) for pattern in next_day_patterns)
     
     def _is_quarterly_pattern(self, msg):
-        """Check if message contains quarterly pattern"""
+        """Check if message contains quarterly pattern with scheduling context"""
+        # Only match "quarterly" when it has scheduling context
+        # This prevents "quarterly report" from being treated as a recurring task
         patterns = [
-            r'quarter(ly)?',
+            r'\b(?:every|each|recurring|repeat|repeating)\s+quarter(?:ly)?',  # Requires scheduling context
             r'every\s+quarter',
             r'each\s+quarter',
-            r'end\s+of\s+(each\s+)?quarter',
-            r'quarter\s+end'
+            r'end\s+of\s+each\s+quarter',  # "end of each quarter" is recurring
+            r'every\s+quarter\s+end'  # "every quarter end" is recurring
         ]
         return any(re.search(pattern, msg) for pattern in patterns)
     
     def _parse_quarterly(self, msg):
-        """Parse quarterly schedules"""
-        # For quarterly tasks, use day 30 as a reasonable quarter-end approximation
-        # Day 30 bitmask = 1 << 29 = 536870912
+        """Parse quarterly schedules using FreqType=6.
+
+        For quarterly recurrence we use FreqType=6 with FreqRecurrance=1 and FreqInterval=1.
+        The first occurrence defaults to tomorrow at 7 PM (handled by default date logic),
+        then repeats quarterly from that date.
+        """
         result = {
             'IsRecurring': 1,
-            'FreqType': 3,  # Monthly with 3-month interval = Quarterly
-            'FreqRecurrance': 536870912,  # Day 30 of month (1 << 29)
-            'FreqInterval': 3  # Every 3 months
+            'FreqType': 6,              # Quarterly recurrence
+            'FreqRecurrance': 1,        # Standard quarterly interval
+            'FreqInterval': 1,          # Standard interval
+            'BusinessDayBehavior': self._detect_business_day_behavior(msg)
         }
-        
-        # Check for specific day of month patterns
-        ordinal_pattern = r'(\d{1,2})(st|nd|rd|th)\s+of\s+(each\s+)?month'
-        match = re.search(ordinal_pattern, msg)
-        if match:
-            day = int(match.group(1))
-            if 1 <= day <= 31:
-                result['FreqRecurrance'] = 1 << (day - 1)  # Convert to bitmask
-                self.logger.debug(f"Quarterly with specific day {day}: bitmask = {result['FreqRecurrance']}")
-                print(f"FREQ_DEBUG: Quarterly parser found day {day}, setting FreqRecurrance to {result['FreqRecurrance']}")
-        
-        # Check for specific quarters (only if no day specified)
-        elif any(quarter in msg for quarter in self.QUARTER_BITS):
+
+        # If the message specifies particular quarters, note the selection
+        if any(quarter in msg for quarter in self.QUARTER_BITS):
             bitmask = 0
             for quarter, bit in self.QUARTER_BITS.items():
                 if quarter in msg:
                     bitmask |= bit
             if bitmask > 0:
-                result['FreqRecurrance'] = bitmask
-                self.logger.debug(f"Quarterly with specific quarters: bitmask = {bitmask}")
-            
+                self.logger.debug(f"Quarterly with specific quarters mentioned. Quarter mask={bitmask}")
+
+        # Note: We do NOT set a DueDate here - let the default date logic handle it
+        # This ensures quarterly tasks start from tomorrow at 7 PM (the default)
+        # and then repeat quarterly from that first occurrence
+        # 
+        # FreqType=6 should default to tomorrow at 7 PM unless user specifies a date
+
         self.logger.debug(f"Parsed quarterly schedule: {result}")
         return result
     
     def _is_annual_pattern(self, msg):
-        """Check if message contains annual/yearly pattern"""
+        """Check if message contains annual/yearly pattern with scheduling context"""
         # Don't match if explicitly monthly (handles "last day of year, recurring monthly" case)
         if any(phrase in msg for phrase in ['recurring monthly', 'every month', 'repeat monthly']):
             return False
         
+        # Only match "annual/yearly" when it has scheduling context
+        # This prevents "annual report" or "yearly review" from being treated as recurring tasks
         patterns = [
-            r'annual(ly)?',
-            r'year(ly)?',
+            r'\b(?:every|each|recurring|repeat|repeating)\s+(?:year(?:ly)?|annual(?:ly)?)',  # Requires scheduling context
             r'every\s+year',
             r'each\s+year',
-            r'once\s+a\s+year'
+            r'once\s+a\s+year',
+            r'\bannually\b'  # "annually" by itself is clear scheduling intent
         ]
         return any(re.search(pattern, msg) for pattern in patterns)
     
@@ -242,9 +306,10 @@ class ScheduleParser:
         """Parse annual/yearly schedules"""
         result = {
             'IsRecurring': 1,
-            'FreqType': 6,  # Yearly (matches test expectations)
-            'FreqRecurrance': 1,  # Default to January
-            'FreqInterval': 1  # Interval between occurrences (1 = every year)
+            'FreqType': 5,  # Yearly in (freqInterval) Month
+            'FreqRecurrance': 1,  # Default to January (month bitmask)
+            'FreqInterval': 1,  # Default to January (month bitmask)
+            'BusinessDayBehavior': self._detect_business_day_behavior(msg)
         }
         
         # Extract month from message
@@ -254,8 +319,9 @@ class ScheduleParser:
                 month_bitmask |= bit
                 
         if month_bitmask > 0:
-            # For yearly, FreqRecurrance holds the month bitmask
+            # For yearly, FreqRecurrance and FreqInterval both hold the month bitmask
             result['FreqRecurrance'] = month_bitmask
+            result['FreqInterval'] = month_bitmask
             
         # Extract specific date if present  
         date_match = re.search(r'(\w+)\s+(\d{1,2})', msg)
@@ -266,18 +332,25 @@ class ScheduleParser:
             # Store month in bitmask
             if month_str in self.MONTH_BITS:
                 result['FreqRecurrance'] = self.MONTH_BITS[month_str]
+                result['FreqInterval'] = self.MONTH_BITS[month_str]
                 # Note: Day of month would need to be stored separately in the system
                 
         self.logger.debug(f"Parsed annual schedule: {result}")
         return result
     
     def _is_monthly_pattern(self, msg):
-        """Check if message contains monthly pattern"""
+        """Check if message contains monthly pattern with scheduling context"""
+        # Only match "monthly" when it has scheduling context (every, each, recurring, etc.)
+        # This prevents "monthly report" from being treated as a recurring task
         patterns = [
-            r'month(ly)?',
+            r'\b(?:every|each|recurring|repeat|repeating)\s+month(?:ly)?',  # Requires scheduling context
             r'every\s+month',
             r'each\s+month',
-            r'once\s+a\s+month'
+            r'once\s+a\s+month',
+            r'every\s+\d+\s+months?',  # "every 2 months"
+            r'\d{1,2}(st|nd|rd|th)\s+of\s+(?:the\s+)?month',  # "15th of the month" - clear recurring intent
+            r'\d{1,2}(st|nd|rd|th)\s+of\s+(january|february|march|april|may|june|july|august|september|october|november|december)',
+            r'\d{1,2}(st|nd|rd|th)\s+of\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)'
         ]
         return any(re.search(pattern, msg) for pattern in patterns)
     
@@ -285,55 +358,93 @@ class ScheduleParser:
         """Parse monthly schedules"""
         result = {
             'IsRecurring': 1,
-            'FreqType': 3,  # Monthly
-            'FreqRecurrance': 1,  # Default to 1st of month
-            'FreqInterval': 1
+            'FreqType': 4,  # Every (freqRecurrance) Months
+            'FreqRecurrance': 1,  # Default to every 1 month
+            'FreqInterval': 4095,  # All months (Jan=1, Feb=2, Mar=4, Apr=8, May=16, Jun=32, Jul=64, Aug=128, Sep=256, Oct=512, Nov=1024, Dec=2048) = 4095
+            'BusinessDayBehavior': self._detect_business_day_behavior(msg)
         }
         
-        # Check for "every other month"
+        # Check for month interval phrases: "every other month" or "every N months"
         if 'every other month' in msg:
-            result['FreqInterval'] = 2
+            result['FreqRecurrance'] = 2
+        else:
+            interval_match = re.search(r'every\s+(\d+)\s+months?', msg)
+            if interval_match:
+                try:
+                    month_interval = int(interval_match.group(1))
+                    if month_interval >= 1:
+                        result['FreqRecurrance'] = month_interval
+                except Exception:
+                    pass
             
-        # Extract day of month
+        # Extract specific months if mentioned
+        month_bitmask = 0
+        for month, bit in self.MONTH_BITS.items():
+            if month in msg:
+                month_bitmask |= bit
+        if month_bitmask > 0:
+            result['FreqInterval'] = month_bitmask
+            
+        # Extract day of month (e.g., "28th"). We keep FreqRecurrance as the month interval.
         ordinal_pattern = r'(\d{1,2})(st|nd|rd|th)'
         match = re.search(ordinal_pattern, msg)
         if match:
             day = int(match.group(1))
             if 1 <= day <= 31:
-                result['FreqRecurrance'] = 1 << (day - 1)  # Convert to bitmask
+                # Day of month will be captured via DueDate; do not overwrite month interval
+                pass
+        elif month_bitmask > 0:
+            # Months specified; keep month bitmask in FreqInterval and retain interval in FreqRecurrance
+            pass
                 
         # Handle "last day of month"
         if 'last day' in msg:
-            result['FreqRecurrance'] = 1 << 30  # Use bit 31 for last day
+            result['FreqRecurrance'] = 31  # Use 31 for last day of month
             
         self.logger.debug(f"Parsed monthly schedule: {result}")
         return result
     
     def _is_weekly_pattern(self, msg):
-        """Check if message contains weekly pattern"""
+        """Check if message contains weekly pattern with scheduling context"""
         # Exclude "end of week" which is not recurring
         if 'end of week' in msg or 'end of the week' in msg:
             return False
             
+        # Exclude "due in X weeks" which is not recurring
+        if re.search(r'due\s+in\s+\d+\s+weeks?', msg) or re.search(r'in\s+\d+\s+weeks?', msg):
+            return False
+            
+        # Only match "weekly" when it has scheduling context
+        # This prevents "weekly report" from being treated as a recurring task
         patterns = [
-            r'week(ly)?',
+            r'\b(?:every|each|recurring|repeat|repeating)\s+week(?:ly)?',  # Requires scheduling context
             r'every\s+week',
             r'each\s+week',
             r'every\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)',
             r'every\s+other\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)',
             r'\bbi-?weekly\b',  # biweekly or bi-weekly
             r'every\s+(?:2|two)\s+weeks?',  # every 2 weeks or every two weeks
-            r'every\s+second\s+week'  # every second week
+            r'every\s+second\s+week',  # every second week
+            r'every\s+day\s+of\s+the\s+week',  # every day of the week
+            r'\bweekday[s]?\b',  # weekday / weekdays (clear scheduling intent)
+            r'every\s+weekday',
+            r'each\s+weekday',
+            r'business\s+days?'  # business days (clear scheduling intent)
         ]
         return any(re.search(pattern, msg) for pattern in patterns)
     
     def _parse_weekly(self, msg):
-        """Parse weekly schedules"""
+        """Parse weekly schedules
+        Encoding for FreqType=3 (weekly):
+        - FreqRecurrance = number of weeks between occurrences (1=weekly, 2=biweekly)
+        - FreqInterval  = day-of-week bitmask (Sun=1, Mon=2, Tue=4, Wed=8, Thu=16, Fri=32, Sat=64)
+        """
         result = {
             'IsRecurring': 1,
-            'FreqType': 2,  # Weekly
-            'FreqRecurrance': 2,  # Default to Monday
-            'FreqInterval': 1
+            'FreqType': 3,  # Every (freqRecurrance) Weeks on (freqInterval)
+            'FreqRecurrance': 1,  # Weekly by default
+            'FreqInterval': 2,  # Default to Monday (2), not Sunday (1)
+            'BusinessDayBehavior': self._detect_business_day_behavior(msg)
         }
         
         # Check for biweekly patterns first (before "every other")
@@ -344,7 +455,7 @@ class ScheduleParser:
         ]
         
         if any(re.search(pattern, msg) for pattern in biweekly_patterns):
-            result['FreqInterval'] = 2
+            result['FreqRecurrance'] = 2  # Every 2 weeks (biweekly)
             self.logger.debug("Detected biweekly pattern")
             
             # Extract specific day if mentioned
@@ -353,24 +464,34 @@ class ScheduleParser:
                 if day in msg:
                     days_bitmask |= bit
             if days_bitmask > 0:
-                result['FreqRecurrance'] = days_bitmask
+                result['FreqInterval'] = days_bitmask
         
         # Check for "every other" pattern
         elif re.search(r'every\s+other\s+(\w+)', msg):
             every_other_match = re.search(r'every\s+other\s+(\w+)', msg)
-            result['FreqInterval'] = 2
+            result['FreqRecurrance'] = 2  # Every 2 weeks
             day_name = every_other_match.group(1).lower()
             if day_name in self.WEEKDAY_BITS:
-                result['FreqRecurrance'] = self.WEEKDAY_BITS[day_name]
+                result['FreqInterval'] = self.WEEKDAY_BITS[day_name]
         else:
-            # Extract days of week and create bitmask
-            days_bitmask = 0
-            for day, bit in self.WEEKDAY_BITS.items():
-                if day in msg:
-                    days_bitmask |= bit
-                    
-            if days_bitmask > 0:
-                result['FreqRecurrance'] = days_bitmask
+            # Check for "every day of the week" pattern
+            if 'every day of the week' in msg:
+                result['FreqInterval'] = 127  # All days (1+2+4+8+16+32+64)
+                result['FreqRecurrance'] = 1
+            # Check for weekdays / business days
+            elif ('weekday' in msg or 'weekdays' in msg or 'business day' in msg or 'business days' in msg):
+                result['FreqInterval'] = 2 + 4 + 8 + 16 + 32  # Mon-Fri = 62
+                result['FreqRecurrance'] = 1
+            else:
+                # Extract days of week and create bitmask
+                days_bitmask = 0
+                for day, bit in self.WEEKDAY_BITS.items():
+                    if day in msg:
+                        days_bitmask |= bit
+                        
+                if days_bitmask > 0:
+                    result['FreqInterval'] = days_bitmask
+                    result['FreqRecurrance'] = 1
                 
         # Handle patterns like "every Monday and Thursday"
         if ' and ' in msg:
@@ -379,39 +500,39 @@ class ScheduleParser:
                 if day in msg:
                     days_bitmask |= bit
             if days_bitmask > 0:
-                result['FreqRecurrance'] = days_bitmask
+                result['FreqInterval'] = days_bitmask
                 
         self.logger.debug(f"Parsed weekly schedule: {result}")
         return result
     
     def _is_daily_pattern(self, msg):
-        """Check if message contains daily pattern"""
+        """Check if message contains daily pattern with scheduling context"""
+        # Exclude cases where "every day" is used in weekly context
+        if 'weekly' in msg and 'every day' in msg:
+            return False
+        if 'every day of the week' in msg:
+            return False
+            
+        # Only match "daily" when it has clear scheduling context
+        # This prevents "daily report" or "daily standup" (task names) from being treated as recurring
         patterns = [
-            r'\bdaily\b',
-            r'every\s+day',
-            r'each\s+day'
+            r'\b(?:recurring|repeat|repeating)\s+daily',  # "recurring daily" - clear intent
+            r'every\s+day(?!\s+of\s+the\s+week)',  # "every day" - clear intent
+            r'each\s+day(?!\s+of\s+the\s+week)',   # "each day" - clear intent
+            r'daily\s+(?:task|recurrence|recurring|schedule)',  # "daily task/recurrence" - clear intent
         ]
-        # Also check for patterns like "daily standup"
-        if any(re.search(pattern, msg) for pattern in patterns):
-            return True
-        # Check for standalone "daily" or with "skip weekend"
-        if 'daily' in msg.split() or ('daily' in msg and 'skip' in msg):
-            return True
-        return False
+        return any(re.search(pattern, msg) for pattern in patterns)
     
     def _parse_daily(self, msg):
         """Parse daily schedules"""
         result = {
             'IsRecurring': 1,
-            'FreqType': 1,  # Daily
+            'FreqType': 2,  # Every (freqRecurrance) Days
             'FreqRecurrance': 1,
             'FreqInterval': 1,
-            'BusinessDayBehavior': 0
+            # Default business day behavior for daily: skip weekends/holidays (1)
+            'BusinessDayBehavior': 1
         }
-        
-        # Check for business days only
-        if any(phrase in msg for phrase in ['business day', 'weekday', 'skip weekend']):
-            result['BusinessDayBehavior'] = 1
             
         # Check for "every other day"
         if 'every other day' in msg:

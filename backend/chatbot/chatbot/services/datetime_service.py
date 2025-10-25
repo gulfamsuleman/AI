@@ -9,6 +9,7 @@ import datetime
 import pytz
 import re
 import logging
+import calendar
 from dateutil.relativedelta import relativedelta
 
 logger = logging.getLogger(__name__)
@@ -140,6 +141,30 @@ class DateTimeService:
                 target_date = today + datetime.timedelta(days=days_ahead)
                 logger.debug(f"Parsed 'this {day_name}' as {target_date.isoformat()}")
                 return target_date.isoformat()
+        
+        # Handle plain weekday names (e.g., "friday", "monday") - assumes nearest upcoming occurrence
+        # This should come AFTER "next" and "this" patterns so those take precedence
+        for i, day_name in enumerate(weekdays):
+            # Match just the weekday name (not as part of "next friday" or "this friday")
+            if day_name in s and f'next {day_name}' not in s and f'this {day_name}' not in s:
+                current_weekday = today.weekday()
+                target_weekday = i
+                days_ahead = (target_weekday - current_weekday) % 7
+                
+                # If days_ahead is 0, it means today is that weekday
+                # For plain weekday reference like "friday", if today is Friday, assume next Friday
+                if days_ahead == 0:
+                    days_ahead = 7  # Go to next week
+                
+                target_date = today + datetime.timedelta(days=days_ahead)
+                logger.debug(f"Parsed plain weekday '{day_name}' as {target_date.isoformat()} ({days_ahead} days ahead)")
+                return target_date.isoformat()
+        
+        # Handle "next quarter" as 90 days from today (non-recurring)
+        if 'next quarter' in s:
+            target_date = today + datetime.timedelta(days=90)
+            logger.debug(f"Parsed 'next quarter' as {target_date.isoformat()} (90 days from today)")
+            return target_date.isoformat()
         
         # Handle end of week/month
         if 'end of week' in s or 'end of the week' in s:
@@ -331,6 +356,132 @@ class DateTimeService:
             return None
 
     @staticmethod
+    def _calculate_monthly_recurring_due_date(current_date, target_day):
+        """
+        Calculate the next occurrence of a specific day of the month for monthly recurring tasks.
+        
+        Args:
+            current_date: Current date object
+            target_day: Day of month (1-31)
+            
+        Returns:
+            str: ISO format date string for the next occurrence
+        """
+        try:
+            # Get current month and year
+            current_year = current_date.year
+            current_month = current_date.month
+            
+            # Try to create the target date for this month
+            try:
+                target_date_this_month = datetime.date(current_year, current_month, target_day)
+                
+                # If the target date is today or in the future, use it
+                if target_date_this_month >= current_date:
+                    return target_date_this_month.isoformat()
+                else:
+                    # Target date has passed this month, go to next month
+                    if current_month == 12:
+                        next_year = current_year + 1
+                        next_month = 1
+                    else:
+                        next_year = current_year
+                        next_month = current_month + 1
+                    
+                    # Handle months with fewer days (e.g., Feb 30 -> Feb 28/29)
+                    try:
+                        target_date_next_month = datetime.date(next_year, next_month, target_day)
+                        return target_date_next_month.isoformat()
+                    except ValueError:
+                        # Target day doesn't exist in next month, use last day of that month
+                        last_day = calendar.monthrange(next_year, next_month)[1]
+                        target_date_next_month = datetime.date(next_year, next_month, last_day)
+                        return target_date_next_month.isoformat()
+                        
+            except ValueError:
+                # Target day doesn't exist in current month (e.g., Feb 30), use last day of current month
+                last_day = calendar.monthrange(current_year, current_month)[1]
+                target_date_this_month = datetime.date(current_year, current_month, last_day)
+                
+                if target_date_this_month >= current_date:
+                    return target_date_this_month.isoformat()
+                else:
+                    # Go to next month
+                    if current_month == 12:
+                        next_year = current_year + 1
+                        next_month = 1
+                    else:
+                        next_year = current_year
+                        next_month = current_month + 1
+                    
+                    # Handle next month
+                    try:
+                        target_date_next_month = datetime.date(next_year, next_month, target_day)
+                        return target_date_next_month.isoformat()
+                    except ValueError:
+                        last_day = calendar.monthrange(next_year, next_month)[1]
+                        target_date_next_month = datetime.date(next_year, next_month, last_day)
+                        return target_date_next_month.isoformat()
+                        
+        except Exception as e:
+            logger.error(f"Error calculating monthly recurring due date: {e}")
+            # Fallback to tomorrow
+            return (current_date + datetime.timedelta(days=1)).isoformat()
+
+    @staticmethod
+    def _calculate_next_weekly_due_date(current_date, weekday_bits):
+        """
+        Given a bitmask of weekdays (Sun=1, Mon=2, Tue=4, Wed=8, Thu=16, Fri=32, Sat=64),
+        return the next date (>= tomorrow) that matches one of the bits.
+        Prefer the soonest upcoming occurrence; if today matches, use today.
+        """
+        # Map Python weekday (Mon=0..Sun=6) to bit values used by system (Sun=1, Mon=2, Tue=4, Wed=8, Thu=16, Fri=32, Sat=64)
+        py_to_bit = {0: 2, 1: 4, 2: 8, 3: 16, 4: 32, 5: 64, 6: 1}
+        for delta in range(0, 14):  # look ahead up to two weeks
+            candidate = current_date + datetime.timedelta(days=delta)
+            bit = py_to_bit[candidate.weekday()]
+            if weekday_bits & bit:
+                return candidate.isoformat()
+        # Fallback: tomorrow
+        return (current_date + datetime.timedelta(days=1)).isoformat()
+
+    @staticmethod
+    def _calculate_yearly_recurring_due_date(current_date, month_bitmask: int, day_of_month: int = 1) -> str:
+        """
+        Given a month bitmask (Jan=1, Feb=2, Mar=4, ... Dec=2048), find the next occurrence date
+        using the earliest upcoming month in the mask at the specified day_of_month.
+        If the chosen month doesn't have that day (e.g., day 31 in Feb), use the month's last day.
+        """
+        # Build ordered list of months starting from current month
+        months = list(range(1, 13))
+        # Month bits mapping
+        month_to_bit = {1:1, 2:2, 3:4, 4:8, 5:16, 6:32, 7:64, 8:128, 9:256, 10:512, 11:1024, 12:2048}
+        # Try this year first
+        for offset in [0, 1]:  # this year, next year
+            year = current_date.year + offset
+            start_month = current_date.month if offset == 0 else 1
+            for m in range(start_month, 13):
+                if month_bitmask & month_to_bit[m]:
+                    # Determine day within month
+                    try:
+                        candidate = datetime.date(year, m, day_of_month)
+                    except ValueError:
+                        # Use last day of month
+                        last_day = calendar.monthrange(year, m)[1]
+                        candidate = datetime.date(year, m, last_day)
+                    if candidate >= current_date:
+                        return candidate.isoformat()
+        # Fallback to one month ahead
+        next_month = (current_date.month % 12) + 1
+        year = current_date.year + (1 if next_month == 1 else 0)
+        try:
+            candidate = datetime.date(year, next_month, day_of_month)
+        except ValueError:
+            last_day = calendar.monthrange(year, next_month)[1]
+            candidate = datetime.date(year, next_month, last_day)
+        return candidate.isoformat()
+
+    @staticmethod
     def guess_time_from_task_type(task_name):
         """
         Guess appropriate time based on task type.
@@ -391,7 +542,35 @@ class DateTimeService:
             if any(word in task_name for word in ['urgent', 'asap', 'immediately', 'now']):
                 params['DueDate'] = current_date.isoformat()  # Today for urgent tasks
             else:
-                params['DueDate'] = tomorrow.isoformat()  # Tomorrow by default
+                # Special handling for monthly recurring tasks with specific day
+                if (params.get('IsRecurring') == 1 and 
+                    params.get('FreqType') == 4 and 
+                    params.get('FreqRecurrance') and 
+                    isinstance(params.get('FreqRecurrance'), int) and 
+                    1 <= params.get('FreqRecurrance') <= 31):
+                    # This is a monthly recurring task with a specific day of month
+                    target_day = params.get('FreqRecurrance')
+                    params['DueDate'] = cls._calculate_monthly_recurring_due_date(current_date, target_day)
+                # Weekly recurring tasks (FreqType=3): default to tomorrow, stored procedure handles recurrence
+                # For FreqType=3: FreqRecurrance=weeks count (1,2,3...), FreqInterval=day bitmask
+                # The first occurrence defaults to tomorrow, then repeats based on FreqInterval weekday
+                elif (params.get('IsRecurring') == 1 and params.get('FreqType') == 3):
+                    params['DueDate'] = tomorrow.isoformat()
+                    logger.debug(f"FreqType=3 (Weekly): Setting first due date to tomorrow: {params['DueDate']}")
+                # Special handling for yearly recurring tasks: pick next occurrence of specified month(s)
+                elif (params.get('IsRecurring') == 1 and 
+                      params.get('FreqType') == 5 and 
+                      isinstance(params.get('FreqInterval'), int) and 
+                      params.get('FreqInterval') > 0):
+                    # FreqInterval (and/or FreqRecurrance) contains month bitmask
+                    month_mask = params.get('FreqInterval') or params.get('FreqRecurrance')
+                    params['DueDate'] = cls._calculate_yearly_recurring_due_date(current_date, month_mask, day_of_month=1)
+                # Quarterly recurring tasks (FreqType=6): always default to tomorrow
+                elif (params.get('IsRecurring') == 1 and params.get('FreqType') == 6):
+                    params['DueDate'] = tomorrow.isoformat()
+                    logger.debug(f"FreqType=6 (Quarterly): Setting first due date to tomorrow: {params['DueDate']}")
+                else:
+                    params['DueDate'] = tomorrow.isoformat()  # Tomorrow by default
         
         # Set default due time if not provided - use smart defaults
         if not params.get('DueTime') or params['DueTime'] in [None, '']:

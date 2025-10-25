@@ -58,7 +58,11 @@ class NameResolutionService:
                 return False, None, []
         
         if clarification_needed:
-            return False, None, clarification_needed
+            # Store the original assignee list for later restoration
+            clarification_needed_with_original = clarification_needed.copy()
+            for item in clarification_needed_with_original:
+                item['_original_assignees'] = assignees_input
+            return False, None, clarification_needed_with_original
         
         resolved_assignees = ','.join(resolved_names)
         logger.info(f"Successfully resolved assignees: {assignees_input} -> {resolved_assignees}")

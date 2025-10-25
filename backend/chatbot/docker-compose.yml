@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # SQL Server Database
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: qprocess_sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SA_PASSWORD:-YourStrong@Passw0rd}
+      - MSSQL_SA_PASSWORD=${SA_PASSWORD:-YourStrong@Passw0rd}
+      - MSSQL_PID=Developer
+      - MSSQL_TCP_PORT=1433
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+      - ./database/init:/docker-entrypoint-initdb.d
+      - ./database/init-db.sh:/usr/local/bin/init-db.sh
+      - ./database/backups:/var/opt/mssql/backups
+    networks:
+      - qprocess_network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P $${SA_PASSWORD} -C -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    command: >
+      bash -c "
+      /opt/mssql/bin/sqlservr & 
+      sleep 30 && 
+      /bin/bash /usr/local/bin/init-db.sh &&
+      wait"
+
+  # Django Backend
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: qprocess_chatbot_backend
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=chatbot.settings_docker
+      - PYTHONUNBUFFERED=1
+      # Database configuration
+      - DB_ENGINE=mssql
+      - DB_NAME=${DB_NAME:-QTasks}
+      - DB_USER=${DB_USER:-sa}
+      - DB_PASSWORD=${DB_PASSWORD:-YourStrong@Passw0rd}
+      - DB_HOST=sqlserver
+      - DB_PORT=1433
+      # Django configuration
+      - DEBUG=${DEBUG:-True}
+      - SECRET_KEY=${SECRET_KEY:-*^x9t)x-&fsb^(ix4iz^ye2bq=x1*ho2vx2mb&l75%p$$387x^!}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-*}
+      # API Keys
+      - CLAUDE_API_KEY=${CLAUDE_API_KEY}
+    volumes:
+      - ./logs:/app/logs
+      - ./sessions:/app/sessions
+      - ./staticfiles:/app/staticfiles
+    restart: unless-stopped
+    networks:
+      - qprocess_network
+
+volumes:
+  sqlserver_data:
+    driver: local
+
+networks:
+  qprocess_network:
+    driver: bridge
+

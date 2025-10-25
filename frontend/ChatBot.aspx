@@ -7,6 +7,8 @@
     <link href="Content/App.css" rel="stylesheet" />
     <script src="Scripts/jquery-3.7.0.min.js"></script>
     <script src="Scripts/chatbot-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.3/dist/purify.min.js"></script>
     <script src="Scripts/chatbot-connector.js"></script>
 </head> 
 <body>

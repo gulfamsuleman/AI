@@ -19,6 +19,51 @@ class ParameterExtractor:
     advanced MCP service using vector similarity and cosine similarity.
     """
     
+    @staticmethod
+    def extract_individual_names_from_sentence(sentence: str) -> List[str]:
+        """
+        Extract individual names from a sentence, filtering out common words.
+        
+        Args:
+            sentence: Input sentence like "Sameer the controller being Ken"
+            
+        Returns:
+            List of potential names like ["Sameer", "Ken"]
+        """
+        if not sentence or not sentence.strip():
+            return []
+        
+        # Common words to filter out
+        filter_words = {
+            'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 
+            'of', 'with', 'by', 'from', 'up', 'about', 'into', 'through', 'during',
+            'before', 'after', 'above', 'below', 'between', 'among', 'under', 'over',
+            'controller', 'being', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
+            'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should',
+            'may', 'might', 'must', 'can', 'shall', 'this', 'that', 'these', 'those'
+        }
+        
+        # Split sentence into words and filter
+        words = sentence.split()
+        potential_names = []
+        
+        for word in words:
+            # Clean the word (remove punctuation)
+            clean_word = re.sub(r'[^\w]', '', word)
+            
+            # Skip if it's a common word or too short
+            if (clean_word.lower() in filter_words or 
+                len(clean_word) < 2 or 
+                clean_word.isdigit()):
+                continue
+                
+            # Check if it looks like a name (starts with capital letter)
+            if clean_word and clean_word[0].isupper():
+                potential_names.append(clean_word)
+        
+        logger.info(f"Extracted potential names from '{sentence}': {potential_names}")
+        return potential_names
+    
     def __init__(self, schedule_parser=None):
         # Initialize the MCP service for intelligent intent detection
         try:
@@ -69,18 +114,21 @@ class ParameterExtractor:
                 pre_extracted['TaskName'] = task_name
                 logger.debug(f"Pre-extracted reminder task name from quotes: '{task_name}'")
             else:
-                # Fallback: Pattern "remind me ... to [task name]"
+                # Fallback: Pattern "remind me ... to [task name]" or "remind me at [time] to [task name]"
                 remind_match = re.search(r'remind\s+me.*?to\s+(.+?)(?:\s+at\s+|\s+by\s+|$)', msg_lower)
                 if remind_match:
                     task_name = remind_match.group(1).strip()
                     task_name = task_name.strip("'\"")
                     if task_name.startswith("follow up on "):
                         task_name = task_name[13:].strip()
+                    elif task_name.startswith("follow up with "):
+                        # Handle "follow up with [person] on [topic]" pattern
+                        task_name = task_name.strip()
                     pre_extracted['TaskName'] = task_name
                     logger.debug(f"Pre-extracted reminder task name: '{task_name}'")
         else:
-            # Extract assignees with various patterns
-            pre_extracted.update(self.extract_assignees(user_message))
+            # Extract assignees with various patterns, mapping 'me' to the sender (main_controller)
+            pre_extracted.update(self.extract_assignees(user_message, main_controller))
         
         # Pre-extract priority list
         if any(keyword in msg_lower for keyword in ['priority list', 'add to priority', 'urgent', 'high priority', 'critical']):
@@ -161,16 +209,15 @@ class ParameterExtractor:
         if notification_info:
             pre_extracted.update(notification_info)
 
-        # UC31: Alert requirements extraction using MCP service (vector similarity)
-        if self.mcp_service:
-            logger.debug("Using MCP service for intelligent alert detection")
-            alert_info = self.extract_alert_requirements_mcp(user_message)
-        else:
-            logger.debug("Using regex patterns for alert detection (MCP not available)")
-            alert_info = self.extract_alert_requirements(user_message)
+        # UC31: Alert requirements extraction - AI will handle this intelligently
+        # The AI service will now intelligently detect alert requirements from natural language
+        # We no longer need to rely on brittle regex patterns for alert detection
+        logger.debug("Alert detection will be handled by AI service during task extraction")
         
-        if alert_info:
-            pre_extracted.update(alert_info)
+        # Keep minimal regex fallback for very basic patterns only
+        basic_alert_info = self.extract_basic_alert_indicators(user_message)
+        if basic_alert_info:
+            pre_extracted.update(basic_alert_info)
 
         # UC32: Status report requirements extraction
         status_report_info = self.extract_status_report_requirements(user_message)
@@ -198,13 +245,48 @@ class ParameterExtractor:
         
         return pre_extracted
     
-    def extract_assignees(self, user_message: str) -> Dict[str, Any]:
-        """Extract assignees using various patterns."""
+    def extract_assignees(self, user_message: str, main_controller: str) -> Dict[str, Any]:
+        """Extract assignees using various patterns, mapping 'me' to main_controller."""
         assignee_data = {}
         
+        # Normalize whitespace for consistent regex behavior
+        message = ' '.join(user_message.split())
+
+        # Handle cases where 'me' is explicitly included as an assignee
+        # Examples:
+        #   - assign to me and John Doe
+        #   - for me and Aidan South
+        #   - with me and Jane Doe
+        #   - to me, John Doe
+        me_patterns = [
+            r'(?:assign(?:ed)?\s+to|to|for|with)\s+me\s*(?:,|and|&|plus)?\s*(.*?)(?:\.|$)',
+            r'\bme\b\s*(?:,|and|&|plus)\s*(.*?)(?:\.|$)'
+        ]
+        for me_pat in me_patterns:
+            me_match = re.search(me_pat, message, re.IGNORECASE)
+            if me_match:
+                trailing = me_match.group(1).strip() if me_match.lastindex else ''
+                names: List[str] = []
+                if trailing:
+                    parts = re.split(r'\s*,\s*|\s+and\s+|\s+&\s+|\s+plus\s+', trailing)
+                    for part in parts:
+                        candidate = part.strip()
+                        if re.match(r'^[A-Z][a-z]+\s+[A-Z][a-z]+$', candidate):
+                            names.append(candidate)
+                # Always include main_controller when 'me' is present
+                ordered = []
+                seen = set()
+                for candidate in [main_controller] + names:
+                    if candidate and candidate not in seen:
+                        seen.add(candidate)
+                        ordered.append(candidate)
+                if ordered:
+                    assignee_data['Assignees'] = ','.join(ordered)
+                    return assignee_data
+
         # Enhanced "with" pattern to handle multiple assignees
         with_pattern = r'with\s+((?:[A-Z][a-z]+\s+[A-Z][a-z]+(?:\s*,?\s*(?:and|&|plus)\s*)?)+)'
-        with_match = re.search(with_pattern, user_message)
+        with_match = re.search(with_pattern, message)
         if with_match:
             assignees_text = with_match.group(1)
             assignees = re.split(r'\s*,\s*|\s+and\s+|\s+&\s+|\s+plus\s+', assignees_text)
@@ -213,7 +295,7 @@ class ParameterExtractor:
                 assignee_data['Assignees'] = ','.join(assignees)
         else:
             # "for" pattern - handle both names and groups
-            for_match = re.search(r'for\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?(?:\s+(?:Team|Group|Department|Control))?)', user_message)
+            for_match = re.search(r'for\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?(?:\s+(?:Team|Group|Department|Control))?)', message)
             if for_match:
                 assignee_data['Assignees'] = for_match.group(1)
         
@@ -259,13 +341,29 @@ class ParameterExtractor:
     def extract_time_based_names(self, msg_lower: str) -> Dict[str, Any]:
         """Extract time-based scheduling information."""
         time_data = {}
-        if any(time_word in msg_lower for time_word in ['morning', 'afternoon', 'evening', 'night']):
+        if any(time_word in msg_lower for time_word in ['morning', 'afternoon', 'evening', 'night', 'after close', 'after the close', 'after market close', 'after market', 'post-close', 'post close', 'postmarket', 'post-market']):
+            # Specific mappings per request
+            # "morning" = 10:00
             if 'morning' in msg_lower:
-                time_data['DueTime'] = '09:00'
+                time_data['DueTime'] = '10:00'
+            # "after close" and market-close variants = 15:00
+            elif (
+                'after close' in msg_lower or
+                'after the close' in msg_lower or
+                'after market close' in msg_lower or
+                'after market' in msg_lower or
+                'post-close' in msg_lower or
+                'post close' in msg_lower or
+                'postmarket' in msg_lower or
+                'post-market' in msg_lower
+            ):
+                time_data['DueTime'] = '15:00'
+            # "evening" = 19:00; treat "night" similarly
+            elif 'evening' in msg_lower or 'night' in msg_lower:
+                time_data['DueTime'] = '19:00'
+            # Keep a sensible default for "afternoon" if present and no other mapping applied
             elif 'afternoon' in msg_lower:
                 time_data['DueTime'] = '14:00'
-            elif 'evening' in msg_lower or 'night' in msg_lower:
-                time_data['DueTime'] = '18:00'
         return time_data
     
     def extract_relative_dates(self, msg_lower: str, current_date: datetime.date) -> Dict[str, Any]:
@@ -403,10 +501,41 @@ class ParameterExtractor:
         alert_data = {}
         msg_lower = user_message.lower()
 
+        # New Pattern: "alert [NAME] about [THING]"
+        alert_about_match = re.search(r"\balert\s+([A-Z][A-Za-z\s]+?)\s+about\s+(.+)$", user_message, re.IGNORECASE)
+        if alert_about_match:
+            raw_recipient = alert_about_match.group(1).strip()
+            potential_names = self.extract_individual_names_from_sentence(raw_recipient)
+            recipient = potential_names[0] if potential_names else raw_recipient
+            alert_data.update({
+                '_alert_required': True,
+                '_alert_recipient': recipient,
+                '_alert_condition': 'at_due',
+                '_alert_type': 'reminder'
+            })
+            logger.info("ALERT REQUIREMENTS DETECTED (about pattern):")
+            logger.info(f"  Alert required: True")
+            logger.info(f"  Alert recipient: {recipient}")
+            logger.info(f"  Alert condition: at_due")
+            logger.info(f"  Alert type: reminder")
+            return alert_data
+
         # Pattern 1: "add alert if overdue to [RECIPIENT]" - handles both groups and individuals
         overdue_alert_match = re.search(r'add\s+alert\s+if\s+overdue\s+to\s+([A-Z][A-Za-z\s]+?)(?:\s+with\s+alert\s+message|$)', user_message, re.IGNORECASE)
         if overdue_alert_match:
-            recipient = overdue_alert_match.group(1).strip()
+            raw_recipient = overdue_alert_match.group(1).strip()
+            
+            # Extract individual names from the sentence
+            potential_names = self.extract_individual_names_from_sentence(raw_recipient)
+            
+            # Use the first extracted name as the recipient, or fall back to raw recipient
+            if potential_names:
+                recipient = potential_names[0]  # Use first name found
+                logger.info(f"Extracted individual name '{recipient}' from sentence '{raw_recipient}'")
+            else:
+                recipient = raw_recipient
+                logger.info(f"Could not extract individual names from '{raw_recipient}', using as-is")
+            
             alert_data.update({
                 '_alert_required': True,
                 '_alert_recipient': recipient,
@@ -456,7 +585,19 @@ class ParameterExtractor:
         # Pattern 1c: "add alert for [NAME]" - specific pattern for "for" format
         for_alert_match = re.search(r'add\s+alert\s+for\s+([A-Z][A-Za-z\s]+?)(?:\s+with\s+alert\s+message|$)', user_message, re.IGNORECASE)
         if for_alert_match:
-            recipient = for_alert_match.group(1).strip()
+            raw_recipient = for_alert_match.group(1).strip()
+            
+            # Extract individual names from the sentence
+            potential_names = self.extract_individual_names_from_sentence(raw_recipient)
+            
+            # Use the first extracted name as the recipient, or fall back to raw recipient
+            if potential_names:
+                recipient = potential_names[0]  # Use first name found
+                logger.info(f"Extracted individual name '{recipient}' from sentence '{raw_recipient}'")
+            else:
+                recipient = raw_recipient
+                logger.info(f"Could not extract individual names from '{raw_recipient}', using as-is")
+            
             alert_data.update({
                 '_alert_required': True,
                 '_alert_recipient': recipient,
@@ -495,7 +636,19 @@ class ParameterExtractor:
         # Handle various formats: "add alert for Ken", "add alert to Ken", "add alert Ken"
         add_alert_match = re.search(r'add\s+alert\s+(?:if\s+)?(?:overdue\s+)?(?:for\s+|to\s+)?([A-Z][A-Za-z\s]+?)(?:\s+with\s+alert\s+message|\s+in\s+case\s+|\s*$)', user_message, re.IGNORECASE)
         if add_alert_match:
-            recipient = add_alert_match.group(1).strip()
+            raw_recipient = add_alert_match.group(1).strip()
+            
+            # Extract individual names from the sentence
+            potential_names = self.extract_individual_names_from_sentence(raw_recipient)
+            
+            # Use the first extracted name as the recipient, or fall back to raw recipient
+            if potential_names:
+                recipient = potential_names[0]  # Use first name found
+                logger.info(f"Extracted individual name '{recipient}' from sentence '{raw_recipient}'")
+            else:
+                recipient = raw_recipient
+                logger.info(f"Could not extract individual names from '{raw_recipient}', using as-is")
+            
             alert_data.update({
                 '_alert_required': True,
                 '_alert_recipient': recipient,
@@ -515,7 +668,190 @@ class ParameterExtractor:
             logger.info(f"  Alert condition: overdue")
             logger.info(f"  Alert type: email")
 
+        # Pattern 5: "create an alert message" - default to task assignee
+        alert_message_match = re.search(r'create\s+an?\s+alert\s+message\s+["\']([^"\']+)["\']', user_message, re.IGNORECASE)
+        if alert_message_match:
+            custom_message = alert_message_match.group(1).strip()
+            alert_data.update({
+                '_alert_required': True,
+                '_alert_recipient': 'task_assignee',  # Use task assignee as default
+                '_alert_condition': 'overdue',
+                '_alert_type': 'email',
+                '_alert_custom_message': custom_message
+            })
+            
+            logger.info("ALERT REQUIREMENTS DETECTED:")
+            logger.info(f"  Alert required: True")
+            logger.info(f"  Alert recipient: task_assignee (will use task assignee)")
+            logger.info(f"  Alert condition: overdue")
+            logger.info(f"  Alert type: email")
+            logger.info(f"  Custom alert message: {custom_message}")
+            return alert_data
+
+        # Pattern 6: "alert message" or "create alert" - general alert patterns
+        general_alert_match = re.search(r'(?:create\s+)?alert\s+message\s+["\']([^"\']+)["\']', user_message, re.IGNORECASE)
+        if general_alert_match:
+            custom_message = general_alert_match.group(1).strip()
+            alert_data.update({
+                '_alert_required': True,
+                '_alert_recipient': 'task_assignee',  # Use task assignee as default
+                '_alert_condition': 'overdue',
+                '_alert_type': 'email',
+                '_alert_custom_message': custom_message
+            })
+            
+            logger.info("ALERT REQUIREMENTS DETECTED:")
+            logger.info(f"  Alert required: True")
+            logger.info(f"  Alert recipient: task_assignee (will use task assignee)")
+            logger.info(f"  Alert condition: overdue")
+            logger.info(f"  Alert type: email")
+            logger.info(f"  Custom alert message: {custom_message}")
+            return alert_data
+
+        # Pattern 7: "send alert with text" - another common pattern
+        send_alert_match = re.search(r'send\s+alert\s+with\s+text\s+["\']([^"\']+)["\']', user_message, re.IGNORECASE)
+        if send_alert_match:
+            custom_message = send_alert_match.group(1).strip()
+            alert_data.update({
+                '_alert_required': True,
+                '_alert_recipient': 'task_assignee',  # Use task assignee as default
+                '_alert_condition': 'overdue',
+                '_alert_type': 'email',
+                '_alert_custom_message': custom_message
+            })
+            
+            logger.info("ALERT REQUIREMENTS DETECTED:")
+            logger.info(f"  Alert required: True")
+            logger.info(f"  Alert recipient: task_assignee (will use task assignee)")
+            logger.info(f"  Alert condition: overdue")
+            logger.info(f"  Alert type: email")
+            logger.info(f"  Custom alert message: {custom_message}")
+            return alert_data
+
+        # Pattern 8: "reminder alert of [TIME] with alert text [MESSAGE]" - handles reminder alerts with specific time
+        reminder_alert_match = re.search(r'reminder\s+alert\s+of\s+(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)\s+with\s+alert\s+text\s+["\']([^"\']+)["\']', user_message, re.IGNORECASE)
+        if reminder_alert_match:
+            reminder_time = reminder_alert_match.group(1).strip()
+            custom_message = reminder_alert_match.group(2).strip()
+            
+            # Convert time to hours for alert processing
+            alert_time_hours = self._convert_time_to_hours(reminder_time)
+            
+            alert_data.update({
+                '_alert_required': True,
+                '_alert_recipient': 'task_assignee',  # Use task assignee as default
+                '_alert_condition': 'at_due',
+                '_alert_type': 'reminder',
+                '_alert_custom_message': custom_message,
+                '_alert_due_time_hours': alert_time_hours
+            })
+            
+            logger.info("ALERT REQUIREMENTS DETECTED:")
+            logger.info(f"  Alert required: True")
+            logger.info(f"  Alert recipient: task_assignee (will use task assignee)")
+            logger.info(f"  Alert condition: at_due")
+            logger.info(f"  Alert type: reminder")
+            logger.info(f"  Reminder time: {reminder_time} ({alert_time_hours} hours)")
+            logger.info(f"  Custom alert message: {custom_message}")
+            return alert_data
+
+        # Pattern 9: "reminder alert of [TIME]" - reminder alert without custom message
+        reminder_alert_simple_match = re.search(r'reminder\s+alert\s+of\s+(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)', user_message, re.IGNORECASE)
+        if reminder_alert_simple_match:
+            reminder_time = reminder_alert_simple_match.group(1).strip()
+            
+            # Convert time to hours for alert processing
+            alert_time_hours = self._convert_time_to_hours(reminder_time)
+            
+            alert_data.update({
+                '_alert_required': True,
+                '_alert_recipient': 'task_assignee',  # Use task assignee as default
+                '_alert_condition': 'at_due',
+                '_alert_type': 'reminder',
+                '_alert_due_time_hours': alert_time_hours
+            })
+            
+            logger.info("ALERT REQUIREMENTS DETECTED:")
+            logger.info(f"  Alert required: True")
+            logger.info(f"  Alert recipient: task_assignee (will use task assignee)")
+            logger.info(f"  Alert condition: at_due")
+            logger.info(f"  Alert type: reminder")
+            logger.info(f"  Reminder time: {reminder_time} ({alert_time_hours} hours)")
+            return alert_data
+
         return alert_data
+    
+    def extract_basic_alert_indicators(self, user_message: str) -> Dict[str, Any]:
+        """
+        Extract only basic alert indicators - AI will handle the complex parsing.
+        This is a minimal fallback for very obvious alert keywords.
+        """
+        alert_data = {}
+        msg_lower = user_message.lower()
+        
+        # Only detect very basic alert keywords
+        basic_alert_keywords = ['alert', 'reminder', 'notify', 'notification']
+        
+        for keyword in basic_alert_keywords:
+            if keyword in msg_lower:
+                alert_data['_has_alert_keyword'] = True
+                logger.debug(f"Detected basic alert keyword: '{keyword}'")
+                break
+        
+        return alert_data
+    
+    def _convert_time_to_hours(self, time_str: str) -> float:
+        """
+        Convert time string to decimal hours for alert processing.
+        Handles formats like '4PM', '4:00 PM', '16:00', '16'
+        """
+        try:
+            time_str = time_str.strip().upper()
+            
+            # Handle PM/AM format
+            if 'PM' in time_str:
+                time_str = time_str.replace('PM', '').strip()
+                if ':' in time_str:
+                    hour, minute = time_str.split(':')
+                    hour = int(hour)
+                    minute = int(minute)
+                    if hour != 12:  # 12 PM stays 12
+                        hour += 12
+                else:
+                    hour = int(time_str)
+                    minute = 0
+                    if hour != 12:  # 12 PM stays 12
+                        hour += 12
+            elif 'AM' in time_str:
+                time_str = time_str.replace('AM', '').strip()
+                if ':' in time_str:
+                    hour, minute = time_str.split(':')
+                    hour = int(hour)
+                    minute = int(minute)
+                    if hour == 12:  # 12 AM becomes 0
+                        hour = 0
+                else:
+                    hour = int(time_str)
+                    minute = 0
+                    if hour == 12:  # 12 AM becomes 0
+                        hour = 0
+            else:
+                # 24-hour format
+                if ':' in time_str:
+                    hour, minute = time_str.split(':')
+                    hour = int(hour)
+                    minute = int(minute)
+                else:
+                    hour = int(time_str)
+                    minute = 0
+            
+            # Convert to decimal hours
+            decimal_hours = hour + (minute / 60.0)
+            return decimal_hours
+            
+        except Exception as e:
+            logger.warning(f"Could not parse time '{time_str}', using default 9.0 hours: {e}")
+            return 9.0  # Default to 9 AM
     
     def extract_alert_requirements_mcp(self, user_message: str) -> Dict[str, Any]:
         """
@@ -813,35 +1149,47 @@ class ParameterExtractor:
         msg_lower = user_message.lower()
         recurring_data = {}
         
-        # Daily patterns
-        if any(word in msg_lower for word in ['daily', 'every day', 'each day']):
+        # Daily patterns - must have scheduling context
+        if any(word in msg_lower for word in ['every day', 'each day']) or re.search(r'\b(?:recurring|repeat|repeating)\s+daily\b', msg_lower):
             recurring_data.update({
                 'IsRecurring': 1,
-                'FreqType': 1,  # Daily
+                'FreqType': 2,  # Every (freqRecurrance) Days
+                'FreqRecurrance': 1,
+                'FreqInterval': 1,
+                # Daily default: skip weekends/holidays unless specified
+                'BusinessDayBehavior': 1
+            })
+        # Weekly patterns - must have scheduling context
+        elif any(word in msg_lower for word in ['every week', 'each week', 'weekday', 'weekdays', 'business day', 'business days']) or re.search(r'\b(?:recurring|repeat|repeating)\s+weekly\b', msg_lower):
+            recurring_data.update({
+                'IsRecurring': 1,
+                'FreqType': 3,  # Every (freqRecurrance) Weeks on (freqInterval)
+                'FreqRecurrance': 1,  # weekly interval
+                'FreqInterval': 62 if any(w in msg_lower for w in ['weekday', 'weekdays', 'business day', 'business days']) else 2  # Mon-Fri else Monday
+            })
+        # Monthly patterns - MUST have scheduling context words like "every", "each", or "recurring"
+        # This prevents "monthly report" from being treated as a recurring task
+        elif any(word in msg_lower for word in ['every month', 'each month']) or re.search(r'\b(?:recurring|repeat|repeating)\s+monthly\b', msg_lower):
+            recurring_data.update({
+                'IsRecurring': 1,
+                'FreqType': 4,  # Every (freqRecurrance) Months
                 'FreqRecurrance': 1,
                 'FreqInterval': 1
             })
-        # Weekly patterns
-        elif any(word in msg_lower for word in ['weekly', 'every week', 'each week']):
+            logger.debug(f"Detected monthly recurring pattern with scheduling context")
+        # Yearly patterns - must have scheduling context
+        elif any(word in msg_lower for word in ['every year', 'each year', 'annually']) or re.search(r'\b(?:recurring|repeat|repeating)\s+(?:yearly|annual)\b', msg_lower):
             recurring_data.update({
                 'IsRecurring': 1,
-                'FreqType': 2,  # Weekly
+                'FreqType': 5,  # Yearly in (freqInterval) Month
                 'FreqRecurrance': 1,
                 'FreqInterval': 1
             })
-        # Monthly patterns
-        elif any(word in msg_lower for word in ['monthly', 'every month', 'each month']):
+        # Quarterly patterns - must have scheduling context
+        elif any(word in msg_lower for word in ['every quarter', 'each quarter']) or re.search(r'\b(?:recurring|repeat|repeating)\s+quarterly\b', msg_lower):
             recurring_data.update({
                 'IsRecurring': 1,
-                'FreqType': 3,  # Monthly
-                'FreqRecurrance': 1,
-                'FreqInterval': 1
-            })
-        # Yearly patterns
-        elif any(word in msg_lower for word in ['yearly', 'annually', 'every year', 'each year']):
-            recurring_data.update({
-                'IsRecurring': 1,
-                'FreqType': 4,  # Yearly
+                'FreqType': 6,  # Quarterly
                 'FreqRecurrance': 1,
                 'FreqInterval': 1
             })
@@ -851,7 +1199,8 @@ class ParameterExtractor:
     def extract_time_patterns(self, msg_lower: str, current_date: datetime.date) -> Dict[str, Any]:
         """Extract time patterns from message."""
         time_data = {}
-        time_match = re.search(r'at\s+(\d{1,2})\s*(?::(\d{2}))?\s*(am|pm)?', msg_lower)
+        # Match both "at 12pm" and "due 12pm" patterns
+        time_match = re.search(r'(?:at|due)\s+(\d{1,2})\s*(?::(\d{2}))?\s*(am|pm)?', msg_lower)
         if time_match:
             hour = int(time_match.group(1))
             minute = int(time_match.group(2) or 0)
@@ -861,7 +1210,18 @@ class ParameterExtractor:
             elif meridian == 'am' and hour == 12:
                 hour = 0
             time_data['DueTime'] = f"{hour:02d}:{minute:02d}"
-            # If time is specified for today, set due date to today
-            if 'at' in msg_lower and not any(word in msg_lower for word in ['tomorrow', 'next', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']):
+            # Default to tomorrow when time is specified without a date
+            # Only set to today if "today" is explicitly mentioned
+            # Check for explicit date keywords
+            has_date_keyword = any(word in msg_lower for word in ['tomorrow', 'next', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])
+            
+            if 'today' in msg_lower:
+                # Explicitly mentioned "today" - use today
                 time_data['DueDate'] = current_date.strftime('%Y-%m-%d')
+                logger.debug(f"Time with 'today' keyword - set due date to today: {time_data['DueDate']}")
+            elif not has_date_keyword:
+                # No date keyword specified - default to tomorrow
+                tomorrow = current_date + datetime.timedelta(days=1)
+                time_data['DueDate'] = tomorrow.strftime('%Y-%m-%d')
+                logger.debug(f"Time without date keyword - defaulting to tomorrow: {time_data['DueDate']}")
         return time_data

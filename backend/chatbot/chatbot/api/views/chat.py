@@ -61,6 +61,7 @@ class ChatView(APIView):
             return validation_error
         
         try:
+            print(f"DEBUG: ChatView calling task_service.create_task with message: '{user_message[:100]}...'")
             # Delegate business logic to TaskService
             response_data = self.task_service.create_task(
                 user_message=user_message,

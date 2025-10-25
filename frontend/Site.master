@@ -64,6 +64,8 @@
     <script src="/Scripts/TimeZone/moment-timezone-with-data-2012-2022.min.js"></script>
     <script src="/Scripts/bootstrap-switch.js"></script>
     <script src="/Scripts/TimeZone/timezone-picker.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("/Scripts/TimeZone/timezone-picker.js")).Ticks.ToString() %>"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
     <script src="/Scripts/ai-chatbot.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("/Scripts/ai-chatbot.js")).Ticks.ToString() %>"></script>
     <script type="text/javascript">
 
@@ -149,7 +151,7 @@
                 data: JSON.stringify({ page: page }),
                 contentType: "application/json"
             });
-        } <a href="Site.master">Site.master</a>
+        }
 
         var isMobile = false;
     </script>
@@ -859,9 +861,36 @@
                     <p class="status">Online</p>
                 </div>
             </div>
-            <button class="minimize-btn" aria-label="Minimize chat">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            </button>
+            <div class="chat-header-actions">
+                <button class="clear-chat-btn" id="clear-chat-btn" aria-label="Clear chat history" title="Clear chat history">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 6h18"></path>
+                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                </button>
+                <button class="reset-position-btn" id="reset-position-btn" aria-label="Reset position" title="Reset to default position">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                        <path d="M21 3v5h-5"></path>
+                        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                        <path d="M3 21v-5h5"></path>
+                    </svg>
+                </button>
+                <button class="maximize-btn" id="maximize-btn" aria-label="Maximize chat" title="Maximize chat window">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="maximize-icon">
+                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="restore-icon" style="display: none;">
+                        <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path>
+                    </svg>
+                </button>
+                <button class="minimize-btn" aria-label="Minimize chat">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </button>
+            </div>
         </div>
         
         <div class="chat-messages" id="chat-messages">
@@ -875,9 +904,9 @@
         
         <div class="chat-input-container">
             <div class="input-wrapper">
-                <input type="text" id="user-input" placeholder="Type your message..." aria-label="Type your message">
+                <textarea id="user-input" placeholder="Type your message..." aria-label="Type your message" rows="1"></textarea>
                 <button id="send-btn" aria-label="Send message">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-icon lucide-arrow-up"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
                 </button>
             </div>
 
@@ -887,6 +916,30 @@
     <button class="chat-toggle" id="chat-toggle" aria-label="Toggle chat" title="Click to toggle chat window">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
     </button>
+
+    <!-- Custom Confirmation Modal -->
+    <div class="confirmation-modal" id="confirmation-modal" style="display: none;">
+        <div class="confirmation-overlay"></div>
+        <div class="confirmation-dialog">
+            <div class="confirmation-header">
+                <div class="confirmation-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 6h18"></path>
+                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                    </svg>
+                </div>
+                <h3>Clear Chat History</h3>
+            </div>
+            <div class="confirmation-content">
+                <p>Are you sure you want to clear all messages? This action cannot be undone and will remove your entire conversation history.</p>
+            </div>
+            <div class="confirmation-actions">
+                <button class="confirmation-btn cancel-btn" id="cancel-clear">Cancel</button>
+                <button class="confirmation-btn confirm-btn" id="confirm-clear">Clear Chat</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
 <!-- Copyright � 2024 Renegade Swish, LLC -->

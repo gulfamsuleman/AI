@@ -19,6 +19,8 @@
 
     <script src="/Scripts/common.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("/Scripts/common.js")).Ticks.ToString() %>"></script>
     <script src="/Scripts/utils.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("/Scripts/utils.js")).Ticks.ToString() %>"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
     <script src="/Scripts/ai-chatbot.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("/Scripts/ai-chatbot.js")).Ticks.ToString() %>"></script>
     <script src="/Scripts/Search.js?<%= System.IO.File.GetLastWriteTime(Server.MapPath("/Scripts/Search.js")).Ticks.ToString() %>"></script>
 
@@ -783,5 +785,5 @@
     <asp:ContentPlaceHolder ID="scriptContent" runat="server"></asp:ContentPlaceHolder>
 </body>
 </html>
-<!-- Copyright © 2024 Renegade Swish, LLC -->
+<!-- Copyright ï¿½ 2024 Renegade Swish, LLC -->
 

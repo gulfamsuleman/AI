@@ -299,6 +299,98 @@ class ValidationService:
             ValidationService._validate_time_format(time_str)
     
     @staticmethod
+    def validate_time_not_in_past(due_date: str, due_time: str, user_timezone: str) -> None:
+        """
+        Validate that the specified time for today hasn't already passed.
+        
+        Args:
+            due_date: Due date in ISO format (YYYY-MM-DD)
+            due_time: Due time in HH:MM format or natural language
+            user_timezone: User's timezone string
+        
+        Raises:
+            ValidationError: If the specified time has already passed today
+        """
+        try:
+            # Parse the date to see if it's today
+            if not due_date or not due_time:
+                return
+                
+            import pytz
+            try:
+                user_tz = pytz.timezone(user_timezone)
+                current_datetime = datetime.datetime.now(user_tz)
+            except Exception:
+                # Fallback to UTC if timezone is invalid
+                current_datetime = datetime.datetime.now()
+            
+            # Parse the due date
+            try:
+                parsed_due_date = datetime.datetime.strptime(due_date, '%Y-%m-%d').date()
+                is_today = parsed_due_date == current_datetime.date()
+                
+                if not is_today:
+                    return  # Not today, so time check not applicable
+                    
+            except ValueError:
+                return  # Date parsing failed, let existing validation handle it
+                
+            # Parse the time (handle both formats)
+            parsed_time = None
+            original_due_time = due_time
+            
+            # Try parsing as natural language time first
+            try:
+                from .datetime_service import DateTimeService
+                parsed_time_str = DateTimeService.parse_natural_time_with_timezone(due_time, user_timezone)
+                if parsed_time_str:
+                    parsed_time = datetime.datetime.strptime(parsed_time_str, '%H:%M').time()
+                else:
+                    # Fallback to direct parsing if no natural language parsing
+                    parsed_time = datetime.datetime.strptime(due_time, '%H:%M').time()
+            except ValueError:
+                # Try direct parsing if natural language parsing failed
+                try:
+                    parsed_time = datetime.datetime.strptime(due_time, '%H:%M').time()
+                except ValueError:
+                    return  # Time parsing failed, let existing validation handle it
+                    
+            if parsed_time:
+                # Get current time in user's timezone
+                current_time = current_datetime.time()
+                
+                # Check if the specified time has already passed today
+                if parsed_time <= current_time:
+                    current_time_str = current_time.strftime('%I:%M %p')
+                    parsed_time_str = parsed_time.strftime('%I:%M %p')
+                    
+                    # Check if this is a "5pm" type of time request
+                    is_5pm_request = (
+                        '5pm' in original_due_time.lower() or 
+                        '5:00 pm' in original_due_time.lower() or 
+                        '17:00' in original_due_time or 
+                        parsed_time_str.lower() == '05:00 pm' or 
+                        parsed_time_str.lower() == '5:00 pm'
+                    )
+                    
+                    if is_5pm_request:
+                        raise ValidationError(
+                            f"The time {parsed_time_str} has already passed today (current time: {current_time_str}). "
+                            f"Please create this task for tomorrow or provide a later time for today."
+                        )
+                    else:
+                        raise ValidationError(
+                            f"The specified time {parsed_time_str} has already passed today (current time: {current_time_str}). "
+                            f"Please create the task again with an appropriate time for tomorrow or later."
+                        )
+                    
+        except ValidationError:
+            raise
+        except Exception as e:
+            logger.error(f"Error validating time not in past: {e}")
+            # Don't fail the validation if there's an error in our logic
+    
+    @staticmethod
     def _validate_date_format(date_str: str) -> None:
         """
         Validate date format and ensure it's not in the past.
@@ -311,6 +403,19 @@ class ValidationService:
         """
         if not date_str or not date_str.strip():
             return
+        
+        # Skip validation for natural language dates - let DateTimeService handle them
+        date_str_lower = date_str.lower().strip()
+        natural_language_patterns = [
+            'next quarter', 'next week', 'next month', 'next year',
+            'tomorrow', 'today', 'yesterday', 'next monday', 'next tuesday',
+            'next wednesday', 'next thursday', 'next friday', 'next saturday',
+            'next sunday', 'this week', 'this month', 'this year',
+            'end of week', 'end of month', 'end of quarter'
+        ]
+        
+        if any(pattern in date_str_lower for pattern in natural_language_patterns):
+            return  # Skip validation for natural language dates
         
         try:
             # Try to parse the date string in common formats
@@ -403,11 +508,11 @@ class ValidationService:
         business_day_behavior = params.get('BusinessDayBehavior', 0)
         
         # Validate FreqType
-        valid_freq_types = {1: 'daily', 2: 'weekly', 3: 'monthly', 4: 'custom', 5: 'monthly_relative', 6: 'yearly'}
+        valid_freq_types = {1: 'one_time', 2: 'days', 3: 'weeks', 4: 'months', 5: 'yearly', 6: 'quarterly'}
         if freq_type not in valid_freq_types:
             raise ValidationError(
                 f"Invalid frequency type. Please specify one of: "
-                f"daily, weekly, monthly, yearly."
+                f"one_time, days, weeks, months, yearly, quarterly."
             )
         
         # Validate FreqRecurrence based on frequency type (bitmask values)
@@ -417,17 +522,24 @@ class ValidationService:
             )
         
         # Validate based on frequency type
-        if freq_type == 1:  # Daily
+        # FreqType mapping: 1=One Time, 2=Daily, 3=Weekly, 4=Monthly, 5=Yearly, 6=Quarterly
+        if freq_type == 1:  # One Time
             if freq_recurrence != 1:
                 raise ValidationError(
-                    f"Daily tasks must have FreqRecurrance = 1. Got: {freq_recurrence}"
+                    f"One Time tasks must have FreqRecurrance = 1. Got: {freq_recurrence}"
                 )
-        elif freq_type == 2:  # Weekly
-            if freq_recurrence > 127:  # 7-bit mask for days (Sunday-Saturday)
+        elif freq_type == 2:  # Daily
+            if freq_recurrence != 1:
                 raise ValidationError(
-                    f"Weekly FreqRecurrance must be 1-127 (day bitmask). Got: {freq_recurrence}"
+                    f"Daily FreqRecurrance must be 1. Got: {freq_recurrence}"
                 )
-        elif freq_type == 3:  # Monthly
+        elif freq_type == 3:  # Weekly
+            # For FreqType=3: FreqRecurrance=weeks count (1,2,3...), not day bitmask
+            if freq_recurrence < 1 or freq_recurrence > 52:  # weeks count (1-52 weeks)
+                raise ValidationError(
+                    f"Weekly FreqRecurrance must be weeks count (1-52). Got: {freq_recurrence}"
+                )
+        elif freq_type == 4:  # Monthly
             if freq_recurrence > 2147483647:  # 31-bit mask for days (1-31)
                 raise ValidationError(
                     f"Monthly FreqRecurrance must be valid day bitmask. Got: {freq_recurrence}"
@@ -437,17 +549,38 @@ class ValidationService:
                 import math
                 day = int(math.log2(freq_recurrence)) + 1
                 logger.info(f"UC08 large bitmask detected for day {day} - will be handled by translation layer")
-        elif freq_type == 4:  # Yearly
+        elif freq_type == 5:  # Yearly
             if freq_recurrence > 4095:  # 12-bit mask for months (Jan-Dec)
                 raise ValidationError(
                     f"Yearly FreqRecurrance must be valid month bitmask (1-4095). Got: {freq_recurrence}"
                 )
+        elif freq_type == 6:  # Quarterly
+            if freq_recurrence != 1:
+                raise ValidationError(
+                    f"Quarterly FreqRecurrance must be 1. Got: {freq_recurrence}"
+                )
         
-        # Validate FreqInterval (interval between occurrences)
-        if not isinstance(freq_interval, int) or freq_interval < 1 or freq_interval > 365:
+        # Validate FreqInterval based on FreqType
+        # FreqInterval encoding depends on FreqType:
+        # - FreqType 1,2,3: FreqInterval = Day of week bitmask (1-127)
+        # - FreqType 4: FreqInterval = Month bitmask (1-4095) 
+        # - FreqType 5: FreqInterval = Month bitmask (1-4095)
+        # - FreqType 6: FreqInterval = 1 (quarterly)
+        if not isinstance(freq_interval, int) or freq_interval < 1:
             raise ValidationError(
-                f"Frequency interval must be between 1 and 365. Got: {freq_interval}"
+                f"Frequency interval must be a positive integer. Got: {freq_interval}"
             )
+        
+        if freq_type in [1, 2, 3]:  # One Time, Daily, Weekly
+            if freq_interval > 127:  # 7-bit mask for days (Sunday-Saturday)
+                raise ValidationError(
+                    f"Frequency interval for FreqType {freq_type} must be day bitmask (1-127). Got: {freq_interval}"
+                )
+        elif freq_type in [4, 5]:  # Monthly, Yearly
+            if freq_interval > 4095:  # 12-bit mask for months (Jan-Dec)
+                raise ValidationError(
+                    f"Frequency interval for FreqType {freq_type} must be month bitmask (1-4095). Got: {freq_interval}"
+                )
         
         # Validate BusinessDayBehavior
         if business_day_behavior not in [0, 1, 2]:

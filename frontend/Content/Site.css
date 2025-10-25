@@ -70,7 +70,7 @@ h5 a:link, h5 a:visited, h5 a:active {
     clear: both;
     margin: 0px 4px;
     margin-top: 39px;
-    max-width: calc(100% - 8px);
+    width: 100%;
     overflow: auto;
     height: 391px;
     border: 2px solid #003366;
@@ -937,5 +937,5 @@ a[data-role=na-task] {
 }
 /* end notification styles */
 
-/* Copyright © 2024 Renegade Swish, LLC */
+/* Copyright ï¿½ 2024 Renegade Swish, LLC */
 

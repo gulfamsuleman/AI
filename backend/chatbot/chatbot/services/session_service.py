@@ -62,12 +62,33 @@ class SessionService:
         session = SessionService.get_or_create_session(user_name)
         
         # CRITICAL: Clear session parameters for each new task creation request
-        # This prevents old task names from being cached and causing duplicate errors
-        if user_message and not SessionService._is_continuation_message(user_message):
+        # This prevents old task names and assignees from being cached and causing errors
+        is_continuation = SessionService._is_continuation_message(user_message)
+        logger.info(f"Session management: is_continuation={is_continuation}, message='{user_message[:50]}...'")
+        
+        if user_message and not is_continuation:
             # This is a new task creation request, not a continuation
-            session.parameters = {'params': {}, 'history': []}
+            # Preserve any active status report connection workflow state
+            existing_data = session.parameters.get('data', {}) if isinstance(session.parameters, dict) else {}
+            preserve_workflow = bool(existing_data.get('status_report_connection_pending'))
+            
+            # Log what we're clearing
+            old_params = session.parameters.get('params', {})
+            old_history_count = len(session.parameters.get('history', []))
+            if old_params:
+                logger.warning(f"CLEARING OLD SESSION DATA - Previous params: {old_params}")
+            if old_history_count > 0:
+                logger.warning(f"CLEARING OLD CONVERSATION HISTORY - Previous history had {old_history_count} messages")
+            
+            if preserve_workflow:
+                session.parameters = {'params': {}, 'history': [], 'data': existing_data}
+                logger.debug("Preserved status report workflow data while clearing params/history")
+            else:
+                session.parameters = {'params': {}, 'history': []}
             session.save()
-            logger.info(f"Cleared session for new task creation request from {user_name}")
+            logger.info(f"✓ Cleared session for NEW task creation request from {user_name}")
+        else:
+            logger.info(f"✓ Preserved session for CONTINUATION message from {user_name}")
         
         return session
     
@@ -82,25 +103,46 @@ class SessionService:
         Returns:
             True if this appears to be a continuation, False for new task creation
         """
-        continuation_keywords = ['more', 'continue', 'what else', 'anything else', 'also', 'and']
+        msg_lower = user_message.lower()
+        
+        # FIRST: Check if this is clearly a NEW task creation request
+        # These patterns should NEVER be treated as continuations
+        task_creation_patterns = [
+            'create task', 'create a task', 'new task', 'make a task',
+            'assign task', 'add task', 'task for', 'task called',
+            'remind me', 'schedule', 'due on', 'due date'
+        ]
+        
+        if any(pattern in msg_lower for pattern in task_creation_patterns):
+            logger.debug(f"Detected NEW task creation pattern in: '{user_message}'")
+            return False
         
         # Check for explicit continuation keywords
-        if any(keyword in user_message.lower() for keyword in continuation_keywords):
+        continuation_keywords = ['more', 'continue', 'what else', 'anything else']
+        if any(keyword in msg_lower for keyword in continuation_keywords):
+            logger.debug(f"Detected continuation keyword in: '{user_message}'")
             return True
         
         # Check if this looks like a name selection response (e.g., "Hayden Smith", "John Doe")
         # This is likely a response to a name clarification question
-        if len(user_message.strip().split()) >= 2 and user_message.strip().replace(' ', '').isalpha():
-            return True
-        
-        # Check if this is a single name that might be a clarification response
-        # But only if it's not a common task creation word
-        if len(user_message.strip().split()) == 1 and user_message.strip().isalpha() and len(user_message.strip()) > 2:
-            # Exclude common task creation words
-            task_words = ['assign', 'create', 'make', 'new', 'task', 'todo', 'remind', 'schedule']
-            if user_message.strip().lower() not in task_words:
+        # BUT: Be more conservative - only treat as continuation if it's 2-3 words ALL alphabetic
+        words = user_message.strip().split()
+        if len(words) in [2, 3] and all(word.isalpha() for word in words):
+            # Additional check: make sure it doesn't contain task-related words
+            if not any(word in ['task', 'create', 'make', 'new', 'add'] for word in words):
+                logger.debug(f"Detected name selection response: '{user_message}'")
                 return True
         
+        # Single-word responses could be continuations, but be very conservative
+        if len(words) == 1 and words[0].isalpha() and len(words[0]) > 2:
+            # Exclude common task creation words
+            task_words = ['assign', 'create', 'make', 'new', 'task', 'todo', 'remind', 'schedule', 'add']
+            if words[0].lower() not in task_words:
+                logger.debug(f"Detected single-word continuation response: '{user_message}'")
+                return True
+        
+        # Default: treat as NEW task creation to prevent history contamination
+        logger.debug(f"Treating as NEW task (default): '{user_message}'")
         return False
     
     @staticmethod
@@ -195,8 +237,46 @@ class SessionService:
             is_valid, resolved_name, similar_names = NameResolutionService.resolve_assignees(selected_name)
             
             if is_valid:
-                # Successfully resolved the name
-                updated_params['Assignees'] = resolved_name
+                # Successfully resolved the name - now we need to merge it back with existing assignees
+                # Get the current assignee list
+                current_assignees = params.get('Assignees', '')
+                
+                # If we have a stored original assignee list, use that as the base
+                session_data = params.get('_session_data', {})
+                if '_original_assignees' in session_data:
+                    original_assignees = session_data['_original_assignees']
+                elif '_original_assignees' in params:
+                    original_assignees = params['_original_assignees']
+                else:
+                    original_assignees = None
+                
+                if original_assignees:
+                    # Find which name in the original list this resolves
+                    original_names = [name.strip() for name in original_assignees.split(',') if name.strip()]
+                    
+                    # Try to match the resolved name to one of the original names
+                    for original_name in original_names:
+                        # Check if this resolved name could be for this original name
+                        if (original_name.lower() in resolved_name.lower() or 
+                            resolved_name.lower() in original_name.lower() or
+                            any(word in resolved_name.lower() for word in original_name.lower().split())):
+                            
+                            # Replace this original name with the resolved name
+                            updated_assignees = original_assignees.replace(original_name, resolved_name)
+                            updated_params['Assignees'] = updated_assignees
+                            
+                            # Remove the original assignees tracking
+                            updated_params.pop('_original_assignees', None)
+                            
+                            logger.info(f"Replaced '{original_name}' with '{resolved_name}' in assignee list: {updated_assignees}")
+                            return updated_params
+                    
+                    # If we couldn't match, just use the resolved name
+                    updated_params['Assignees'] = resolved_name
+                else:
+                    # No original list stored, just use the resolved name
+                    updated_params['Assignees'] = resolved_name
+                
                 return updated_params
             elif similar_names:
                 # Still multiple matches, but we have a specific selection

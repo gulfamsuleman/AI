@@ -26,25 +26,26 @@ logger = logging.getLogger(__name__)
 
 class AIService:
     """
-    Service class for handling Claude AI API interactions, including
+    Service class for handling Groq AI API interactions, including
     configuration, request processing, and response parsing.
     """
     
     def __init__(self):
-        """Initialize the AI service with Claude API configuration."""
+        """Initialize the AI service with Groq API configuration."""
         self.api_key = os.getenv('CLAUDE_API_KEY')
         if not self.api_key:
             raise ValueError("CLAUDE_API_KEY environment variable is not set. Please set it in your .env file or environment.")
         
+        # Anthropic Messages API endpoint
         self.api_url = 'https://api.anthropic.com/v1/messages'
-        self.model = 'claude-opus-4-20250514'  # Using Claude Opus 4 model
+        self.model = 'claude-opus-4-1-20250805'
         self.max_tokens = 1024
         
-        # Default headers for Claude API
+        # Default headers for Anthropic API
         self.headers = {
             'x-api-key': self.api_key,
-            'Content-Type': 'application/json',
-            'anthropic-version': '2023-06-01'
+            'anthropic-version': '2023-06-01',
+            'content-type': 'application/json'
         }
         
         # Retry configuration
@@ -116,7 +117,7 @@ class AIService:
     def send_request_to_claude(self, messages: List[Dict], system_prompt: str, 
                               timeout: int, debug_mode: bool = False) -> Tuple[bool, Dict[str, Any]]:
         """
-        Send a request to Claude API with retry logic and error handling.
+        Send a request to Anthropic Messages API with retry logic and error handling.
         
         Args:
             messages (List[Dict]): Conversation history messages
@@ -127,31 +128,37 @@ class AIService:
         Returns:
             Tuple[bool, Dict]: (success, response_data)
         """
-        # Convert to Claude API format
-        claude_messages = []
+        # Anthropic uses Messages API: system prompt is a separate field, messages are role+content strings
+        anthropic_messages = []
         for msg in messages:
-            if msg['role'] == 'user':
-                claude_messages.append({"role": "user", "content": msg['content']})
-            elif msg['role'] == 'assistant':
-                claude_messages.append({"role": "assistant", "content": msg['content']})
+            role = msg.get('role')
+            content = msg.get('content')
+            if role in ('user', 'assistant') and isinstance(content, str):
+                anthropic_messages.append({"role": role, "content": content})
         
+        # If no valid messages, ensure at least the user input is present
+        if not anthropic_messages and messages:
+            last = messages[-1]
+            anthropic_messages = [{"role": "user", "content": last.get('content', '')}]
+
         payload = {
             'model': self.model,
-            'messages': claude_messages,
             'max_tokens': self.max_tokens,
-            'temperature': 0.1,  # Low temperature for consistent task extraction
-            'system': system_prompt
+            'temperature': 0.1,
+            'system': system_prompt,
+            'messages': anthropic_messages
         }
         
         try:
-            logger.debug(f"Sending Claude API request")
+            logger.debug(f"Sending Anthropic API request")
             logger.debug(f"Payload: {json.dumps(payload, indent=2)}")
             response = requests.post(self.api_url, headers=self.headers, json=payload, timeout=timeout)
             response_data = response.json()
             
             if response.status_code != 200:
+                # Anthropic returns error details under 'error'
                 error_message = response_data.get("error", {}).get("message", str(response_data))
-                logger.error(f"Claude API error: Status {response.status_code}, Response: {response_data}")
+                logger.error(f"Anthropic API error: Status {response.status_code}, Response: {response_data}")
                 
                 # Log failed request with available token info
                 if 'usage' in response_data:
@@ -159,15 +166,23 @@ class AIService:
                     output_tokens = response_data['usage'].get('output_tokens', 0)
                     self._log_token_usage(self.model, input_tokens, output_tokens, success=False, error=error_message)
                 
-                raise AIServiceError(f'LLM error: {error_message}', 'CLAUDE_API_ERROR')
+                raise AIServiceError(f'LLM error: {error_message}', 'GROQ_API_ERROR')
             
             # Validate response structure
             if 'content' not in response_data or not response_data['content']:
-                logger.error(f"No content in Claude response: {response_data}")
+                logger.error(f"No content in Anthropic response: {response_data}")
                 raise AIServiceError('Invalid LLM response format', 'INVALID_RESPONSE_FORMAT')
             
-            # Extract content from response
-            content = response_data['content'][0]['text']
+            # Extract content from response (Anthropic-style)
+            content_blocks = response_data['content']
+            # Concatenate text blocks
+            content_texts = []
+            for block in content_blocks:
+                if isinstance(block, dict) and block.get('type') == 'text':
+                    content_texts.append(block.get('text', ''))
+                elif isinstance(block, str):
+                    content_texts.append(block)
+            content = "\n".join([t for t in content_texts if t])
             
             # Extract and log token usage
             if 'usage' in response_data:
@@ -178,27 +193,27 @@ class AIService:
             
             # Log the response for debugging
             if debug_mode:
-                logger.info(f"Claude raw response: {content}")
+                logger.info(f"Groq raw response: {content}")
             else:
-                logger.debug(f"Claude raw response: {content[:500]}...")
+                logger.debug(f"Groq raw response: {content[:500]}...")
             
             return True, {'content': content, 'raw_response': response_data}
             
         except requests.exceptions.Timeout as e:
-            logger.error(f"Claude API timeout: {e}")
-            raise AIServiceError('Request timeout - please try again', 'CLAUDE_API_TIMEOUT')
+            logger.error(f"Groq API timeout: {e}")
+            raise AIServiceError('Request timeout - please try again', 'GROQ_API_TIMEOUT')
             
         except requests.exceptions.RequestException as e:
-            logger.error(f"Claude API request error: {e}")
-            raise AIServiceError('Failed to communicate with AI service', 'CLAUDE_API_REQUEST_ERROR')
+            logger.error(f"Groq API request error: {e}")
+            raise AIServiceError('Failed to communicate with AI service', 'GROQ_API_REQUEST_ERROR')
             
         except AIServiceError:
             # Re-raise AIServiceError as-is
             raise
             
         except Exception as e:
-            logger.error(f"Unexpected error calling Claude API: {type(e).__name__}: {e}")
-            error_handler.log_error(e, {'operation': 'claude_api_call'})
+            logger.error(f"Unexpected error calling Groq API: {type(e).__name__}: {e}")
+            error_handler.log_error(e, {'operation': 'groq_api_call'})
             raise AIServiceError('Sorry, I could not understand the AI response. Please try again.', 'UNEXPECTED_ERROR')
     
     def parse_json_response(self, content: str) -> Tuple[bool, Dict[str, Any]]:
@@ -229,6 +244,62 @@ class AIService:
         else:
             logger.warning(f"No JSON found in response: {content[:200]}...")
             return False, {}
+    
+    def validate_and_process_alert_parameters(self, llm_json: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Validate and process alert parameters extracted by AI.
+        Ensures alert parameters are properly formatted and consistent.
+        
+        Args:
+            llm_json: JSON response from AI containing task parameters
+            
+        Returns:
+            Dict with validated and processed parameters
+        """
+        if not llm_json.get('_alert_required'):
+            return llm_json
+        
+        logger.info("Processing AI-extracted alert parameters")
+        
+        # Validate and set default values for alert parameters
+        alert_params = {
+            '_alert_required': True,
+            '_alert_recipient': llm_json.get('_alert_recipient', 'task_assignee'),
+            '_alert_condition': llm_json.get('_alert_condition', 'at_due'),
+            '_alert_type': llm_json.get('_alert_type', 'reminder'),
+            '_alert_custom_message': llm_json.get('_alert_custom_message', ''),
+            '_alert_due_time_hours': llm_json.get('_alert_due_time_hours', 9.0)
+        }
+        
+        # Validate alert type mapping
+        alert_type_mapping = {
+            'overdue': 'Overdue',
+            'at_due': 'Reminder',
+            'assignment': 'Assignment',
+            'schedule': 'Schedule',
+            'complete': 'Complete',
+            'hours': 'Hours',
+            'custom': 'Custom',
+            'reminder': 'Reminder'
+        }
+        
+        condition = alert_params['_alert_condition']
+        if condition in alert_type_mapping:
+            alert_params['_alert_type'] = alert_type_mapping[condition]
+        
+        # Log the processed alert parameters
+        logger.info("AI-EXTRACTED ALERT PARAMETERS:")
+        logger.info(f"  Alert required: {alert_params['_alert_required']}")
+        logger.info(f"  Alert recipient: {alert_params['_alert_recipient']}")
+        logger.info(f"  Alert condition: {alert_params['_alert_condition']}")
+        logger.info(f"  Alert type: {alert_params['_alert_type']}")
+        logger.info(f"  Alert time (hours): {alert_params['_alert_due_time_hours']}")
+        if alert_params['_alert_custom_message']:
+            logger.info(f"  Custom message: {alert_params['_alert_custom_message']}")
+        
+        # Update the original parameters
+        llm_json.update(alert_params)
+        return llm_json
     
     def process_task_extraction(self, user_message: str, main_controller: str, 
                                current_date, pre_extracted: Dict[str, Any], 
@@ -268,7 +339,9 @@ class AIService:
         logger.debug(f"Using API timeout: {timeout}s (message_length={message_length}, "
                     f"batch={is_batch}, complex_recurring={is_complex_recurring})")
         
-        # Validate history before sending to Groq API
+        # CRITICAL: Validate history before sending to Claude API
+        # WARNING: Conversation history can contaminate parameter extraction if not properly managed!
+        # Previous assignee names or task details could leak into new task creation requests.
         if not history or len(history) == 0:
             logger.warning("Empty history detected, creating fallback message")
             history = [{"role": "user", "content": user_message}]
@@ -285,7 +358,12 @@ class AIService:
             validated_history = [{"role": "user", "content": user_message}]
             logger.warning("No valid messages in history, using fallback")
         
-        logger.debug(f"Validated history with {len(validated_history)} messages")
+        # Log the conversation history being sent to Claude for debugging
+        logger.info(f"=== CONVERSATION HISTORY SENT TO CLAUDE ({len(validated_history)} messages) ===")
+        for i, msg in enumerate(validated_history):
+            content_preview = msg['content'][:100] + '...' if len(msg['content']) > 100 else msg['content']
+            logger.info(f"  [{i+1}] {msg['role']}: {content_preview}")
+        logger.info(f"=== END CONVERSATION HISTORY ===")
         
         # Send request to Claude
         try:
@@ -319,8 +397,18 @@ class AIService:
                 logger.warning(f"Claude's FreqRecurrance: {parsed_json.get('FreqRecurrance')}")
                 logger.warning(f"Claude's FreqInterval: {parsed_json.get('FreqInterval')}")
             
+            # Validate and process alert parameters extracted by AI
+            parsed_json = self.validate_and_process_alert_parameters(parsed_json)
+            
+            # Debug: Log what the AI returned for DueDate
+            if 'DueDate' in parsed_json:
+                logger.debug(f"AI returned DueDate: '{parsed_json['DueDate']}' (type: {type(parsed_json['DueDate'])})")
+            
             # Merge pre-extracted parameters with LLM parameters
-            final_params = self._merge_parameters(parsed_json, pre_extracted)
+            # Include the original message in pre_extracted for pattern matching
+            pre_extracted_with_message = pre_extracted.copy()
+            pre_extracted_with_message['_original_message'] = user_message
+            final_params = self._merge_parameters(parsed_json, pre_extracted_with_message)
             
             logger.info(f"Final merged params: {final_params}")
             logger.info("="*60)
@@ -344,17 +432,35 @@ class AIService:
         merged = llm_json.copy()
         
         # Special handling for schedule parser results - they should take precedence
+        # BUT: Don't override AI's correct interpretation for "next [weekday]" patterns
         if pre_extracted.get('IsRecurring') == 1:
-            # If schedule parser detected recurring pattern, preserve its parameters
-            schedule_params = ['IsRecurring', 'FreqType', 'FreqInterval', 'FreqRecurrance', 'BusinessDayBehavior']
-            for param in schedule_params:
-                if param in pre_extracted and pre_extracted[param] is not None:
-                    if param in merged and merged[param] != pre_extracted[param]:
-                        logger.warning(f"Schedule parser {param}={pre_extracted[param]} overriding LLM {param}={merged.get(param)}")
-                    merged[param] = pre_extracted[param]
-                    logger.debug(f"Using schedule parser value for {param}: {pre_extracted[param]}")
-            # Add explicit logging for FreqRecurrance debugging
-            logger.info(f"FREQ_DEBUG: After merge, FreqRecurrance={merged.get('FreqRecurrance')} (from schedule parser={pre_extracted.get('FreqRecurrance')})")
+            # Check if this might be a "next [weekday]" pattern that should be non-recurring
+            msg_lower = pre_extracted.get('_original_message', '').lower()
+            next_weekday_patterns = [
+                r'next\s+(?:week\s+)?(?:on\s+)?(monday|tuesday|wednesday|thursday|friday|saturday|sunday)',
+                r'(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s+next\s+week'
+            ]
+            
+            is_next_weekday = any(re.search(pattern, msg_lower) for pattern in next_weekday_patterns)
+            
+            if is_next_weekday and merged.get('IsRecurring') == 0:
+                logger.warning(f"Schedule parser incorrectly detected recurring pattern for 'next [weekday]' - using AI's non-recurring interpretation")
+                # Keep AI's non-recurring interpretation
+                merged['IsRecurring'] = 0
+                merged['FreqType'] = 0
+                merged['FreqRecurrance'] = 0
+                merged['FreqInterval'] = 0  # Non-recurring task
+            else:
+                # If schedule parser detected recurring pattern, preserve its parameters
+                schedule_params = ['IsRecurring', 'FreqType', 'FreqInterval', 'FreqRecurrance', 'BusinessDayBehavior']
+                for param in schedule_params:
+                    if param in pre_extracted and pre_extracted[param] is not None:
+                        if param in merged and merged[param] != pre_extracted[param]:
+                            logger.warning(f"Schedule parser {param}={pre_extracted[param]} overriding LLM {param}={merged.get(param)}")
+                        merged[param] = pre_extracted[param]
+                        logger.debug(f"Using schedule parser value for {param}: {pre_extracted[param]}")
+                # Add explicit logging for FreqRecurrance debugging
+                logger.info(f"FREQ_DEBUG: After merge, FreqRecurrance={merged.get('FreqRecurrance')} (from schedule parser={pre_extracted.get('FreqRecurrance')})")
         
         for key, value in pre_extracted.items():
             # Skip internal pre-extraction markers, but preserve alert and status report parameters
@@ -391,6 +497,20 @@ class AIService:
             r'(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s+next\s+week'
         ]
         
+        # Force non-recurring for "due in X weeks/days/months" patterns
+        due_in_patterns = [
+            r'due\s+in\s+\d+\s+(weeks?|days?|months?)',
+            r'in\s+\d+\s+(weeks?|days?|months?)',
+            r'\d+\s+(weeks?|days?|months?)\s+(from\s+now|later)'
+        ]
+        
+        # Force non-recurring for "next quarter" patterns (should be 90 days, not recurring)
+        next_quarter_patterns = [
+            r'next\s+quarter',
+            r'due\s+next\s+quarter',
+            r'by\s+next\s+quarter'
+        ]
+        
         for pattern in next_weekday_patterns:
             match = re.search(pattern, msg_lower)
             if match:
@@ -401,6 +521,35 @@ class AIService:
                 merged['FreqRecurrance'] = 0
                 merged['FreqInterval'] = 0
                 logger.debug(f"Forced IsRecurring=0 for 'next [weekday]' pattern '{match.group(0)}'")
+                break
+        
+        # Check for "due in X weeks/days/months" patterns
+        for pattern in due_in_patterns:
+            match = re.search(pattern, msg_lower)
+            if match:
+                if merged.get('IsRecurring') == 1:
+                    logger.warning(f"LLM incorrectly set IsRecurring=1 for 'due in X time' pattern '{match.group(0)}'. Forcing to 0.")
+                merged['IsRecurring'] = 0
+                merged['FreqType'] = 0
+                merged['FreqRecurrance'] = 0
+                merged['FreqInterval'] = 0
+                logger.debug(f"Forced IsRecurring=0 for 'due in X time' pattern '{match.group(0)}'")
+                break
+        
+        # Check for "next quarter" patterns (should be 90 days, not recurring)
+        for pattern in next_quarter_patterns:
+            match = re.search(pattern, msg_lower)
+            if match:
+                if merged.get('IsRecurring') == 1:
+                    logger.warning(f"LLM incorrectly set IsRecurring=1 for 'next quarter' pattern '{match.group(0)}'. Forcing to 0.")
+                merged['IsRecurring'] = 0
+                merged['FreqType'] = 0
+                merged['FreqRecurrance'] = 0
+                merged['FreqInterval'] = 0
+                
+                # Override the DueDate to "next quarter" string so it gets parsed as 90 days
+                merged['DueDate'] = 'next quarter'
+                logger.debug(f"Forced IsRecurring=0 and DueDate='next quarter' for pattern '{match.group(0)}'")
                 break
         
         return merged

@@ -49,7 +49,7 @@ Final_Mix/
 ├── .gitignore              # Root-level gitignore
 └── README.md               # This file
 ```
-
+![Alt text](https://github.com/gulfamsuleman/AI/blob/main/QProcess.png)
 ## 🛠️ Setup Instructions
 
 ### Prerequisites
@@ -99,6 +99,8 @@ Final_Mix/
 1. **Open the frontend project** in Visual Studio or your preferred IDE
 2. **Configure database connection** in web.config
 3. **Build and run** the project
+![Alt text](https://github.com/gulfamsuleman/AI/blob/main/qprocess.jpeg)
+![Alt text](https://github.com/gulfamsuleman/AI/blob/main/qprocess_2.jpeg)
 
 ## 🎯 Usage
 
@@ -222,4 +224,5 @@ For support and questions:
 
 **Version:** 1.0.0  
 **Last Updated:** December 2024
+
 

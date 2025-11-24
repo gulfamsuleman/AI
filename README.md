@@ -1,4 +1,4 @@
-# Final_Mix - AI Chatbot with Task Management
+# QProcess - AI Chatbot with Task Management
 
 A comprehensive AI-powered chatbot system with advanced task management capabilities, featuring a Django backend and modern web frontend.
 
@@ -222,3 +222,4 @@ For support and questions:
 
 **Version:** 1.0.0  
 **Last Updated:** December 2024
+
